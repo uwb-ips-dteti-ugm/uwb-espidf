@@ -1,5 +1,8 @@
 # 11 Location Schemes
 
+> **Source:** DW3000 Family User Manual, Version 1.1 (© Decawave Ltd 2019, revised 28 May 2021)
+> **Pages:** 246-247
+
 This part of the discussion on operational design choices relates to RTLS location schemes. Some of the ideas and points discussed may be more generally applicable.
 
 In general to locate a mobile node measurements are needed to be referenced to a number of fixed known location "anchor" nodes. Typically a minimum of three anchor nodes are needed to locate a mobile node in two dimensions, while a minimum four non-coplanar anchors are needed to locate a mobile node in three dimensions. The spacing of anchors nodes in an installation has to be such that four anchors are always in communication range of the mobile tag no matter where it is within the operating space. The communication range is dependent on data rate and preamble length, the choice of which is influenced by the node density requirements and perhaps also power consumption.

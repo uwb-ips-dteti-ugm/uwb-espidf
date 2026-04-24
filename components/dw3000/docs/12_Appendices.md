@@ -1,5 +1,8 @@
 # 12 APPENDIX 1: Two-way ranging
 
+> **Source:** DW3000 Family User Manual, Version 1.1 (© Decawave Ltd 2019, revised 28 May 2021)
+> **Pages:** 248-254
+
 ## 12.1 Introduction
 
 This appendix is for information only and describes various methods of implementing a two-way ranging scheme between two nodes.

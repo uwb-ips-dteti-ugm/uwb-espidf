@@ -1,5 +1,8 @@
 # 10 Calibration
 
+> **Source:** DW3000 Family User Manual, Version 1.1 (© Decawave Ltd 2019, revised 28 May 2021)
+> **Pages:** 243-245
+
 The operating characteristics and performance of the DW3000 is dependent on the IC itself and on its external circuitry and on its operating environment. To give optimum performance it is necessary to calibrate the IC to account for factors which affect its operation.
 
 Some calibration parameters are dependent solely on process variations that occur within the silicon of the IC during its manufacture. These are typically measured during IC production test and the required calibration parameters are written to the OTP memory of the DW3000. The host system software can then use these values during DW3000 configuration to optimise the DW3000 performance.

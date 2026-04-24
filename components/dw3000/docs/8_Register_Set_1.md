@@ -1,5 +1,8 @@
 # 8 The DW3000 Register Set
 
+> **Source:** DW3000 Family User Manual, Version 1.1 (© Decawave Ltd 2019, revised 28 May 2021)
+> **Pages:** 71-122
+
 The DW3000 is controlled by an associated host microcontroller system using the SPI interface to access a series of registers within the device. The DW3000 register set includes configuration registers, status registers, control registers, data buffer registers, and diagnostic registers. Section 8.1 gives an overview of the register layout and section 8.2 describes each individual parameter in detail. There is also a set of single octet commands to initiate certain IC activities (e.g. TX, RX, etc) which are described in section 9 – Fast Commands. The SPI transaction formats are described in section 2.3 – The SPI interface.
 
 ---

@@ -1,5 +1,10 @@
 # Chapter 8 — Register Set (Part 3)
 
+> **Source:** DW3000 Family User Manual, Version 1.1 (© Decawave Ltd 2019, revised 28 May 2021)
+> **Pages:** 165-205
+
+---
+
 ### 8.2.11 Register file: 0x0A – Always-on system control interface
 
 | ID   | Length (octets) | Type | Mnemonic | Description                              |

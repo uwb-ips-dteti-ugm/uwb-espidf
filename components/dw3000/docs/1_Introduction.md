@@ -1,6 +1,7 @@
 # Chapter 1 — Introduction
 
 > **Source:** DW3000 Family User Manual, Version 1.1 (© Decawave Ltd 2019, revised 28 May 2021)
+> **Pages:** 7-9
 > **Document:** "How to Use, Configure and Control the DW3000 UWB Transceiver"
 
 ---

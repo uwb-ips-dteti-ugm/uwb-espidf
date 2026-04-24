@@ -1,5 +1,8 @@
 # 8 Register Set (Part 4)
 
+> **Source:** DW3000 Family User Manual, Version 1.1 (© Decawave Ltd 2019, revised 28 May 2021)
+> **Pages:** 205-237
+
 ---
 
 ### 8.2.14 Register file: 0x0F – Digital diagnostics interface

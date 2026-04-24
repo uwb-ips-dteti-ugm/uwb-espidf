@@ -1,5 +1,8 @@
 # 9 Fast Commands
 
+> **Source:** DW3000 Family User Manual, Version 1.1 (© Decawave Ltd 2019, revised 28 May 2021)
+> **Pages:** 238-242
+
 This section lists and describes the single-octet commands used initiate specific IC activities. For details of format for the fast command SPI transaction please refer to section 2.3 – The SPI interface. Table 46 lists the supported commands and their hex codes, and each command is described in separate sub-sections following this.
 
 **Table 46: List of supported fast commands**

@@ -1,6 +1,7 @@
 # Chapter 3 — Message Transmission
 
-> **Source:** DW3000 User Manual, Chapter 3 (pages 33–37)
+> **Source:** DW3000 User Manual, Chapter 3 
+> **Pages:** 33–37
 
 ---
 

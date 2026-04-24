@@ -1,5 +1,8 @@
 # Chapter 8 — Register Set (Part 2)
 
+> **Source:** DW3000 Family User Manual, Version 1.1 (© Decawave Ltd 2019, revised 28 May 2021)
+> **Pages:** 122-165
+
 ---
 
 ### 8.2.3 Register File: 0x02 — STS Configuration and Status

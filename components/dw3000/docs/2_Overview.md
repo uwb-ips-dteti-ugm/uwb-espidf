@@ -1,6 +1,7 @@
 # Chapter 2 — Overview of the DW3000
 
-> **Source:** DW3000 User Manual, Chapter 2 (pages 10–32)
+> **Source:** DW3000 User Manual, Chapter 2 
+> **Pages:** 10–32
 
 ---
 
