@@ -10,12 +10,12 @@ The DW3000 consists of an **analog front-end** (RF and baseband — receiver and
 
 The DW3000 implements HRP UWB PHY as specified by IEEE 802.15.4 [1] and the BPRF mode of the IEEE 802.15.4z amendment [2]. Two device variants exist:
 
-| IC Variant | Package  | PDoA Support |
-| ---------- | -------- | ------------ |
-| DW3110     | WLCSP52  | No           |
-| DW3120     | WLCSP52  | Yes          |
-| DW3210     | QFN40    | No           |
-| DW3220     | QFN40    | Yes          |
+| IC Variant | Package | PDoA Support |
+| ---------- | ------- | ------------ |
+| DW3110     | WLCSP52 | No           |
+| DW3120     | WLCSP52 | Yes          |
+| DW3210     | QFN40   | No           |
+| DW3220     | QFN40   | Yes          |
 
 Key capabilities:
 - UWB channels 5 and 9 (6489.6 MHz and 7987.2 MHz)
@@ -33,18 +33,18 @@ Key capabilities:
 
 The DW3000 is **not software-compatible** with the DW1000. Key differences:
 
-| Feature | DW3000 vs DW1000 |
-| ------- | ---------------- |
-| Power consumption | Reduced peak and mean |
-| Channels | Added channel 9 (8 GHz); removed channels 1, 2, 3, 4, 7 |
-| BOM | Reduced — integrated balun and filters on-die |
-| Software interface | Simplified; different register map |
-| PDoA | Family variant supports single-chip PDoA measurement |
-| Security | Enhanced ToF security modes using STS |
-| AES | Integrated hardware AES (GCM and CCM\*) 128/192/256 |
-| 110 kb/s data rate | **Not supported** |
-| Smart TX | **Not supported** — must be implemented on host |
-| Compatibility | Backwards compatible on channel 5 at 850 kb/s and 6.81 Mb/s with modified software |
+| Feature            | DW3000 vs DW1000                                                                   |
+| ------------------ | ---------------------------------------------------------------------------------- |
+| Power consumption  | Reduced peak and mean                                                              |
+| Channels           | Added channel 9 (8 GHz); removed channels 1, 2, 3, 4, 7                            |
+| BOM                | Reduced — integrated balun and filters on-die                                      |
+| Software interface | Simplified; different register map                                                 |
+| PDoA               | Family variant supports single-chip PDoA measurement                               |
+| Security           | Enhanced ToF security modes using STS                                              |
+| AES                | Integrated hardware AES (GCM and CCM\*) 128/192/256                                |
+| 110 kb/s data rate | **Not supported**                                                                  |
+| Smart TX           | **Not supported** — must be implemented on host                                    |
+| Compatibility      | Backwards compatible on channel 5 at 850 kb/s and 6.81 Mb/s with modified software |
 
 > **Migration note:** Only channel 5 (6.5 GHz) is common between DW1000 and DW3000. Both 16 and 64 MHz PRFs and both data rates (850 kb/s, 6.81 Mb/s) are supported on channel 5. The DW3000 control register interface is different — modified software is required.
 
@@ -68,12 +68,12 @@ SPI transactions are enveloped by asserting (low) the **SPICSn** (chip select) l
 
 The 32 register files are organised by a **5-bit base address** (register file ID). Sub-addressing within a register file uses a **7-bit sub-address offset**.
 
-| Transaction Type | Description |
-| ---------------- | ----------- |
-| **Fast command** | Single octet: 5-bit fast command code encapsulated by control bits. No data phase. |
-| **Short addressed** | 1-octet header: 5-bit base address, RD/WR bit. Access register files 0x00–0x1F. |
-| **Full addressed** | 2-octet header: 5-bit base address + 7-bit sub-address. Access any sub-address 0x00–0x7F. |
-| **Masked write** | 2-octet header + AND mask + OR mask. Modifies sub-fields without a read-modify-write cycle. **Do not use on write-1-to-clear event status bits.** |
+| Transaction Type    | Description                                                                                                                                       |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Fast command**    | Single octet: 5-bit fast command code encapsulated by control bits. No data phase.                                                                |
+| **Short addressed** | 1-octet header: 5-bit base address, RD/WR bit. Access register files 0x00–0x1F.                                                                   |
+| **Full addressed**  | 2-octet header: 5-bit base address + 7-bit sub-address. Access any sub-address 0x00–0x7F.                                                         |
+| **Masked write**    | 2-octet header + AND mask + OR mask. Modifies sub-fields without a read-modify-write cycle. **Do not use on write-1-to-clear event status bits.** |
 
 **SPI header format summary (Figure 2 in manual):**
 
@@ -125,17 +125,17 @@ The DW3000 provides **9 GPIO pins** (GPIO0–GPIO8). By default on power-up, all
 
 GPIO configuration is controlled via the `GPIO_CTRL` register (register file `0x05`). Some GPIO lines have alternative functions:
 
-| GPIO Pin | Alternative Function |
-| -------- | -------------------- |
-| GPIO0/RXOKLED | RXOK LED output |
-| GPIO1/SFDLED | SFD LED output |
-| GPIO2/RXLED | RX LED output |
-| GPIO3/TXLED | TX LED output |
-| GPIO4/EXTPA | External Power Amplifier enable |
+| GPIO Pin            | Alternative Function                     |
+| ------------------- | ---------------------------------------- |
+| GPIO0/RXOKLED       | RXOK LED output                          |
+| GPIO1/SFDLED        | SFD LED output                           |
+| GPIO2/RXLED         | RX LED output                            |
+| GPIO3/TXLED         | TX LED output                            |
+| GPIO4/EXTPA         | External Power Amplifier enable          |
 | GPIO5/EXTTXE/SPIPOL | External TX Enable / SPI polarity select |
-| GPIO6/EXTRXE/SPIPHA | External RX Enable / SPI phase select |
-| SYNC/GPIO7 | External clock synchronisation input |
-| IRQ/GPIO8 | Interrupt request output (default) |
+| GPIO6/EXTRXE/SPIPHA | External RX Enable / SPI phase select    |
+| SYNC/GPIO7          | External clock synchronisation input     |
+| IRQ/GPIO8           | Interrupt request output (default)       |
 
 ### 2.3.4 The SYNC Pin
 
@@ -173,19 +173,19 @@ TX ─────────────────────────�
 
 ### 2.4.2 Operational States Description
 
-| State | Description |
-| ----- | ----------- |
-| **OFF** | Completely powered off. No voltages applied. 0 µA consumption. |
-| **WAKE_UP** | AON sequencer starts primary power and clock blocks. Transitions automatically to INIT_RC. |
-| **INIT_RC** | Lowest power state with SPI access (limited to 7 MHz). System clocked from FAST_RC ÷ 4 (~30 MHz). |
-| **IDLE_RC** | Lowest power with full-speed SPI. System clocked from FAST_RC (~120 MHz). |
-| **IDLE_PLL** | PLL running at 125 MHz nominal. SPI up to 38 MHz. Analog RX/TX circuits are powered down. Host initiates TX or RX from this state. |
-| **TX_WAIT** | Delayed TX in progress. DW3000 counting down to programmed TX time. TX analog blocks not yet on. |
-| **TX** | Actively transmitting: preamble → SFD → (STS) → PHR → PHY Payload. Returns to IDLE_PLL on completion (or SLEEP if ATX2SLP set). |
-| **RX_WAIT** | Delayed RX in progress. DW3000 counting down to programmed RX time. RX analog blocks not yet on. |
-| **RX** | Actively receiving: hunting for preamble, then SFD, then receiving packet. All RX blocks active. Half-duplex — cannot TX and RX simultaneously. Returns to IDLE_PLL on completion or error (or SLEEP if ARX2SLP set). |
-| **SLEEP** | < 1 µA consumption. Internal LDOs off. Low-power oscillator (~20 kHz) runs sleep counter. Wake via WAKE_UP pin, SPICSn, or sleep timer expiry. SPI not accessible. |
-| **DEEPSLEEP** | < 250 nA consumption. Lowest power state. Only AON memory active. Wake via WAKE_UP pin or SPICSn assertion (≥500 µs). SPI not accessible. RSTn pin also wakes and fully resets. |
+| State         | Description                                                                                                                                                                                                           |
+| ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **OFF**       | Completely powered off. No voltages applied. 0 µA consumption.                                                                                                                                                        |
+| **WAKE_UP**   | AON sequencer starts primary power and clock blocks. Transitions automatically to INIT_RC.                                                                                                                            |
+| **INIT_RC**   | Lowest power state with SPI access (limited to 7 MHz). System clocked from FAST_RC ÷ 4 (~30 MHz).                                                                                                                     |
+| **IDLE_RC**   | Lowest power with full-speed SPI. System clocked from FAST_RC (~120 MHz).                                                                                                                                             |
+| **IDLE_PLL**  | PLL running at 125 MHz nominal. SPI up to 38 MHz. Analog RX/TX circuits are powered down. Host initiates TX or RX from this state.                                                                                    |
+| **TX_WAIT**   | Delayed TX in progress. DW3000 counting down to programmed TX time. TX analog blocks not yet on.                                                                                                                      |
+| **TX**        | Actively transmitting: preamble → SFD → (STS) → PHR → PHY Payload. Returns to IDLE_PLL on completion (or SLEEP if ATX2SLP set).                                                                                       |
+| **RX_WAIT**   | Delayed RX in progress. DW3000 counting down to programmed RX time. RX analog blocks not yet on.                                                                                                                      |
+| **RX**        | Actively receiving: hunting for preamble, then SFD, then receiving packet. All RX blocks active. Half-duplex — cannot TX and RX simultaneously. Returns to IDLE_PLL on completion or error (or SLEEP if ARX2SLP set). |
+| **SLEEP**     | < 1 µA consumption. Internal LDOs off. Low-power oscillator (~20 kHz) runs sleep counter. Wake via WAKE_UP pin, SPICSn, or sleep timer expiry. SPI not accessible.                                                    |
+| **DEEPSLEEP** | < 250 nA consumption. Lowest power state. Only AON memory active. Wake via WAKE_UP pin or SPICSn assertion (≥500 µs). SPI not accessible. RSTn pin also wakes and fully resets.                                       |
 
 > **Note:** The DW3000 is a **half-duplex** transceiver — it cannot be in TX and RX states simultaneously.
 
@@ -193,12 +193,12 @@ TX ─────────────────────────�
 
 The chipping rate specified by IEEE 802.15.4 for HRP UWB PHY is **499.2 MHz**. All IC system clocks are referenced to this frequency:
 
-| Clock Reference | Nominal Value | Actual Value |
-| --------------- | ------------- | ------------ |
-| System clock | 125 MHz | 124.8 MHz (crystal 38.4 MHz × 13 ÷ 4) |
-| System clock period | 8 ns | 1/(124.8×10⁶) s |
-| 1 GHz PLL clock | 1 GHz | 998.4 MHz |
-| Ranging sampling clock | 63.8976 GHz | 63.8976 GHz (15.65 ps period) |
+| Clock Reference        | Nominal Value | Actual Value                          |
+| ---------------------- | ------------- | ------------------------------------- |
+| System clock           | 125 MHz       | 124.8 MHz (crystal 38.4 MHz × 13 ÷ 4) |
+| System clock period    | 8 ns          | 1/(124.8×10⁶) s                       |
+| 1 GHz PLL clock        | 1 GHz         | 998.4 MHz                             |
+| Ranging sampling clock | 63.8976 GHz   | 63.8976 GHz (15.65 ps period)         |
 
 ### 2.4.4 Pulse Repetition Frequency (PRF)
 
@@ -270,31 +270,31 @@ When waking from SLEEP or DEEPSLEEP, it is necessary to load the **`LDOTUNE_CAL`
 
 On power-up, the DW3000 default operational configuration is (Table 6):
 
-| Parameter | Default Value |
-| --------- | ------------- |
-| Channel | **5** (Cf = 6489.6 MHz) |
-| Data Rate | 6.8 Mb/s |
-| PHR Rate | 850 kb/s |
-| PRF | 64 MHz |
-| Preamble Length | 64 symbols |
-| Preamble Code | 9 |
-| STS | Off |
-| STS Sequence Length | n/a |
-| SFD | IEEE802.15.4z [2] length 8 |
+| Parameter           | Default Value              |
+| ------------------- | -------------------------- |
+| Channel             | **5** (Cf = 6489.6 MHz)    |
+| Data Rate           | 6.8 Mb/s                   |
+| PHR Rate            | 850 kb/s                   |
+| PRF                 | 64 MHz                     |
+| Preamble Length     | 64 symbols                 |
+| Preamble Code       | 9                          |
+| STS                 | Off                        |
+| STS Sequence Length | n/a                        |
+| SFD                 | IEEE802.15.4z [2] length 8 |
 
 **Default GPIO functions (Table 7):**
 
-| GPIO Pin | Default Function |
-| -------- | ---------------- |
-| GPIO0/RXOKLED | GPIO0 |
-| GPIO1/SFDLED | GPIO1 |
-| GPIO2/RXLED | GPIO2 |
-| GPIO3/TXLED | GPIO3 |
-| GPIO4/EXTPA | GPIO4 |
-| GPIO5/EXTTXE/SPIPOL | GPIO5 |
-| GPIO6/EXTRXE/SPIPHA | GPIO6 |
-| SYNC/GPIO7 | SYNC |
-| IRQ/GPIO8 | IRQ |
+| GPIO Pin            | Default Function |
+| ------------------- | ---------------- |
+| GPIO0/RXOKLED       | GPIO0            |
+| GPIO1/SFDLED        | GPIO1            |
+| GPIO2/RXLED         | GPIO2            |
+| GPIO3/TXLED         | GPIO3            |
+| GPIO4/EXTPA         | GPIO4            |
+| GPIO5/EXTTXE/SPIPOL | GPIO5            |
+| GPIO6/EXTRXE/SPIPHA | GPIO6            |
+| SYNC/GPIO7          | SYNC             |
+| IRQ/GPIO8           | IRQ              |
 
 **Other defaults:**
 - Frame wait timeout (`RXWTOE` in `SYS_CFG`): **off**
@@ -319,8 +319,8 @@ The DW3000 supports **two UWB channels** from the IEEE 802.15.4 standard (Table 
 
 | Channel | Centre Frequency (MHz) | Bandwidth (MHz) | Preamble Codes (16 MHz PRF) | Preamble Codes (64 MHz PRF) |
 | ------- | ---------------------- | --------------- | --------------------------- | --------------------------- |
-| **5** | **6489.6** | 499.2 | 3, 4 | 9, 10, 11, 12 |
-| **9** | **7987.2** | 499.2 | 3, 4 | 9, 10, 11, 12 |
+| **5**   | **6489.6**             | 499.2           | 3, 4                        | 9, 10, 11, 12               |
+| **9**   | **7987.2**             | 499.2           | 3, 4                        | 9, 10, 11, 12               |
 
 The combination of channel number and preamble code is termed a **complex channel**. Preamble codes were chosen for low cross-correlation so that multiple networks can operate independently.
 
@@ -354,8 +354,8 @@ The preamble symbol period is divided into approximately 500 "chip" time interva
 
 | Mean PRF (MHz) | Chips Per Symbol | Preamble Symbol Duration (ns) |
 | -------------- | ---------------- | ----------------------------- |
-| 16 nominal | 496 | 993.59 |
-| 64 nominal | 508 | 1017.63 |
+| 16 nominal     | 496              | 993.59                        |
+| 64 nominal     | 508              | 1017.63                       |
 
 The preamble length is configured by the number of **Preamble Symbol Repetitions (PSR)**. Standard PSR values: **16, 64, 1024, 4096**. DW3000 additionally supports: **128, 256, 512, 1536, 2048**. (DW3000 cannot receive packets with preamble length below 32 symbols.)
 
@@ -383,14 +383,14 @@ Standard PHR bit assignment (Figure 11 in manual):
       Rate     Frame Length (7-bit)     Rng  HdrExt  Preamble Duration  SECDED bits
 ```
 
-| Field | Bits | Description |
-| ----- | ---- | ----------- |
-| **R1:R0** | 0–1 | Data rate: `00` = 850 kb/s, `10` = 6.8 Mb/s |
-| **L6:L0** | 2–8 | Frame length in bytes (0–127, standard mode) |
-| **RNG** | 9 | Ranging frame bit: `1` = this is a ranging frame |
-| **EXT** | 10 | Header Extension bit — reserved by IEEE for future extensions; always `0` |
-| **P1:P0** | 11–12 | Preamble Duration (reported in `RXPSR` of `RX_FINFO`) |
-| **C5:C0** | 13–18 | SECDED check bits (hardware-generated on TX, verified on RX) |
+| Field     | Bits  | Description                                                               |
+| --------- | ----- | ------------------------------------------------------------------------- |
+| **R1:R0** | 0–1   | Data rate: `00` = 850 kb/s, `10` = 6.8 Mb/s                               |
+| **L6:L0** | 2–8   | Frame length in bytes (0–127, standard mode)                              |
+| **RNG**   | 9     | Ranging frame bit: `1` = this is a ranging frame                          |
+| **EXT**   | 10    | Header Extension bit — reserved by IEEE for future extensions; always `0` |
+| **P1:P0** | 11–12 | Preamble Duration (reported in `RXPSR` of `RX_FINFO`)                     |
+| **C5:C0** | 13–18 | SECDED check bits (hardware-generated on TX, verified on RX)              |
 
 The DW3000 fills in Data Rate, Frame Length, Ranging frame, and Preamble Duration from `TX_FCTRL` configuration and generates the SECDED sequence automatically.
 
@@ -412,19 +412,19 @@ Extended PHR bit assignment (Figure 12 in manual):
       Rate          Frame Length (10-bit, 0–1023)      PreamDur   SECDED bits (inverted)
 ```
 
-| Field | Description |
-| ----- | ----------- |
-| **R1:R0** | Data rate (same encoding as standard PHR) |
-| **L9:L0** | Frame length in bytes (0–1023), MSB transmitted first |
-| **P0** | Preamble Duration: `0` = 64–1024 symbols, `1` = 1536–4096 symbols |
+| Field     | Description                                                             |
+| --------- | ----------------------------------------------------------------------- |
+| **R1:R0** | Data rate (same encoding as standard PHR)                               |
+| **L9:L0** | Frame length in bytes (0–1023), MSB transmitted first                   |
+| **P0**    | Preamble Duration: `0` = 64–1024 symbols, `1` = 1536–4096 symbols       |
 | **S5:S0** | SECDED check bits — **inverted** relative to standard: S*n* = NOT(C*n*) |
 
 **Preamble Duration field (P0):**
 
-| P0 | Preamble Length (BPM-BPSK mode) |
+| P0  | Preamble Length (BPM-BPSK mode) |
 | --- | ------------------------------- |
-| `0` | 64 to 1024 symbols |
-| `1` | 1536 to 4096 symbols |
+| `0` | 64 to 1024 symbols              |
+| `1` | 1536 to 4096 symbols            |
 
 The `FINE_PLEN` field in `TX_FCTRL` can alternatively set any **multiple of 8 symbols** from 32 to 2048.
 

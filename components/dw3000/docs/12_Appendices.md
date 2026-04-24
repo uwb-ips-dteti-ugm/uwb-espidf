@@ -14,10 +14,6 @@ In all of the schemes that follow one node acts as *Initiator*, initiating a ran
 
 Single-sided two-way ranging (SS-TWR) involves a simple measurement of the round trip delay of a single message from one node to another and a response sent back to the original node.
 
-![Figure 31: Single-sided two-way ranging](image/DW3000%20User%20Manual_Page_248.jpg)
-
-_Figure 31: Single-sided two-way ranging_
-
 The operation of SS-TWR is as shown in Figure 31, where device A initiates the exchange and device B responds to complete the exchange and each device precisely timestamps the transmission and reception times of the packets, and thus can calculate times T_round and T_reply by simple subtraction. And the resultant time-of-flight, T_prop may be estimated by the equation:
 
 ```
@@ -38,17 +34,11 @@ T̂_prop = 1/2 × (T_round - T_reply × (1 - C_offset))
 
 Double-sided two-way ranging (DS-TWR) is an extension of the basic single-sided two-way ranging in which two round trip time measurements are used and combined to give a time-of-flight result which has a reduced error even for quite long response delays.
 
-![Figure 32: Double-sided two-way ranging with four messages](image/DW3000%20User%20Manual_Page_249.jpg)
-
-_Figure 32: Double-sided two-way ranging with four messages_
-
 The operation of DS-TWR is as shown in Figure 32, where device A initiates the first round trip measurement to which device B responds, after which device B initiates the second round trip measurement to which device A responds completing the full DS-TWR exchange. Each device precisely timestamps the transmission and reception times of the messages.
 
 ### 12.3.2 Using three messages
 
 The four messages of DS-TWR, shown in Figure 32, can be reduced to three messages by using the reply of the first round-trip measurement as the initiator of the second round-trip measurement. This is shown in Figure 33.
-
-_Figure 33: Double-sided two-way ranging with three messages (see Figure 32 page image above)_
 
 The resultant time-of-flight estimate, T_prop, in both the three and four message cases may be calculated using the expression:
 
@@ -63,10 +53,6 @@ This scheme is denoted **ASYMMETRIC** because it does not require the reply time
 The asymmetric method allows complex ranging schemes to be achieved with a small number of messages. For example ranging from a tag to three anchors can be achieved as per in Figure 34 where the tag can be located after sending only 2 messages and receiving 3.
 
 This represents a substantial saving in message traffic thereby saving battery power and air-time. This assumes that the anchors are networked and pool the range measurements in some centralised location engine function that calculates the estimate of the tag's location.
-
-![Figure 34: Ranging to 3 anchors with just 5 messages where each anchor calculates its own range result](image/DW3000%20User%20Manual_Page_250.jpg)
-
-_Figure 34: Ranging to 3 anchors with just 5 messages where each anchor calculates its own range result_
 
 The Final message communicates the tag's T_round and T_reply times to the anchors, which each calculate the range to the tag using the DS-TWR formula above.
 

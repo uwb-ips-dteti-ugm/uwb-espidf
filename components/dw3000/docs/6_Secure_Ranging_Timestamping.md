@@ -105,10 +105,10 @@ SP2 can be attacked: an attacker can corrupt the PHR to indicate a longer payloa
 
 ### Registers
 
-| Register  | Width    | Description                             |
-| --------- | -------- | --------------------------------------- |
-| `STS_KEY` | 128-bit  | AES key used to generate STS sequence   |
-| `STS_IV`  | 128-bit  | Initial nonce value (IV = Initial Value) |
+| Register  | Width   | Description                              |
+| --------- | ------- | ---------------------------------------- |
+| `STS_KEY` | 128-bit | AES key used to generate STS sequence    |
+| `STS_IV`  | 128-bit | Initial nonce value (IV = Initial Value) |
 
 ### CPRNG Operation (Figure 25)
 

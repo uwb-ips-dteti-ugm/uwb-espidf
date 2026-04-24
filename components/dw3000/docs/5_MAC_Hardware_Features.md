@@ -93,16 +93,16 @@ Frame filtering allows the DW3000 to accept only frames that match configured ad
 
 ### Frame Type Field Values (Table 13)
 
-| Frame Control bits [2:0] | Frame Type        |
-| ------------------------ | ----------------- |
-| 0, 0, 0                  | Beacon            |
-| 0, 0, 1                  | Data              |
-| 0, 1, 0                  | Acknowledgement   |
-| 0, 1, 1                  | MAC command       |
-| 1, 0, 0                  | Reserved          |
-| 1, 0, 1                  | Multipurpose      |
-| 1, 1, 0                  | Fragment or Frak  |
-| 1, 1, 1                  | Extended          |
+| Frame Control bits [2:0] | Frame Type       |
+| ------------------------ | ---------------- |
+| 0, 0, 0                  | Beacon           |
+| 0, 0, 1                  | Data             |
+| 0, 1, 0                  | Acknowledgement  |
+| 0, 1, 1                  | MAC command      |
+| 1, 0, 0                  | Reserved         |
+| 1, 0, 1                  | Multipurpose     |
+| 1, 1, 0                  | Fragment or Frak |
+| 1, 1, 1                  | Extended         |
 
 ### 5.4.1 Frame Filtering Rules
 
@@ -204,14 +204,14 @@ The DW3000 can **automatically re-enable its receiver** after a transmission, to
 
 This uses the TX-and-Wait-for-Response (W4R) fast commands:
 
-| Command       | Description                                        |
-| ------------- | -------------------------------------------------- |
-| `TXW4R`       | TX, then immediately enable RX                     |
-| `TXW4RCCA`    | CCA check, then TX, then RX                        |
-| `TXW4RDLY`    | TX, then delayed RX (using DX_TIME)                |
-| `TXW4RDLYREF` | TX, then delayed RX (using DREF_TIME + DX_TIME)    |
-| `TXW4RDLYTS`  | TX, then RX after TX timestamp-relative delay      |
-| `TXW4RDLYRS`  | TX, then RX after RX timestamp-relative delay      |
+| Command       | Description                                     |
+| ------------- | ----------------------------------------------- |
+| `TXW4R`       | TX, then immediately enable RX                  |
+| `TXW4RCCA`    | CCA check, then TX, then RX                     |
+| `TXW4RDLY`    | TX, then delayed RX (using DX_TIME)             |
+| `TXW4RDLYREF` | TX, then delayed RX (using DREF_TIME + DX_TIME) |
+| `TXW4RDLYTS`  | TX, then RX after TX timestamp-relative delay   |
+| `TXW4RDLYRS`  | TX, then RX after RX timestamp-relative delay   |
 
 The delay between TX end and RX enable is controlled by the `W4R_TIM` parameter in Sub-register `0x01:08` (Acknowledgement time and response time).
 
@@ -270,13 +270,13 @@ The AES engine can also **decrypt an encrypted `STS_KEY`** (received over SPI in
 
 Before running encryption or decryption, configure:
 
-| Parameter              | Options                                       |
-| ---------------------- | --------------------------------------------- |
-| MIC size (`TAG_SIZE`)  | 0, 4, 6, 8, 10, 12, 14, or 16 bytes          |
-| KEY size               | 128, 192, or 256-bit                          |
-| KEY location           | DW3000 register, OTP, or AES KEY RAM         |
-| Operation              | Encryption or Decryption                      |
-| AES core               | GCM or CCM\*                                  |
+| Parameter             | Options                              |
+| --------------------- | ------------------------------------ |
+| MIC size (`TAG_SIZE`) | 0, 4, 6, 8, 10, 12, 14, or 16 bytes  |
+| KEY size              | 128, 192, or 256-bit                 |
+| KEY location          | DW3000 register, OTP, or AES KEY RAM |
+| Operation             | Encryption or Decryption             |
+| AES core              | GCM or CCM\*                         |
 
 > **Note:** If KEY from DW3000 registers or AES KEY RAM is selected, the key must first be written to `AES_KEY` register or `AES KEY RAM` location before starting the engine.
 
@@ -333,9 +333,9 @@ Used when an external Secure Element (SE) delivers an encrypted STS key over SPI
 
 The AES-DMA engine endianness is configurable via `DMA_CFG` register (`CP_END_SEL` bit):
 
-| `CP_END_SEL` | Endianness    | MSB of STS KEY location   |
-| ------------ | ------------- | ------------------------- |
-| 0            | Big endian    | Lowest address (0x02:0C)  |
+| `CP_END_SEL` | Endianness    | MSB of STS KEY location      |
+| ------------ | ------------- | ---------------------------- |
+| 0            | Big endian    | Lowest address (0x02:0C)     |
 | 1            | Little endian | Reversed within 32-bit words |
 
 For STS KEY = `0xaabbcc...667788`:

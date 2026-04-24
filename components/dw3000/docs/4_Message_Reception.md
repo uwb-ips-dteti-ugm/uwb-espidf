@@ -143,20 +143,20 @@ After the PHR, the DW3000 demodulates the **PHY payload (PSDU)**:
 
 #### RX Status Bits (in `SYS_STATUS`, 0x0F:00)
 
-| Bit      | Name  | Description                                                   |
-| -------- | ----- | ------------------------------------------------------------- |
-| RXPRD    | —     | Preamble detected                                             |
-| RXSFDD   | —     | SFD detected                                                  |
-| RXPHD    | —     | PHR detected (valid PHR received)                             |
-| RXFR     | —     | Frame received (data portion done)                            |
-| RXFCG    | —     | Frame Check Good — FCS passed; combined with RXFR = success   |
-| RXFCE    | —     | Frame Check Error — FCS failed                                |
-| RXRFSL   | RXFSL | Reed-Solomon error                                            |
-| RXFTO    | —     | RX Frame Wait Timeout (no frame received within timeout)      |
-| RXPTO    | —     | Preamble Timeout                                              |
-| RXSTO    | —     | SFD Timeout                                                   |
-| RXPHE    | —     | PHR Error (SECDED uncorrectable)                              |
-| CIAERR   | —     | CIA failed to find a valid leading edge                       |
+| Bit    | Name  | Description                                                 |
+| ------ | ----- | ----------------------------------------------------------- |
+| RXPRD  | —     | Preamble detected                                           |
+| RXSFDD | —     | SFD detected                                                |
+| RXPHD  | —     | PHR detected (valid PHR received)                           |
+| RXFR   | —     | Frame received (data portion done)                          |
+| RXFCG  | —     | Frame Check Good — FCS passed; combined with RXFR = success |
+| RXFCE  | —     | Frame Check Error — FCS failed                              |
+| RXRFSL | RXFSL | Reed-Solomon error                                          |
+| RXFTO  | —     | RX Frame Wait Timeout (no frame received within timeout)    |
+| RXPTO  | —     | Preamble Timeout                                            |
+| RXSTO  | —     | SFD Timeout                                                 |
+| RXPHE  | —     | PHR Error (SECDED uncorrectable)                            |
+| CIAERR | —     | CIA failed to find a valid leading edge                     |
 
 A **successful receive** requires both `RXFR` and `RXFCG` to be set.
 
@@ -202,10 +202,10 @@ PDoA measures the **phase difference of the received signal at two antennas** to
 
 Two PDoA modes are supported:
 
-| Mode   | STS Requirement              | Output                          |
-| ------ | ---------------------------- | ------------------------------- |
-| Mode 1 | Any valid STS (SP1/SP2/SP3)  | Phase difference from STS CIR   |
-| Mode 3 | STS length = integer × 128 chips (in 512-chip units) | Higher resolution PDoA |
+| Mode   | STS Requirement                                      | Output                        |
+| ------ | ---------------------------------------------------- | ----------------------------- |
+| Mode 1 | Any valid STS (SP1/SP2/SP3)                          | Phase difference from STS CIR |
+| Mode 3 | STS length = integer × 128 chips (in 512-chip units) | Higher resolution PDoA        |
 
 PDoA result is read from the `CIA_TDOA_2` / `PDOA_STS` diagnostic registers (0x0E).
 
@@ -267,11 +267,11 @@ Host reads RX_BUFFER_1 (frame 2) from SET_2
 
 ### Key Registers
 
-| Register        | Address | Description                                  |
-| --------------- | ------- | -------------------------------------------- |
-| `RDB_STATUS`    | 0x0F:08 | Shows which buffer is active/ready           |
-| `CMD_DB_TOGGLE` | —       | Fast command; releases current host buffer   |
-| `DIS_DRXB`      | SYS_CFG bit 18 | Disable double buffering (0 = enabled) |
+| Register        | Address        | Description                                |
+| --------------- | -------------- | ------------------------------------------ |
+| `RDB_STATUS`    | 0x0F:08        | Shows which buffer is active/ready         |
+| `CMD_DB_TOGGLE` | —              | Fast command; releases current host buffer |
+| `DIS_DRXB`      | SYS_CFG bit 18 | Disable double buffering (0 = enabled)     |
 
 ### Overrun Condition
 
@@ -299,10 +299,10 @@ If a preamble is detected during the ON period, the device stays in RX and compl
 
 Both fields are in register `0x11:1A`:
 
-| Field      | Bits  | Description                          | Minimum |
-| ---------- | ----- | ------------------------------------ | ------- |
-| `SNIFF_ON` | 3:0   | ON duration in PAC periods           | 2 PACs  |
-| `SNIFF_OFF`| 15:8  | OFF duration in µs                   | 5 µs    |
+| Field       | Bits | Description                | Minimum |
+| ----------- | ---- | -------------------------- | ------- |
+| `SNIFF_ON`  | 3:0  | ON duration in PAC periods | 2 PACs  |
+| `SNIFF_OFF` | 15:8 | OFF duration in µs         | 5 µs    |
 
 > **WARNING:** `SNIFF_OFF` must be ≥ 5 µs to allow the RF front end to restabilise after each IDLE_PLL period. Setting it lower risks missed preambles due to RF not being ready.
 
@@ -318,12 +318,12 @@ Set `SNIFF_EN` bit in `RX_SNIFF` register (0x11:1A), then issue `CMD_RX`. The de
 
 DW3000 can drive GPIO lines as activity indicators (useful during development):
 
-| GPIO | Default Function | LED Activity |
-| ---- | ---------------- | ------------ |
-| GPIO5 | General purpose | RX OK (frame received) |
-| GPIO6 | General purpose | SFD detected |
-| GPIO7 | General purpose | TX active |
-| GPIO8 | General purpose | RX active |
+| GPIO  | Default Function | LED Activity           |
+| ----- | ---------------- | ---------------------- |
+| GPIO5 | General purpose  | RX OK (frame received) |
+| GPIO6 | General purpose  | SFD detected           |
+| GPIO7 | General purpose  | TX active              |
+| GPIO8 | General purpose  | RX active              |
 
 Configure via `GPIO_CTRL` register (0x05).
 
@@ -338,21 +338,21 @@ Reading the accumulator requires the CIA to have completed. Access is controlled
 
 ### CIA Diagnostic Registers
 
-| Register    | Address | Contents                                              |
-| ----------- | ------- | ----------------------------------------------------- |
-| `IP_DIAG`   | 0x0C    | Ipatov (preamble) CIA diagnostics: ToA, F1, F2, F3, C, N |
-| `STS_DIAG`  | 0x0D    | STS CIA diagnostics: same fields as IP_DIAG           |
-| `CIA_TDOA`  | 0x0E    | TDoA / PDoA results                                   |
+| Register   | Address | Contents                                                 |
+| ---------- | ------- | -------------------------------------------------------- |
+| `IP_DIAG`  | 0x0C    | Ipatov (preamble) CIA diagnostics: ToA, F1, F2, F3, C, N |
+| `STS_DIAG` | 0x0D    | STS CIA diagnostics: same fields as IP_DIAG              |
+| `CIA_TDOA` | 0x0E    | TDoA / PDoA results                                      |
 
 Sub-registers within `IP_DIAG` (0x0C):
 
-| Sub-register  | Field  | Description                                  |
-| ------------- | ------ | -------------------------------------------- |
-| `IP_DIAG_1`   | C      | Preamble CIR power (sum of magnitude)        |
-| `IP_DIAG_2`   | F1     | First path amplitude sample 1                |
-| `IP_DIAG_3`   | F2     | First path amplitude sample 2                |
-| `IP_DIAG_4`   | F3     | First path amplitude sample 3                |
-| `IP_DIAG_12`  | N      | Preamble accumulation count                  |
+| Sub-register | Field | Description                           |
+| ------------ | ----- | ------------------------------------- |
+| `IP_DIAG_1`  | C     | Preamble CIR power (sum of magnitude) |
+| `IP_DIAG_2`  | F1    | First path amplitude sample 1         |
+| `IP_DIAG_3`  | F2    | First path amplitude sample 2         |
+| `IP_DIAG_4`  | F3    | First path amplitude sample 3         |
+| `IP_DIAG_12` | N     | Preamble accumulation count           |
 
 Equivalent `STS_DIAG_1/2/3/4/12` fields exist for STS-based measurements.
 
@@ -374,11 +374,11 @@ Where:
 - `D` — `DGC_DECISION` field from `DGC_DBG` register (gain step applied by Digital Gain Control)
 - `A` — PRF-dependent constant:
 
-| PRF / Sequence      | A value |
-| ------------------- | ------- |
-| 16 MHz (Ipatov)     | 113.8   |
-| 64 MHz (Ipatov)     | 121.7   |
-| 64 MHz (STS)        | 120.7   |
+| PRF / Sequence  | A value |
+| --------------- | ------- |
+| 16 MHz (Ipatov) | 113.8   |
+| 64 MHz (Ipatov) | 121.7   |
+| 64 MHz (STS)    | 120.7   |
 
 ### RX Level (dBm)
 

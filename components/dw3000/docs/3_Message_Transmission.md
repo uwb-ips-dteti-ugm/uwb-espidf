@@ -38,12 +38,12 @@ SP3 — STS only (no PHR or PHY Payload):
                     ↑ RMARKER
 ```
 
-| Format | STS Position        | PHR + PHY Payload | Use Case                        |
-| ------ | ------------------- | ----------------- | ------------------------------- |
-| **SP0** | None               | Yes               | Standard UWB, no security       |
-| **SP1** | Between SFD and PHR| Yes               | Secure ranging with data        |
-| **SP2** | After PHY Payload  | Yes               | Secure ranging, post-payload STS|
-| **SP3** | Immediately after SFD | No             | Secure ranging, STS only        |
+| Format  | STS Position          | PHR + PHY Payload | Use Case                         |
+| ------- | --------------------- | ----------------- | -------------------------------- |
+| **SP0** | None                  | Yes               | Standard UWB, no security        |
+| **SP1** | Between SFD and PHR   | Yes               | Secure ranging with data         |
+| **SP2** | After PHY Payload     | Yes               | Secure ranging, post-payload STS |
+| **SP3** | Immediately after SFD | No                | Secure ranging, STS only         |
 
 > **Note:** In SP3, the PHR and PHY Payload are omitted entirely. STS must be enabled and configured via the STS configuration registers before using SP1/SP2/SP3.
 
@@ -93,14 +93,14 @@ The DW3000 hardware **automatically appends the FCS (CRC-16/ITU-T)** based on `T
 
 ### 3.1.4 Key TX Registers
 
-| Register | Address | Description |
-| -------- | ------- | ----------- |
-| `TX_BUFFER` | `0x14:00` | TX frame data buffer (up to 1024 bytes) |
-| `TX_FCTRL` | `0x00:24` | TX frame control: frame length, data rate, PRF, preamble |
-| `CHAN_CTRL` | `0x00:14` | Channel, PRF, TX/RX preamble codes |
-| `TX_ANTD` | `0x00:1C` | TX antenna delay (16-bit, added to raw TX timestamp) |
-| `TX_TIME` | `0x00:74` | TX timestamp result (read after TXFRS event) |
-| `DX_TIME` | `0x00:2C` | Delayed TX target time (for CMD_DTX) |
+| Register    | Address   | Description                                              |
+| ----------- | --------- | -------------------------------------------------------- |
+| `TX_BUFFER` | `0x14:00` | TX frame data buffer (up to 1024 bytes)                  |
+| `TX_FCTRL`  | `0x00:24` | TX frame control: frame length, data rate, PRF, preamble |
+| `CHAN_CTRL` | `0x00:14` | Channel, PRF, TX/RX preamble codes                       |
+| `TX_ANTD`   | `0x00:1C` | TX antenna delay (16-bit, added to raw TX timestamp)     |
+| `TX_TIME`   | `0x00:74` | TX timestamp result (read after TXFRS event)             |
+| `DX_TIME`   | `0x00:2C` | Delayed TX target time (for CMD_DTX)                     |
 | `DREF_TIME` | `0x00:30` | Reference time for relative delayed TX (for CMD_DTX_REF) |
 
 ---
@@ -174,11 +174,11 @@ The `DX_TIME` register uses the same time base as the system clock:
 
 If the host writes a `DX_TIME` that is in the very near future (so close that the DW3000 cannot begin the preamble in time to meet the target RMARKER time), the **`HPDWARN`** event status flag is set in `SYS_STATUS`.
 
-| Scenario | HPDWARN | Behavior |
-| -------- | ------- | -------- |
-| Delay is in the far future | Not set | Normal delayed TX proceeds |
-| Delay already passed | Set | DW3000 waits nearly one full counter period before transmitting |
-| Delay in the near future but too late | Set | TX will still occur, but ~17.2 s late |
+| Scenario                              | HPDWARN | Behavior                                                        |
+| ------------------------------------- | ------- | --------------------------------------------------------------- |
+| Delay is in the far future            | Not set | Normal delayed TX proceeds                                      |
+| Delay already passed                  | Set     | DW3000 waits nearly one full counter period before transmitting |
+| Delay in the near future but too late | Set     | TX will still occur, but ~17.2 s late                           |
 
 The host should monitor `HPDWARN` during development. To abort a late transmission, issue `CMD_TXRXOFF`.
 
@@ -213,19 +213,19 @@ Extended PHR bit assignment (19 bits total):
     Data Rate     Frame Length (10-bit)    Preamble  SECDED Bits
 ```
 
-| Field | Size | Description |
-| ----- | ---- | ----------- |
-| **R1:R0** | 2 bits | Data rate: `00` = 850 kbps, `10` = 6.8 Mbps |
-| **L9:L0** | 10 bits | Frame length in bytes (0–1023), MSB first |
-| **P0** | 1 bit | Preamble Duration: `0` = 64–1024 symbols, `1` = 1536–4096 symbols |
-| **S5:S0** | 6 bits | SECDED check bits (inverted relative to standard: S*n* = NOT(C*n*)) |
+| Field     | Size    | Description                                                         |
+| --------- | ------- | ------------------------------------------------------------------- |
+| **R1:R0** | 2 bits  | Data rate: `00` = 850 kbps, `10` = 6.8 Mbps                         |
+| **L9:L0** | 10 bits | Frame length in bytes (0–1023), MSB first                           |
+| **P0**    | 1 bit   | Preamble Duration: `0` = 64–1024 symbols, `1` = 1536–4096 symbols   |
+| **S5:S0** | 6 bits  | SECDED check bits (inverted relative to standard: S*n* = NOT(C*n*)) |
 
 ### 3.4.3 Preamble Duration Field (P0)
 
-| P0 | Preamble Length Range (BPM-BPSK mode) |
+| P0  | Preamble Length Range (BPM-BPSK mode) |
 | --- | ------------------------------------- |
-| `0` | 64 to 1024 symbols |
-| `1` | 1536 to 4096 symbols |
+| `0` | 64 to 1024 symbols                    |
+| `1` | 1536 to 4096 symbols                  |
 
 The host may also use the `FINE_PLEN` field in `TX_FCTRL` to set any multiple of 8 symbols from 32 to 2048, overriding the standard table.
 
@@ -244,10 +244,10 @@ S3 = NOT(C3),  S4 = NOT(C4),  S5 = NOT(C5)
 
 Set the `PHR_MODE` bits in `SYS_CFG` (sub-register `0x00:10`):
 
-| PHR_MODE | Mode |
-| -------- | ---- |
-| `0b00` | Standard IEEE 802.15.4 frames (up to 127 bytes) |
-| `0b11` | Extended length frames (up to 1023 bytes) |
+| PHR_MODE | Mode                                            |
+| -------- | ----------------------------------------------- |
+| `0b00`   | Standard IEEE 802.15.4 frames (up to 127 bytes) |
+| `0b11`   | Extended length frames (up to 1023 bytes)       |
 
 In extended mode, the high-order bit of `TXPSR` from `TX_FCTRL` is sent in the PHR `P0` field. On the receiver side, the `RXPSR` value in `RX_FINFO` reflects the received `P0`.
 
@@ -257,18 +257,18 @@ In extended mode, the high-order bit of `TXPSR` from `TX_FCTRL` is sent in the P
 
 The DW3000 uses single-octet **fast commands** to initiate TX operations. These are written as a fast command SPI transaction (see Section 2 of the manual for SPI format).
 
-| Command | Hex Code | Description |
-| ------- | -------- | ----------- |
-| `CMD_TX` | `0x01` | Start immediate TX (no delay) |
-| `CMD_DTX` | `0x03` | Start delayed TX at absolute time in `DX_TIME` |
-| `CMD_DTX_RS` | `0x07` | Delayed TX, then immediately switch to RX after TX |
-| `CMD_DTX_REF` | `0x09` | Delayed TX relative to `DREF_TIME + DX_TIME` |
-| `CMD_DTX_TS` | `0x05` | Delayed TX, time specified relative to last TX timestamp |
-| `CMD_DTX_W4R` | `0x0D` | Delayed TX, then wait-for-response (RX) after TX |
-| `CMD_CCA_TX` | `0x0B` | Clear Channel Assessment TX (transmit only if channel clear) |
-| `CMD_CCA_TX_W4R` | `0x11` | CCA TX then wait-for-response |
-| `CMD_TX_W4R` | `0x0C` | Immediate TX then wait-for-response (RX) |
-| `CMD_TXRXOFF` | `0x00` | Cancel pending TX/RX and return to IDLE |
+| Command          | Hex Code | Description                                                  |
+| ---------------- | -------- | ------------------------------------------------------------ |
+| `CMD_TX`         | `0x01`   | Start immediate TX (no delay)                                |
+| `CMD_DTX`        | `0x03`   | Start delayed TX at absolute time in `DX_TIME`               |
+| `CMD_DTX_RS`     | `0x07`   | Delayed TX, then immediately switch to RX after TX           |
+| `CMD_DTX_REF`    | `0x09`   | Delayed TX relative to `DREF_TIME + DX_TIME`                 |
+| `CMD_DTX_TS`     | `0x05`   | Delayed TX, time specified relative to last TX timestamp     |
+| `CMD_DTX_W4R`    | `0x0D`   | Delayed TX, then wait-for-response (RX) after TX             |
+| `CMD_CCA_TX`     | `0x0B`   | Clear Channel Assessment TX (transmit only if channel clear) |
+| `CMD_CCA_TX_W4R` | `0x11`   | CCA TX then wait-for-response                                |
+| `CMD_TX_W4R`     | `0x0C`   | Immediate TX then wait-for-response (RX)                     |
+| `CMD_TXRXOFF`    | `0x00`   | Cancel pending TX/RX and return to IDLE                      |
 
 > **W4R commands:** The "wait-for-response" variants automatically switch the DW3000 from TX to RX mode after transmission completes, without host intervention. This is used for request-response ranging flows.
 
@@ -278,11 +278,11 @@ The DW3000 uses single-octet **fast commands** to initiate TX operations. These 
 
 After TX completes, the host is notified via:
 
-| Status Bit | Register | Description |
-| ---------- | -------- | ----------- |
-| `TXFRS` | `SYS_STATUS` | TX Frame Sent — set when the last symbol has been transmitted |
-| `HPDWARN` | `SYS_STATUS` | Half Period Delay Warning — late delayed TX invocation detected |
-| `TXBERR` | `SYS_STATUS` | TX buffer error |
+| Status Bit | Register     | Description                                                     |
+| ---------- | ------------ | --------------------------------------------------------------- |
+| `TXFRS`    | `SYS_STATUS` | TX Frame Sent — set when the last symbol has been transmitted   |
+| `HPDWARN`  | `SYS_STATUS` | Half Period Delay Warning — late delayed TX invocation detected |
+| `TXBERR`   | `SYS_STATUS` | TX buffer error                                                 |
 
 To enable the `TXFRS` interrupt on the IRQ pin, set the corresponding enable bit in `SYS_ENABLE` (register `0x00:3C`).
 
@@ -311,10 +311,10 @@ if (status & SYS_STATUS_HPDWARN) {
 
 TX output power is controlled via the `TX_POWER` register (`0x00:28`). The DW3000 provides **coarse gain** and **fine gain** control:
 
-| Field | Description |
-| ----- | ----------- |
-| `TXPOWPHR` | TX power for PHR portion of the packet |
-| `TXPOWSD` | TX power for SFD and data payload portions |
+| Field      | Description                                |
+| ---------- | ------------------------------------------ |
+| `TXPOWPHR` | TX power for PHR portion of the packet     |
+| `TXPOWSD`  | TX power for SFD and data payload portions |
 
 Both fields use an 8-bit encoding with a **coarse attenuator** (upper bits) and **fine attenuator** (lower bits). The actual output power depends on the channel and must be set to comply with regional regulatory limits.
 

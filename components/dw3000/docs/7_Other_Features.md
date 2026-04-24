@@ -79,35 +79,35 @@ An OTP area is reserved for customers to program the **EUI-64** that is loaded i
 
 Each entry is 32 bits wide. Size column shows used bytes.
 
-| Address     | Size  | Contents                                             | Programmed By |
-| ----------- | ----- | ---------------------------------------------------- | ------------- |
-| 0x00–0x01   | 4B ea | 64-bit EUID (primary)                                | Customer      |
-| 0x02–0x03   | 4B ea | Alternative 64-bit EUID (selected via reg/SR)        | Customer      |
-| 0x04–0x05   | 4B ea | LDOTUNE_CAL                                          | Prod Test     |
-| 0x06        | 4B    | Chip ID — 5 nibbles (20 bits)                        | Prod Test     |
-| 0x07        | 4B    | LOT ID — 7 nibbles (28 bits)                         | Prod Test     |
-| 0x08        | 4B    | Vbat @ 3.0V [23:16], Vbat @ 3.62V [15:8], Vbat @ 1.62V [7:0] | Prod Test |
-| 0x09        | 2B    | Temperature @ 22°C ± 2°C [7:0]                       | Prod Test     |
-| 0x0A        | 0     | BIASTUNE_CAL                                         | Prod Test     |
-| 0x0B        | 4B    | Antenna Delay – RFLoop                               | Prod Test     |
-| 0x0C        | 4B    | AoA Isolation: CH9 RF2→RF1, CH9 RF1→RF2, CH5 RF2→RF1, CH5 RF1→RF2 | Prod Test |
-| 0x0D        | 0     | Wafer Sort Lot ID [3:0]                              | Prod Test     |
-| 0x0E        | 0     | Wafer Sort Lot ID [5:4]                              | Prod Test     |
-| 0x0F        | 0     | Wafer Sort: Wafer Number, Y Location, X Location     | Prod Test     |
-| 0x10–0x1D   | 4B ea | Customer area (unspecified)                          | Customer      |
-| 0x1E        | 2B    | XTAL_Trim[6:0]                                       | Customer      |
-| 0x1F        | —     | OTP Revision                                         | Customer      |
-| 0x20–0x23   | 4B ea | RX_TUNE_CAL: DGC_CFG0–3                              | Prod Test     |
-| 0x24–0x26   | 4B ea | RX_TUNE_CAL: DGC_CFG4–6                              | Prod Test     |
-| 0x27–0x2D   | 4B ea | RX_TUNE_CAL: DGC_LUT_0–6 (CH5)                      | Prod Test     |
-| 0x2E–0x34   | 4B ea | RX_TUNE_CAL: DGC_LUT_0–6 (CH9)                      | Prod Test     |
-| 0x35        | 4B    | PLL_LOCK_CODE                                        | Prod Test     |
-| 0x36–0x5F   | —     | UNALLOCATED                                          | Customer      |
-| 0x60        | 1B    | QSR Register (Special function register)             | Reserved      |
-| 0x61        | 4B    | Q_RR Register [7:0]                                  | Reserved      |
-| 0x62–0x77   | 4B ea | UNALLOCATED                                          | Customer      |
-| 0x78–0x7B   | 4B ea | AES_KEY[127:96], [95:64], [63:32], [31:0] (big endian) | Customer   |
-| 0x7C–0x7F   | 4B ea | AES_KEY[255:224], [223:192], [191:160], [159:128] (big endian) | Customer |
+| Address   | Size  | Contents                                                          | Programmed By |
+| --------- | ----- | ----------------------------------------------------------------- | ------------- |
+| 0x00–0x01 | 4B ea | 64-bit EUID (primary)                                             | Customer      |
+| 0x02–0x03 | 4B ea | Alternative 64-bit EUID (selected via reg/SR)                     | Customer      |
+| 0x04–0x05 | 4B ea | LDOTUNE_CAL                                                       | Prod Test     |
+| 0x06      | 4B    | Chip ID — 5 nibbles (20 bits)                                     | Prod Test     |
+| 0x07      | 4B    | LOT ID — 7 nibbles (28 bits)                                      | Prod Test     |
+| 0x08      | 4B    | Vbat @ 3.0V [23:16], Vbat @ 3.62V [15:8], Vbat @ 1.62V [7:0]      | Prod Test     |
+| 0x09      | 2B    | Temperature @ 22°C ± 2°C [7:0]                                    | Prod Test     |
+| 0x0A      | 0     | BIASTUNE_CAL                                                      | Prod Test     |
+| 0x0B      | 4B    | Antenna Delay – RFLoop                                            | Prod Test     |
+| 0x0C      | 4B    | AoA Isolation: CH9 RF2→RF1, CH9 RF1→RF2, CH5 RF2→RF1, CH5 RF1→RF2 | Prod Test     |
+| 0x0D      | 0     | Wafer Sort Lot ID [3:0]                                           | Prod Test     |
+| 0x0E      | 0     | Wafer Sort Lot ID [5:4]                                           | Prod Test     |
+| 0x0F      | 0     | Wafer Sort: Wafer Number, Y Location, X Location                  | Prod Test     |
+| 0x10–0x1D | 4B ea | Customer area (unspecified)                                       | Customer      |
+| 0x1E      | 2B    | XTAL_Trim[6:0]                                                    | Customer      |
+| 0x1F      | —     | OTP Revision                                                      | Customer      |
+| 0x20–0x23 | 4B ea | RX_TUNE_CAL: DGC_CFG0–3                                           | Prod Test     |
+| 0x24–0x26 | 4B ea | RX_TUNE_CAL: DGC_CFG4–6                                           | Prod Test     |
+| 0x27–0x2D | 4B ea | RX_TUNE_CAL: DGC_LUT_0–6 (CH5)                                    | Prod Test     |
+| 0x2E–0x34 | 4B ea | RX_TUNE_CAL: DGC_LUT_0–6 (CH9)                                    | Prod Test     |
+| 0x35      | 4B    | PLL_LOCK_CODE                                                     | Prod Test     |
+| 0x36–0x5F | —     | UNALLOCATED                                                       | Customer      |
+| 0x60      | 1B    | QSR Register (Special function register)                          | Reserved      |
+| 0x61      | 4B    | Q_RR Register [7:0]                                               | Reserved      |
+| 0x62–0x77 | 4B ea | UNALLOCATED                                                       | Customer      |
+| 0x78–0x7B | 4B ea | AES_KEY[127:96], [95:64], [63:32], [31:0] (big endian)            | Customer      |
+| 0x7C–0x7F | 4B ea | AES_KEY[255:224], [223:192], [191:160], [159:128] (big endian)    | Customer      |
 
 #### QSR (Special Function Register)
 
@@ -141,9 +141,9 @@ The DW3000 includes an **8-bit SAR ADC** that can measure:
 
 ### Operating Modes
 
-| Mode      | Trigger                        | Use case                                              |
-| --------- | ------------------------------ | ----------------------------------------------------- |
-| Manual    | Host-controlled, any time      | On-demand measurement                                 |
+| Mode      | Trigger                          | Use case                                                          |
+| --------- | -------------------------------- | ----------------------------------------------------------------- |
+| Manual    | Host-controlled, any time        | On-demand measurement                                             |
 | Automatic | Every time DW3000 enters WAKE_UP | Read temperature before TX heat-up; read unloaded battery voltage |
 
 The automatic mode is particularly useful in battery-powered designs: measurements are taken while the device is in its low-power wake state, before the RF circuitry has heated the die, and before the battery is loaded by TX/RX current.
@@ -168,10 +168,10 @@ A brownout means the IC circuits lack sufficient voltage for correct operation, 
 
 ### Brownout Event Elements
 
-| Element           | Register / Location                          | Description                                                    |
-| ----------------- | -------------------------------------------- | -------------------------------------------------------------- |
-| `VWARN` flag      | `SYS_STATUS`                                 | Set when brownout detected; sticky — stays set until cleared or reset |
-| `VWARN_EN` mask   | Sub-register `0x00:3C` (System event enable) | Enables `VWARN` to trigger a host interrupt                    |
+| Element         | Register / Location                          | Description                                                           |
+| --------------- | -------------------------------------------- | --------------------------------------------------------------------- |
+| `VWARN` flag    | `SYS_STATUS`                                 | Set when brownout detected; sticky — stays set until cleared or reset |
+| `VWARN_EN` mask | Sub-register `0x00:3C` (System event enable) | Enables `VWARN` to trigger a host interrupt                           |
 
 To clear `VWARN`: write `1` to the `VWARN` bit in `SYS_STATUS`.
 
