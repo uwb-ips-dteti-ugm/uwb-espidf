@@ -13,7 +13,7 @@ The markdown files are chapter-oriented extracts/summaries of the DW3000 user ma
 
 ## Topic Routing
 
-- Device capabilities, variants, document scope: `docs/1_Introduction.md`
+- Device capabilities, variants, document scope, and component feature taxonomy: `docs/1_Introduction.md` / `docs/13_Features_Summary.md`
 - Bring-up, SPI, interrupts, GPIO, operating states, sleep/wake, channels: `docs/2_Overview.md`
 - TX flow, delayed TX, TX timestamps, TX power: `docs/3_Message_Transmission.md`
 - RX flow, timestamps, delayed RX, double buffering, SNIFF, diagnostics: `docs/4_Message_Reception.md`
@@ -92,6 +92,9 @@ Provides system-level RTLS context, comparing ToF, TDoA, and PDoA approaches, in
 
 Contains reference material such as single-sided and double-sided two-way ranging schemes, plus abbreviations, references, and document history.
 
+### `docs/13_Features_Summary.md`
+
+Maps the full DW3000 feature surface area (PHY, timestamping, STS, MAC assists, AES, power, calibration, OTP, sync) and proposes a practical implementation priority order for the driver. Use this to orient the overall component architecture before reading individual subsystem chapters.
 ## When To Use The PDF
 
 Consult `docs/DW3000 User Manual.pdf` only when:
