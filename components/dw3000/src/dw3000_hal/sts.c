@@ -130,6 +130,11 @@ dw3000_error_t dw3000_hal_sts_validate_sys_cfg(
         return DW3000_ERROR_INVALID_ARG;
     }
 
+    if ((packet_cfg == DW3000_STS_PACKET_CFG_SP0) &&
+        (((uint32_t)flags & DW3000_HAL_STS_SYS_CFG_FLAGS_MASK) != 0U)) {
+        return DW3000_ERROR_INVALID_ARG;
+    }
+
     if ((pdoa_mode != DW3000_STS_PDOA_MODE_DISABLED) &&
         (packet_cfg == DW3000_STS_PACKET_CFG_SP0)) {
         return DW3000_ERROR_INVALID_ARG;

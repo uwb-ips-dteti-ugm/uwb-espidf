@@ -129,7 +129,7 @@ void dw3000_hal_default_config(dw3000_device_config_t* config) {
     config->sts.iv.bytes[0]   = 1U;
     config->sts.packet_cfg    = DW3000_STS_PACKET_CFG_SP0;
     config->sts.pdoa_mode     = DW3000_STS_PDOA_MODE_DISABLED;
-    config->sts.sys_cfg_flags = DW3000_STS_SYS_CFG_CIA_STS;
+    config->sts.sys_cfg_flags = 0U;
 
     config->calib.tx_power.data = DW3000_CALIB_TX_POWER_DEFAULT_BYTE;
     config->calib.tx_power.phr  = DW3000_CALIB_TX_POWER_DEFAULT_BYTE;

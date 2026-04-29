@@ -219,6 +219,12 @@ static bool dw3000_hal_tx_basic_initialize(dw3000_hal_tx_basic_app_t* app) {
     dw3000_hal_default_config(&config);
     config.load_otp_calibration = DW3000_HAL_TX_BASIC_LOAD_OTP_CALIBRATION;
     config.auto_init_pll        = DW3000_HAL_TX_BASIC_ENTER_IDLE_PLL;
+    config.phy.preamble_length  = DW3000_PHY_PREAMBLE_LEN_128;
+    config.phy.pac_size         = DW3000_PHY_PAC_SIZE_8;
+    config.rx_tune.sfd_toc      = 129U;
+    config.sts.packet_cfg       = DW3000_STS_PACKET_CFG_SP0;
+    config.sts.pdoa_mode        = DW3000_STS_PDOA_MODE_DISABLED;
+    config.sts.sys_cfg_flags    = 0U;
     config.mac.panadr.pan_id    = DW3000_HAL_TX_BASIC_PAN_ID;
     config.mac.panadr.short_addr = DW3000_HAL_TX_BASIC_SRC_ADDR;
 

@@ -385,6 +385,63 @@ static dw3000_error_t dw3000_hal_rx_basic_initialize_once(
     return DW3000_ERROR_OK;
 }
 
+static bool dw3000_hal_rx_basic_log_radio_config(dw3000_device_t* device) {
+    uint32_t sys_cfg;
+    uint32_t tx_fctrl;
+    uint16_t chan_ctrl;
+    uint16_t dtune0;
+    uint16_t rx_sfd_toc;
+    uint16_t pre_toc;
+
+    if (!DW3000_HAL_RX_BASIC_CHECK_DW3000(dw3000_reg_read_u32(
+            device,
+            DW3000_REG_SYS_CFG,
+            &sys_cfg
+        )) ||
+        !DW3000_HAL_RX_BASIC_CHECK_DW3000(dw3000_reg_read_u32(
+            device,
+            DW3000_REG_TX_FCTRL,
+            &tx_fctrl
+        )) ||
+        !DW3000_HAL_RX_BASIC_CHECK_DW3000(dw3000_reg_read_u16(
+            device,
+            DW3000_REG_CHAN_CTRL,
+            &chan_ctrl
+        )) ||
+        !DW3000_HAL_RX_BASIC_CHECK_DW3000(dw3000_reg_read_u16(
+            device,
+            DW3000_REG_DTUNE0,
+            &dtune0
+        )) ||
+        !DW3000_HAL_RX_BASIC_CHECK_DW3000(dw3000_reg_read_u16(
+            device,
+            DW3000_REG_RX_SFD_TOC,
+            &rx_sfd_toc
+        )) ||
+        !DW3000_HAL_RX_BASIC_CHECK_DW3000(dw3000_reg_read_u16(
+            device,
+            DW3000_REG_PRE_TOC,
+            &pre_toc
+        ))) {
+        return false;
+    }
+
+    ESP_LOGI(
+        TAG,
+        "radio SYS_CFG=0x%08" PRIX32 " TX_FCTRL=0x%08" PRIX32
+        " CHAN_CTRL=0x%04" PRIX16 " DTUNE0=0x%04" PRIX16
+        " RX_SFD_TOC=%" PRIu16 " PRE_TOC=%" PRIu16,
+        sys_cfg,
+        tx_fctrl,
+        chan_ctrl,
+        dtune0,
+        rx_sfd_toc,
+        pre_toc
+    );
+
+    return true;
+}
+
 static bool dw3000_hal_rx_basic_initialize(dw3000_hal_rx_basic_app_t* app) {
     dw3000_device_config_t     config;
     dw3000_hal_bringup_t       bringup;
@@ -396,6 +453,12 @@ static bool dw3000_hal_rx_basic_initialize(dw3000_hal_rx_basic_app_t* app) {
     config.load_otp_calibration  = DW3000_HAL_RX_BASIC_LOAD_OTP_CALIBRATION;
     config.auto_init_pll         = DW3000_HAL_RX_BASIC_ENTER_IDLE_PLL;
     config.use_double_buffer     = false;
+    config.phy.preamble_length   = DW3000_PHY_PREAMBLE_LEN_128;
+    config.phy.pac_size          = DW3000_PHY_PAC_SIZE_8;
+    config.rx_tune.sfd_toc       = 129U;
+    config.sts.packet_cfg        = DW3000_STS_PACKET_CFG_SP0;
+    config.sts.pdoa_mode         = DW3000_STS_PDOA_MODE_DISABLED;
+    config.sts.sys_cfg_flags     = 0U;
     config.mac.panadr.pan_id     = DW3000_HAL_RX_BASIC_PAN_ID;
     config.mac.panadr.short_addr = DW3000_HAL_RX_BASIC_SHORT_ADDR;
 
@@ -430,7 +493,7 @@ static bool dw3000_hal_rx_basic_initialize(dw3000_hal_rx_basic_app_t* app) {
             &options
         );
         if (err == DW3000_ERROR_OK) {
-            return true;
+            return dw3000_hal_rx_basic_log_radio_config(&app->device);
         }
 
         if (attempt < DW3000_HAL_RX_BASIC_INIT_RETRIES) {
