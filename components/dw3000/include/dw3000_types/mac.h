@@ -11,7 +11,7 @@ typedef uint64_t dw3000_mac_eui_t;
 typedef uint16_t dw3000_mac_pan_id_t;
 typedef uint16_t dw3000_mac_short_addr_t;
 
-/* Mirrors PANADR (0x00:0C): low half PAN ID, high half short address. */
+/* Mirrors PANADR (0x00:0C): low half short address, high half PAN ID. */
 typedef struct {
     dw3000_mac_pan_id_t     pan_id;
     dw3000_mac_short_addr_t short_addr;
