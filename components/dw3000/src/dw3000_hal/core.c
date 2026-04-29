@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "dw3000_hal/pmsc.h"
 #include "dw3000_register.h"
 
 #define DW3000_HAL_DEVICE_ID_REV_PRODUCTION 0x02U
@@ -100,6 +101,16 @@ void dw3000_hal_default_config(dw3000_device_config_t* config) {
     config->sts.packet_cfg    = DW3000_STS_PACKET_CFG_SP0;
     config->sts.pdoa_mode     = DW3000_STS_PDOA_MODE_DISABLED;
     config->sts.sys_cfg_flags = DW3000_STS_SYS_CFG_CIA_STS;
+
+    config->pmsc.clk_ctrl.sys_clk = DW3000_PMSC_CLK_SRC_AUTO;
+    config->pmsc.clk_ctrl.rx_clk  = DW3000_PMSC_CLK_SRC_AUTO;
+    config->pmsc.clk_ctrl.tx_clk  = DW3000_PMSC_CLK_SRC_AUTO;
+    config->pmsc.clk_ctrl.flags   = 0U;
+    config->pmsc.seq_flags        = DW3000_PMSC_SEQ_CIARUNE;
+    config->pmsc.txfseq           = DW3000_PMSC_TXFSEQ_FINE_ENABLED;
+    config->pmsc.led_ctrl.blink_tim = DW3000_PMSC_LED_BLINK_TIM_DEFAULT;
+    config->pmsc.led_ctrl.flags     = DW3000_PMSC_LED_BLNKEN;
+    config->pmsc.bias_ctrl          = 0U;
 
     config->rx_tune.sfd_toc = 65U;
     config->rx_tune.pre_toc = 0U;
@@ -372,6 +383,13 @@ dw3000_error_t dw3000_hal_bringup(
     err = dw3000_hal_probe(device);
     if (err != DW3000_ERROR_OK) {
         return err;
+    }
+
+    if (device->config.auto_init_pll) {
+        err = dw3000_hal_pmsc_enter_idle_pll(device, actual_bringup->ready_timeout_us);
+        if (err != DW3000_ERROR_OK) {
+            return err;
+        }
     }
 
     device->state_flags = (dw3000_device_state_flags_t)(

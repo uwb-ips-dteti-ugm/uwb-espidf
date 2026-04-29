@@ -10,6 +10,7 @@
 #include "dw3000_types/device.h"
 #include "dw3000_types/mac.h"
 #include "dw3000_types/phy.h"
+#include "dw3000_types/pmsc.h"
 #include "dw3000_types/rx_tune.h"
 #include "dw3000_types/sts.h"
 #include "dw3000_types/txrx.h"
@@ -23,6 +24,7 @@ typedef struct {
     dw3000_mac_config_t     mac;
     dw3000_sts_config_t     sts;
     dw3000_cia_config_t     cia;
+    dw3000_pmsc_config_t    pmsc;
     dw3000_calib_config_t   calib;
     dw3000_rx_tune_config_t rx_tune;
 
