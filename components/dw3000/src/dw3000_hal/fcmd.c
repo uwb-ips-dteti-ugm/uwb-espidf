@@ -34,6 +34,14 @@ static bool dw3000_hal_fcmd_is_tx_command(dw3000_fcmd_t command) {
            (command == DW3000_FCMD_CCA_TX_W4R);
 }
 
+static bool dw3000_hal_fcmd_is_rx_command(dw3000_fcmd_t command) {
+    return (command == DW3000_FCMD_RX) ||
+           (command == DW3000_FCMD_DRX) ||
+           (command == DW3000_FCMD_DRX_TS) ||
+           (command == DW3000_FCMD_DRX_RS) ||
+           (command == DW3000_FCMD_DRX_REF);
+}
+
 static void dw3000_hal_fcmd_update_state(
     dw3000_device_t* device,
     dw3000_fcmd_t    command
@@ -60,7 +68,7 @@ static void dw3000_hal_fcmd_update_state(
         return;
     }
 
-    if (command == DW3000_FCMD_RX) {
+    if (dw3000_hal_fcmd_is_rx_command(command)) {
         device->state_flags = (dw3000_device_state_flags_t)(
             (device->state_flags | DW3000_DEVICE_STATE_RX_ON) &
             ~(DW3000_DEVICE_STATE_IDLE_RC |
