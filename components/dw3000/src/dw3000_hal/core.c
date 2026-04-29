@@ -16,6 +16,7 @@
 #include "dw3000_hal/rx.h"
 #include "dw3000_hal/status.h"
 #include "dw3000_hal/sts.h"
+#include "dw3000_hal/sync.h"
 #include "dw3000_register.h"
 
 #define DW3000_HAL_DEVICE_ID_REV_PRODUCTION 0x02U
@@ -135,6 +136,9 @@ void dw3000_hal_default_config(dw3000_device_config_t* config) {
     config->calib.tx_power.shr  = DW3000_CALIB_TX_POWER_DEFAULT_BYTE;
     config->calib.tx_power.sts  = DW3000_CALIB_TX_POWER_DEFAULT_BYTE;
     config->calib.xtal_trim     = 0U;
+
+    config->sync.flags = 0U;
+    config->sync.wait  = 0U;
 
     config->pmsc.clk_ctrl.sys_clk = DW3000_PMSC_CLK_SRC_AUTO;
     config->pmsc.clk_ctrl.rx_clk  = DW3000_PMSC_CLK_SRC_AUTO;
@@ -585,6 +589,13 @@ dw3000_error_t dw3000_hal_configure_device(
 
     if ((steps & (uint32_t)DW3000_HAL_INIT_STEP_AON) != 0U) {
         err = dw3000_hal_aon_configure_current(device);
+        if (err != DW3000_ERROR_OK) {
+            return err;
+        }
+    }
+
+    if ((steps & (uint32_t)DW3000_HAL_INIT_STEP_SYNC) != 0U) {
+        err = dw3000_hal_sync_configure_current(device);
         if (err != DW3000_ERROR_OK) {
             return err;
         }

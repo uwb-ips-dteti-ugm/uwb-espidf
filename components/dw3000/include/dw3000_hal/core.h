@@ -35,8 +35,9 @@ typedef enum {
     DW3000_HAL_INIT_STEP_GPIO         = 1UL << 7,
     DW3000_HAL_INIT_STEP_AES          = 1UL << 8,
     DW3000_HAL_INIT_STEP_AON          = 1UL << 9,
-    DW3000_HAL_INIT_STEP_RX_DEFAULT   = 1UL << 10,
-    DW3000_HAL_INIT_STEP_IDLE_PLL     = 1UL << 11,
+    DW3000_HAL_INIT_STEP_SYNC         = 1UL << 10,
+    DW3000_HAL_INIT_STEP_RX_DEFAULT   = 1UL << 11,
+    DW3000_HAL_INIT_STEP_IDLE_PLL     = 1UL << 12,
 } dw3000_hal_init_steps_t;
 
 #define DW3000_HAL_INIT_STEP_ALL \
@@ -51,6 +52,7 @@ typedef enum {
         DW3000_HAL_INIT_STEP_GPIO | \
         DW3000_HAL_INIT_STEP_AES | \
         DW3000_HAL_INIT_STEP_AON | \
+        DW3000_HAL_INIT_STEP_SYNC | \
         DW3000_HAL_INIT_STEP_RX_DEFAULT | \
         DW3000_HAL_INIT_STEP_IDLE_PLL))
 

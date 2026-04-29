@@ -16,6 +16,7 @@
 #include "dw3000_types/pmsc.h"
 #include "dw3000_types/rx_tune.h"
 #include "dw3000_types/sts.h"
+#include "dw3000_types/sync.h"
 #include "dw3000_types/txrx.h"
 
 #ifdef __cplusplus
@@ -32,6 +33,7 @@ typedef struct {
     dw3000_gpio_config_t    gpio;
     dw3000_aes_config_t     aes;
     dw3000_calib_config_t   calib;
+    dw3000_sync_config_t    sync;
     dw3000_rx_tune_config_t rx_tune;
 
     bool use_double_buffer;

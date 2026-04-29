@@ -25,15 +25,14 @@ This file tracks the component HAL surface so unfinished areas stay explicit.
 | AES | Usable foundation | AES_CFG/DMA/IV/key helpers, key RAM/scratch access, CCM*/GCM IV helpers, status/event control, start/wait/run wrappers, and transfer bounds validation. |
 | OTP-backed init orchestration | Usable foundation | Full initialize/configure-device wrappers that order status clear, PMSC, OTP-backed calibration, PHY, MAC, STS, CIA, GPIO, AES, AON, RX defaults, and deferred IDLE_PLL entry. |
 | PLL/RF/TX_CAL | Usable foundation | Dedicated register-file HALs for RF path forcing, TX test modes, LDO/SAR test access, PLL CFG/CC/CAL/XTAL access, SAR readings, PGC control/status, and pulse-generator calibration target/test access. |
+| External sync | Usable foundation | EC_CTRL OSTR configuration, documented wait validation, PLL_SYNC convenience helper, top-level disabled-by-default init step, and RX_CAL bridge wrappers for the shared register file. |
 
 ## Remaining
 
 | Area | Needed next | Why it matters |
 | --- | --- | --- |
-| External sync HAL | EC_CTRL/RX_CAL flow and deterministic timebase reset support. | Multi-anchor sync and wired reference-clock systems need this. |
 | ESP-IDF port/examples/tests | Concrete SPI/reset/IRQ port adapter, example app, mocks or host tests. | The HAL compiles, but it still needs integration proof and repeatable verification. |
 
 ## Current Priority
 
-1. External sync HAL.
-2. ESP-IDF port/examples/tests.
+1. ESP-IDF port/examples/tests.
