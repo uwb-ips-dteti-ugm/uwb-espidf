@@ -118,8 +118,8 @@ For packet configurations **SP1, SP2, and SP3** (see Chapter 3), the DW3000 rece
 - STS quality metric available in `STS_QUAL` (CIA diagnostic registers)
 
 The STS key and IV (Initial Vector) must match between transmitter and receiver. They are configured via:
-- `STS_KEY` registers (0x11:04)
-- `STS_IV` registers (0x11:08)
+- `STS_KEY` registers (0x02:0C)
+- `STS_IV` registers (0x02:1C)
 
 ---
 
