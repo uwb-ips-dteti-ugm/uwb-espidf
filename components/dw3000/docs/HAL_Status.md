@@ -19,12 +19,12 @@ This file tracks the component HAL surface so unfinished areas stay explicit.
 | PMSC/power state | Usable foundation | Clock control, sequencer flags, CPLOCK wait, IDLE_PLL entry, FORCE2INIT to IDLE_RC, SOFT_RST pulse, TXFSEQ, LED, BIAS_CTRL access. |
 | OTP | Usable foundation | OTP word reads, SRDATA read, DGC/LDO/BIAS/OPS kick helpers, guarded word programming API. |
 | Calibration | Usable foundation | TX power, XTAL trim, antenna-delay wrappers, SAR measurement/conversion, RX calibration, PGC helpers, PLL recalibration, OTP factory-kick helper. |
+| AON sleep/wake | Usable foundation | AON_DIG_CFG/AON_CFG helpers, direct AON RAM access, sleep counter programming, sleep/deepsleep entry, SPIRDY wake completion with OTP LDO/BIAS reload and optional RX/PLL post-wake hooks. |
 
 ## Remaining
 
 | Area | Needed next | Why it matters |
 | --- | --- | --- |
-| AON sleep/wake HAL | AON config/save/restore, sleep/deepsleep entry, wake-source setup, post-wake recalibration hooks. | Low-power operation is not safe without explicit retained config and wake sequencing. |
 | AES HAL | AES_CFG, IV/key, DMA setup, start/status, CCM*/GCM workflow wrappers. | Data security and hardware AES offload are exposed only as register types today. |
 | GPIO HAL | GPIO mode, direction, pulls, IRQ/debounce, LED and external PA/LNA modes. | Board integration, interrupts, activity LEDs, and RF front-end control need a stable API. |
 | OTP-backed init orchestration | Top-level ordered init that applies OTP/calibration, PMSC, PHY, MAC, STS, CIA, TX/RX defaults. | The current pieces are individually callable; a product-ready component needs a safe default sequence. |
@@ -35,8 +35,7 @@ This file tracks the component HAL surface so unfinished areas stay explicit.
 
 ## Current Priority
 
-1. AON sleep/wake HAL.
-2. GPIO and ACC/CIR HALs.
-3. AES and advanced sync/RF/TX calibration workflows.
-4. OTP-backed init orchestration.
-5. ESP-IDF port/examples/tests.
+1. GPIO and ACC/CIR HALs.
+2. AES and advanced sync/RF/TX calibration workflows.
+3. OTP-backed init orchestration.
+4. ESP-IDF port/examples/tests.

@@ -118,6 +118,18 @@ void dw3000_hal_default_config(dw3000_device_config_t* config) {
     config->pmsc.led_ctrl.flags     = DW3000_PMSC_LED_BLNKEN;
     config->pmsc.bias_ctrl          = 0U;
 
+    config->aon.dig_cfg = (dw3000_aon_dig_cfg_t)(
+        DW3000_AON_DIG_ONW_AON_DLD |
+        DW3000_AON_DIG_ONW_RUN_SAR |
+        DW3000_AON_DIG_ONW_PGFCAL
+    );
+    config->aon.cfg = (dw3000_aon_cfg_flags_t)(
+        DW3000_AON_CFG_BROUT_EN |
+        DW3000_AON_CFG_WAKE_CSN |
+        DW3000_AON_CFG_WAKE_WUP
+    );
+    config->aon.sleep_time = 0U;
+
     config->rx_tune.sfd_toc = 65U;
     config->rx_tune.pre_toc = 0U;
     config->rx_tune.dtune3  = 0xAF5F35CCUL;
