@@ -36,19 +36,19 @@ The higher-level convenience API is tracked separately in `Dev_Status_API.md`.
 | `hal_basic_info`            | Hardware pass       | ESP-IDF port setup plus informative DEV_ID, SYS_STATUS, SYS_CFG, SYS_TIME, SYS_STATE, EUI, and PANADR reads. |
 | `hal_default_init`          | Hardware pass       | Default HAL initialization and readbacks across status, MAC, STS, CIA, GPIO, AES, PMSC, and selected raw registers. |
 | `hal_aes_engine`            | Hardware pass       | AES key RAM, scratch RAM, AES-GCM encrypt/decrypt, AES status, and AES_DONE event generation.          |
-| `hal_gpio_irq`              | Build pass          | Active IRQ GPIO validation using AES_DONE as a deterministic interrupt source; needs hardware log confirmation. |
+| `hal_gpio_irq`              | Hardware pass       | Active IRQ GPIO validation using AES_DONE as a deterministic interrupt source.                                  |
+| `hal_rx_basic`              | Build pass          | RX arm, RXFCG/error polling, RX_FINFO, RX buffer read, RX timestamp, and frame-pattern validation; needs two-node hardware log confirmation. |
+| `hal_tx_basic`              | Build pass          | TX buffer/frame control, immediate TX start, TXFRS polling, TX timestamp, and repeated known-frame transmission; needs two-node hardware log confirmation. |
 
 ## Remaining
 
 | Area                         | Needed next                                   | Why it matters                                                                 |
 | ---------------------------- | --------------------------------------------- | ------------------------------------------------------------------------------ |
-| GPIO/IRQ hardware proof      | Flash/run `hal_gpio_irq` and confirm pass log. | Proves enabled SYS_STATUS events drive the physical IRQ pin through the port.   |
-| RX/TX hardware proof         | Two-node TX/RX test apps or one app with role selection. | Proves the frame path, timestamps, delayed TX/RX, and interrupt/status clearing. |
+| RX/TX hardware proof         | Flash/run `hal_rx_basic` plus `hal_tx_basic` and confirm pass logs. | Proves the frame path, timestamps, immediate TX/RX, and interrupt/status clearing. |
 | ACC/CIR hardware proof       | Read accumulator/CIR data after a real received frame. | ACC/CIR reads are only meaningful after CIADONE on an actual receive path.      |
 | Repeatable host/unit tests   | Add focused mocks under a future test folder. | Hardware tests prove the board; host tests catch regressions without hardware.  |
 
 ## Current Priority
 
-1. Run `hal_gpio_irq` on hardware.
-2. Add a two-node RX/TX hardware test.
-3. Add ACC/CIR inspection after RX is proven.
+1. Run `hal_rx_basic` plus `hal_tx_basic` on two boards.
+2. Add ACC/CIR inspection after RX is proven.

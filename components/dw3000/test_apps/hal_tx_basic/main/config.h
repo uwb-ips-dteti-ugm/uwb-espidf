@@ -1,0 +1,30 @@
+#ifndef DW3000_HAL_TX_BASIC_CONFIG_H
+#define DW3000_HAL_TX_BASIC_CONFIG_H
+
+#include <stdbool.h>
+
+#include "hal/spi_types.h"
+#include "soc/gpio_num.h"
+
+#define DW3000_HAL_TX_BASIC_SPI_HOST              SPI3_HOST
+#define DW3000_HAL_TX_BASIC_SPI_CLOCK_HZ          16000000
+#define DW3000_HAL_TX_BASIC_PIN_SCK               GPIO_NUM_18
+#define DW3000_HAL_TX_BASIC_PIN_MISO              GPIO_NUM_19
+#define DW3000_HAL_TX_BASIC_PIN_MOSI              GPIO_NUM_23
+#define DW3000_HAL_TX_BASIC_PIN_CS                GPIO_NUM_4
+#define DW3000_HAL_TX_BASIC_PIN_RST               GPIO_NUM_27
+#define DW3000_HAL_TX_BASIC_PIN_IRQ               GPIO_NUM_34
+#define DW3000_HAL_TX_BASIC_CONFIGURE_RST         true
+#define DW3000_HAL_TX_BASIC_CONFIGURE_IRQ         true
+#define DW3000_HAL_TX_BASIC_LOAD_OTP_CALIBRATION  true
+#define DW3000_HAL_TX_BASIC_ENTER_IDLE_PLL        true
+#define DW3000_HAL_TX_BASIC_SPI_MAX_TRANSFER_SIZE 1030U
+
+#define DW3000_HAL_TX_BASIC_PAN_ID                0xDECAU
+#define DW3000_HAL_TX_BASIC_SRC_ADDR              0x1234U
+#define DW3000_HAL_TX_BASIC_DST_ADDR              0x5678U
+#define DW3000_HAL_TX_BASIC_FRAME_COUNT           20U
+#define DW3000_HAL_TX_BASIC_FRAME_INTERVAL_US     250000U
+#define DW3000_HAL_TX_BASIC_TX_TIMEOUT_US         20000U
+
+#endif /* DW3000_HAL_TX_BASIC_CONFIG_H */
