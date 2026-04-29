@@ -13,20 +13,17 @@
 #include "dw3000_hal/mac.h"
 #include "dw3000_hal/status.h"
 #include "dw3000_hal/tx.h"
+#include "dw3000_register.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 
 #define DW3000_HAL_TX_BASIC_FRAME_HEADER_LEN 9U
 #define DW3000_HAL_TX_BASIC_FRAME_MAX_LEN    64U
 #define DW3000_HAL_TX_BASIC_POLL_DELAY_US    100U
 
-#define DW3000_HAL_TX_BASIC_ERROR_EVENTS \
-    (DW3000_TXRX_EVENT_HPDWARN |         \
-     DW3000_TXRX_EVENT_SPICRCE |         \
-     DW3000_TXRX_EVENT_CMD_ERR |         \
-     DW3000_TXRX_EVENT_SPI_OVF |         \
-     DW3000_TXRX_EVENT_SPI_UNF |         \
-     DW3000_TXRX_EVENT_SPIERR)
+#define DW3000_HAL_TX_BASIC_STOP_EVENTS DW3000_TXRX_EVENT_CMD_ERR
 
 static const char* TAG = "dw3000_hal_tx_basic";
 
@@ -72,6 +69,17 @@ static bool dw3000_hal_tx_basic_check_dw3000(
 static void dw3000_hal_tx_basic_write_u16_le(uint8_t* dst, uint16_t value) {
     dst[0] = (uint8_t)(value & 0xFFU);
     dst[1] = (uint8_t)((value >> 8U) & 0xFFU);
+}
+
+static void dw3000_hal_tx_basic_delay_us(
+    dw3000_device_t* device,
+    uint32_t         delay_us
+) {
+    if (delay_us >= 1000U) {
+        vTaskDelay(pdMS_TO_TICKS((delay_us + 999U) / 1000U));
+    } else if ((delay_us != 0U) && (device->port.delay_us != NULL)) {
+        device->port.delay_us(device->port.ctx, delay_us);
+    }
 }
 
 static size_t dw3000_hal_tx_basic_build_frame(uint8_t seq, uint8_t* frame) {
@@ -230,6 +238,7 @@ static bool dw3000_hal_tx_basic_wait_done(
 ) {
     uint64_t start_us;
     dw3000_txrx_event_t events = 0U;
+    uint8_t fcmd_stat = 0U;
 
     if ((device == NULL) || (device->port.get_time_us == NULL)) {
         ESP_LOGE(TAG, "TX wait requires get_time_us port callback");
@@ -252,17 +261,27 @@ static bool dw3000_hal_tx_basic_wait_done(
             return true;
         }
 
-        if ((events & DW3000_HAL_TX_BASIC_ERROR_EVENTS) != 0U) {
-            ESP_LOGE(TAG, "TX error SYS_STATUS=0x%012" PRIX64, (uint64_t)events);
+        if ((events & DW3000_HAL_TX_BASIC_STOP_EVENTS) != 0U) {
+            (void)dw3000_reg_read_u8(device, DW3000_REG_FCMD_STAT, &fcmd_stat);
+            ESP_LOGE(
+                TAG,
+                "TX command error SYS_STATUS=0x%012" PRIX64 " FCMD_STAT=0x%02" PRIX8,
+                (uint64_t)events,
+                fcmd_stat
+            );
             return false;
         }
 
-        if (device->port.delay_us != NULL) {
-            device->port.delay_us(device->port.ctx, DW3000_HAL_TX_BASIC_POLL_DELAY_US);
-        }
+        dw3000_hal_tx_basic_delay_us(device, DW3000_HAL_TX_BASIC_POLL_DELAY_US);
     } while ((device->port.get_time_us(device->port.ctx) - start_us) < timeout_us);
 
-    ESP_LOGE(TAG, "TX timeout SYS_STATUS=0x%012" PRIX64, (uint64_t)events);
+    (void)dw3000_reg_read_u8(device, DW3000_REG_FCMD_STAT, &fcmd_stat);
+    ESP_LOGE(
+        TAG,
+        "TX timeout SYS_STATUS=0x%012" PRIX64 " FCMD_STAT=0x%02" PRIX8,
+        (uint64_t)events,
+        fcmd_stat
+    );
     return false;
 }
 
@@ -332,7 +351,7 @@ static bool dw3000_hal_tx_basic_send_one(
 static bool dw3000_hal_tx_basic_run_test(dw3000_device_t* device) {
     dw3000_txrx_event_t saved_enabled;
     dw3000_txrx_event_t test_enabled =
-        DW3000_TXRX_EVENT_TXFRS | DW3000_HAL_TX_BASIC_ERROR_EVENTS;
+        DW3000_TXRX_EVENT_TXFRS | DW3000_HAL_TX_BASIC_STOP_EVENTS;
     bool ok = true;
 
     if (!DW3000_HAL_TX_BASIC_CHECK_DW3000(dw3000_hal_status_read_enabled(
@@ -355,10 +374,9 @@ static bool dw3000_hal_tx_basic_run_test(dw3000_device_t* device) {
             break;
         }
 
-        if ((device->port.delay_us != NULL) &&
-            (seq + 1U < DW3000_HAL_TX_BASIC_FRAME_COUNT)) {
-            device->port.delay_us(
-                device->port.ctx,
+        if (seq + 1U < DW3000_HAL_TX_BASIC_FRAME_COUNT) {
+            dw3000_hal_tx_basic_delay_us(
+                device,
                 DW3000_HAL_TX_BASIC_FRAME_INTERVAL_US
             );
         }

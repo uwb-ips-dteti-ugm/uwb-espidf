@@ -15,17 +15,12 @@
 #include "dw3000_hal/status.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 
 #define DW3000_HAL_RX_BASIC_FRAME_HEADER_LEN 9U
 #define DW3000_HAL_RX_BASIC_FRAME_MAX_LEN    127U
 #define DW3000_HAL_RX_BASIC_POLL_DELAY_US    1000U
-
-#define DW3000_HAL_RX_BASIC_SYSTEM_ERROR_EVENTS \
-    (DW3000_TXRX_EVENT_SPICRCE |                \
-     DW3000_TXRX_EVENT_CMD_ERR |                \
-     DW3000_TXRX_EVENT_SPI_OVF |                \
-     DW3000_TXRX_EVENT_SPI_UNF |                \
-     DW3000_TXRX_EVENT_SPIERR)
 
 static const char* TAG = "dw3000_hal_rx_basic";
 
@@ -70,6 +65,17 @@ static bool dw3000_hal_rx_basic_check_dw3000(
 
 static uint16_t dw3000_hal_rx_basic_read_u16_le(const uint8_t* src) {
     return (uint16_t)src[0] | ((uint16_t)src[1] << 8U);
+}
+
+static void dw3000_hal_rx_basic_delay_us(
+    dw3000_device_t* device,
+    uint32_t         delay_us
+) {
+    if (delay_us >= 1000U) {
+        vTaskDelay(pdMS_TO_TICKS((delay_us + 999U) / 1000U));
+    } else if ((delay_us != 0U) && (device->port.delay_us != NULL)) {
+        device->port.delay_us(device->port.ctx, delay_us);
+    }
 }
 
 static bool dw3000_hal_rx_basic_frame_matches(
@@ -329,10 +335,11 @@ static bool dw3000_hal_rx_basic_read_received_frame(
 
 static bool dw3000_hal_rx_basic_run_test(dw3000_device_t* device) {
     dw3000_txrx_event_t saved_enabled;
-    dw3000_txrx_event_t test_enabled =
-        dw3000_hal_rx_all_events() | DW3000_HAL_RX_BASIC_SYSTEM_ERROR_EVENTS;
+    dw3000_txrx_event_t test_enabled = dw3000_hal_rx_all_events();
+    dw3000_txrx_event_t rx_error_events = dw3000_hal_rx_error_events();
     dw3000_txrx_event_t events = 0U;
     uint64_t            start_us;
+    uint32_t            rx_error_count = 0U;
     bool                ok = true;
     bool                matched = false;
 
@@ -386,15 +393,26 @@ static bool dw3000_hal_rx_basic_run_test(dw3000_device_t* device) {
                 ok = false;
                 break;
             }
-        } else if ((events & (dw3000_hal_rx_error_events() |
-                              DW3000_HAL_RX_BASIC_SYSTEM_ERROR_EVENTS)) != 0U) {
-            ESP_LOGW(TAG, "RX error SYS_STATUS=0x%012" PRIX64 "; rearming", (uint64_t)events);
+        } else if ((events & rx_error_events) != 0U) {
+            ++rx_error_count;
+            if ((rx_error_count <= 5U) || ((rx_error_count % 32U) == 0U)) {
+                ESP_LOGW(
+                    TAG,
+                    "RX error #%u SYS_STATUS=0x%012" PRIX64 "; rearming",
+                    (unsigned)rx_error_count,
+                    (uint64_t)events
+                );
+            }
             if (!dw3000_hal_rx_basic_arm(device)) {
                 ok = false;
                 break;
             }
-        } else if (device->port.delay_us != NULL) {
-            device->port.delay_us(device->port.ctx, DW3000_HAL_RX_BASIC_POLL_DELAY_US);
+        } else if ((events & DW3000_TXRX_EVENT_CMD_ERR) != 0U) {
+            ESP_LOGE(TAG, "RX command error SYS_STATUS=0x%012" PRIX64, (uint64_t)events);
+            ok = false;
+            break;
+        } else {
+            dw3000_hal_rx_basic_delay_us(device, DW3000_HAL_RX_BASIC_POLL_DELAY_US);
         }
     }
 
