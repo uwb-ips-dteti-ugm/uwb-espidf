@@ -12,6 +12,7 @@
 #include "dw3000_hal/fcmd.h"
 #include "dw3000_hal/mac.h"
 #include "dw3000_hal/phy.h"
+#include "dw3000_hal/pmsc.h"
 #include "dw3000_hal/rx.h"
 #include "dw3000_hal/status.h"
 #include "dw3000_register.h"
@@ -457,8 +458,11 @@ static void dw3000_hal_rx_basic_apply_radio_profile(
 
 static bool dw3000_hal_rx_basic_configure_radio_profile(
     dw3000_device_t*              device,
-    const dw3000_device_config_t* config
+    const dw3000_device_config_t* config,
+    uint32_t                      idle_pll_timeout_us
 ) {
+    dw3000_error_t err;
+
     ESP_LOGI(
         TAG,
         "desired radio plen=%u pac=%u sfd_toc=%" PRIu16
@@ -470,12 +474,30 @@ static bool dw3000_hal_rx_basic_configure_radio_profile(
         (uint32_t)config->sts.sys_cfg_flags
     );
 
-    return DW3000_HAL_RX_BASIC_CHECK_DW3000(dw3000_hal_phy_configure(
+    if ((device->state_flags & DW3000_DEVICE_STATE_IDLE_PLL) != 0U) {
+        err = dw3000_hal_pmsc_force_idle_rc(device);
+        if (!DW3000_HAL_RX_BASIC_CHECK_DW3000(err)) {
+            return false;
+        }
+    }
+
+    err = dw3000_hal_phy_configure(
         device,
         &config->phy,
         &config->rx_tune
-    )) &&
-           dw3000_hal_rx_basic_log_radio_config(device);
+    );
+    if (!DW3000_HAL_RX_BASIC_CHECK_DW3000(err)) {
+        return false;
+    }
+
+    if (config->auto_init_pll) {
+        err = dw3000_hal_pmsc_enter_idle_pll(device, idle_pll_timeout_us);
+        if (!DW3000_HAL_RX_BASIC_CHECK_DW3000(err)) {
+            return false;
+        }
+    }
+
+    return dw3000_hal_rx_basic_log_radio_config(device);
 }
 
 static bool dw3000_hal_rx_basic_initialize(dw3000_hal_rx_basic_app_t* app) {
@@ -526,7 +548,8 @@ static bool dw3000_hal_rx_basic_initialize(dw3000_hal_rx_basic_app_t* app) {
         if (err == DW3000_ERROR_OK) {
             return dw3000_hal_rx_basic_configure_radio_profile(
                 &app->device,
-                &config
+                &config,
+                options.idle_pll_timeout_us
             );
         }
 
