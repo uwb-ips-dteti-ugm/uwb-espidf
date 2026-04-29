@@ -37,18 +37,18 @@ The higher-level convenience API is tracked separately in `Dev_Status_API.md`.
 | `hal_default_init`          | Hardware pass       | Default HAL initialization and readbacks across status, MAC, STS, CIA, GPIO, AES, PMSC, and selected raw registers. |
 | `hal_aes_engine`            | Hardware pass       | AES key RAM, scratch RAM, AES-GCM encrypt/decrypt, AES status, and AES_DONE event generation.          |
 | `hal_gpio_irq`              | Hardware pass       | Active IRQ GPIO validation using AES_DONE as a deterministic interrupt source.                                  |
-| `hal_rx_basic`              | Build pass          | RX arm, RXFCG/error polling, RX_FINFO, RX buffer read, RX timestamp, and frame-pattern validation; needs two-node hardware log confirmation. |
-| `hal_tx_basic`              | Build pass          | TX buffer/frame control, immediate TX start, TXFRS polling, TX timestamp, and repeated known-frame transmission; needs two-node hardware log confirmation. |
+| `hal_rx_basic`              | Build pass          | RX arm, RXFCG/error polling, RX_FINFO, RX buffer read, RX timestamp, frame-pattern validation, 6 MHz SPI, and configurable external PA/LNA control; needs two-node pass log. |
+| `hal_tx_basic`              | Hardware pass       | TX buffer/frame control, immediate TX start, TXFRS polling, TX timestamp, repeated known-frame transmission, 6 MHz SPI, and configurable external PA/LNA control. |
 
 ## Remaining
 
 | Area                         | Needed next                                   | Why it matters                                                                 |
 | ---------------------------- | --------------------------------------------- | ------------------------------------------------------------------------------ |
-| RX/TX hardware proof         | Flash/run `hal_rx_basic` plus `hal_tx_basic` and confirm pass logs. | Proves the frame path, timestamps, immediate TX/RX, and interrupt/status clearing. |
+| RX hardware proof            | Reflash `hal_rx_basic` and `hal_tx_basic` with external PA/LNA control enabled, then confirm `hal_rx_basic` pass log. | Proves the over-the-air frame path, RX metadata/timestamp reads, and RX status clearing. |
 | ACC/CIR hardware proof       | Read accumulator/CIR data after a real received frame. | ACC/CIR reads are only meaningful after CIADONE on an actual receive path.      |
 | Repeatable host/unit tests   | Add focused mocks under a future test folder. | Hardware tests prove the board; host tests catch regressions without hardware.  |
 
 ## Current Priority
 
-1. Run `hal_rx_basic` plus `hal_tx_basic` on two boards.
+1. Re-run `hal_rx_basic` plus `hal_tx_basic` on two boards after enabling GPIO4/5/6 external RF control.
 2. Add ACC/CIR inspection after RX is proven.

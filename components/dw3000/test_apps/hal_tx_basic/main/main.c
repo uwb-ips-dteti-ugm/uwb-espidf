@@ -10,6 +10,7 @@
 #include "dw3000_espidf.h"
 #include "dw3000_hal/core.h"
 #include "dw3000_hal/fcmd.h"
+#include "dw3000_hal/gpio.h"
 #include "dw3000_hal/mac.h"
 #include "dw3000_hal/phy.h"
 #include "dw3000_hal/status.h"
@@ -313,6 +314,27 @@ static bool dw3000_hal_tx_basic_configure_radio_profile(
            dw3000_hal_tx_basic_log_radio_config(device, config);
 }
 
+static bool dw3000_hal_tx_basic_configure_external_rf(
+    dw3000_device_t* device
+) {
+    ESP_LOGI(
+        TAG,
+        "external RF extpa=%d exttxe=%d extrxe=%d",
+        DW3000_HAL_TX_BASIC_ENABLE_EXTPA,
+        DW3000_HAL_TX_BASIC_ENABLE_EXTTXE,
+        DW3000_HAL_TX_BASIC_ENABLE_EXTRXE
+    );
+
+    return DW3000_HAL_TX_BASIC_CHECK_DW3000(
+        dw3000_hal_gpio_configure_external_pa_lna(
+            device,
+            DW3000_HAL_TX_BASIC_ENABLE_EXTPA,
+            DW3000_HAL_TX_BASIC_ENABLE_EXTTXE,
+            DW3000_HAL_TX_BASIC_ENABLE_EXTRXE
+        )
+    );
+}
+
 static bool dw3000_hal_tx_basic_initialize(dw3000_hal_tx_basic_app_t* app) {
     dw3000_device_config_t config;
 
@@ -330,6 +352,7 @@ static bool dw3000_hal_tx_basic_initialize(dw3000_hal_tx_basic_app_t* app) {
                app->port,
                &config
            )) &&
+           dw3000_hal_tx_basic_configure_external_rf(&app->device) &&
            dw3000_hal_tx_basic_configure_radio_profile(&app->device, &config);
 }
 

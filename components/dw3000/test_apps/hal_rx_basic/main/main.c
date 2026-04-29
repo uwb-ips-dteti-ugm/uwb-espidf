@@ -10,6 +10,7 @@
 #include "dw3000_espidf.h"
 #include "dw3000_hal/core.h"
 #include "dw3000_hal/fcmd.h"
+#include "dw3000_hal/gpio.h"
 #include "dw3000_hal/mac.h"
 #include "dw3000_hal/phy.h"
 #include "dw3000_hal/pmsc.h"
@@ -531,6 +532,27 @@ static bool dw3000_hal_rx_basic_configure_radio_profile(
     return dw3000_hal_rx_basic_log_radio_config(device, config);
 }
 
+static bool dw3000_hal_rx_basic_configure_external_rf(
+    dw3000_device_t* device
+) {
+    ESP_LOGI(
+        TAG,
+        "external RF extpa=%d exttxe=%d extrxe=%d",
+        DW3000_HAL_RX_BASIC_ENABLE_EXTPA,
+        DW3000_HAL_RX_BASIC_ENABLE_EXTTXE,
+        DW3000_HAL_RX_BASIC_ENABLE_EXTRXE
+    );
+
+    return DW3000_HAL_RX_BASIC_CHECK_DW3000(
+        dw3000_hal_gpio_configure_external_pa_lna(
+            device,
+            DW3000_HAL_RX_BASIC_ENABLE_EXTPA,
+            DW3000_HAL_RX_BASIC_ENABLE_EXTTXE,
+            DW3000_HAL_RX_BASIC_ENABLE_EXTRXE
+        )
+    );
+}
+
 static bool dw3000_hal_rx_basic_initialize(dw3000_hal_rx_basic_app_t* app) {
     dw3000_device_config_t     config;
     dw3000_hal_bringup_t       bringup;
@@ -577,11 +599,12 @@ static bool dw3000_hal_rx_basic_initialize(dw3000_hal_rx_basic_app_t* app) {
             &options
         );
         if (err == DW3000_ERROR_OK) {
-            return dw3000_hal_rx_basic_configure_radio_profile(
-                &app->device,
-                &config,
-                options.idle_pll_timeout_us
-            );
+            return dw3000_hal_rx_basic_configure_external_rf(&app->device) &&
+                   dw3000_hal_rx_basic_configure_radio_profile(
+                       &app->device,
+                       &config,
+                       options.idle_pll_timeout_us
+                   );
         }
 
         if (attempt < DW3000_HAL_RX_BASIC_INIT_RETRIES) {
