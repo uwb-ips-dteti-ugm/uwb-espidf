@@ -26,13 +26,14 @@ This file tracks the component HAL surface so unfinished areas stay explicit.
 | OTP-backed init orchestration | Usable foundation | Full initialize/configure-device wrappers that order status clear, PMSC, OTP-backed calibration, PHY, MAC, STS, CIA, GPIO, AES, AON, RX defaults, and deferred IDLE_PLL entry. |
 | PLL/RF/TX_CAL | Usable foundation | Dedicated register-file HALs for RF path forcing, TX test modes, LDO/SAR test access, PLL CFG/CC/CAL/XTAL access, SAR readings, PGC control/status, and pulse-generator calibration target/test access. |
 | External sync | Usable foundation | EC_CTRL OSTR configuration, documented wait validation, PLL_SYNC convenience helper, top-level disabled-by-default init step, and RX_CAL bridge wrappers for the shared register file. |
+| ESP-IDF port adapter | Usable foundation | Allocated dw3000_port_t wrapper with ESP-IDF SPI polling transactions, command-phase DW3000 headers, active-low reset GPIO, IRQ GPIO read, delay, microsecond timestamp, and recursive mutex callbacks. |
 
 ## Remaining
 
 | Area | Needed next | Why it matters |
 | --- | --- | --- |
-| ESP-IDF port/examples/tests | Concrete SPI/reset/IRQ port adapter, example app, mocks or host tests. | The HAL compiles, but it still needs integration proof and repeatable verification. |
+| ESP-IDF examples/tests | Example app plus mocks or host tests. | The HAL compiles, but it still needs integration proof and repeatable verification. |
 
 ## Current Priority
 
-1. ESP-IDF port/examples/tests.
+1. ESP-IDF examples/tests.
