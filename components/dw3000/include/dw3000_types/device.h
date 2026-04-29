@@ -9,10 +9,10 @@ extern "C" {
 
 /* DEV_ID (0x00:00) — 32-bit device identifier read on every cold boot
    to confirm silicon presence and dispatch revision-specific
-   calibration paths. Layout (low→high):
-     [ 7: 0] REV    silicon revision
-     [11: 8] VER    variant
-     [15:12] MODEL  chip family   (DW3000 family = 0x3)
+   calibration paths. Layout:
+     [ 3: 0] REV    silicon revision
+     [ 7: 4] VER    variant
+     [15: 8] MODEL  chip family   (DW3000 family = 0x03)
      [31:16] RIDTAG manufacturer  (Decawave   = 0xDECA) */
 typedef struct {
     uint8_t  rev;
