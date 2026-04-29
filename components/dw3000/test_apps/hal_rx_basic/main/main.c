@@ -22,6 +22,7 @@
 #define DW3000_HAL_RX_BASIC_FRAME_HEADER_LEN 9U
 #define DW3000_HAL_RX_BASIC_FRAME_MAX_LEN    127U
 #define DW3000_HAL_RX_BASIC_POLL_DELAY_US    1000U
+#define DW3000_HAL_RX_BASIC_REARM_DELAY_US   1000U
 
 static const char* TAG = "dw3000_hal_rx_basic";
 
@@ -73,7 +74,13 @@ static void dw3000_hal_rx_basic_delay_us(
     uint32_t         delay_us
 ) {
     if (delay_us >= 1000U) {
-        vTaskDelay(pdMS_TO_TICKS((delay_us + 999U) / 1000U));
+        TickType_t ticks = pdMS_TO_TICKS((delay_us + 999U) / 1000U);
+
+        if (ticks == 0U) {
+            ticks = 1U;
+        }
+
+        vTaskDelay(ticks);
     } else if ((delay_us != 0U) && (device->port.delay_us != NULL)) {
         device->port.delay_us(device->port.ctx, delay_us);
     }
@@ -447,6 +454,15 @@ static bool dw3000_hal_rx_basic_arm(dw3000_device_t* device) {
            DW3000_HAL_RX_BASIC_CHECK_DW3000(dw3000_hal_rx_start_immediate(device));
 }
 
+static bool dw3000_hal_rx_basic_rearm(dw3000_device_t* device) {
+    if (!dw3000_hal_rx_basic_arm(device)) {
+        return false;
+    }
+
+    dw3000_hal_rx_basic_delay_us(device, DW3000_HAL_RX_BASIC_REARM_DELAY_US);
+    return true;
+}
+
 static bool dw3000_hal_rx_basic_read_received_frame(
     dw3000_device_t*        device,
     dw3000_txrx_event_t     events,
@@ -508,6 +524,7 @@ static bool dw3000_hal_rx_basic_read_received_frame(
 static bool dw3000_hal_rx_basic_run_test(dw3000_device_t* device) {
     dw3000_txrx_event_t saved_enabled;
     dw3000_txrx_event_t test_enabled = dw3000_hal_rx_all_events();
+    dw3000_txrx_event_t rx_success_events = dw3000_hal_rx_success_events();
     dw3000_txrx_event_t rx_error_events = dw3000_hal_rx_error_events();
     dw3000_txrx_event_t events = 0U;
     uint64_t            start_us;
@@ -550,7 +567,27 @@ static bool dw3000_hal_rx_basic_run_test(dw3000_device_t* device) {
             break;
         }
 
-        if ((events & DW3000_TXRX_EVENT_RXFCG) != 0U) {
+        if ((events & DW3000_TXRX_EVENT_CMD_ERR) != 0U) {
+            ESP_LOGE(TAG, "RX command error SYS_STATUS=0x%012" PRIX64, (uint64_t)events);
+            ok = false;
+            break;
+        } else if ((events & rx_error_events) != 0U) {
+            ++rx_error_count;
+            if ((rx_error_count <= 5U) || ((rx_error_count % 32U) == 0U)) {
+                ESP_LOGW(
+                    TAG,
+                    "RX error #%u SYS_STATUS=0x%012" PRIX64
+                    " err=0x%012" PRIX64 "; rearming",
+                    (unsigned)rx_error_count,
+                    (uint64_t)events,
+                    (uint64_t)(events & rx_error_events)
+                );
+            }
+            if (!dw3000_hal_rx_basic_rearm(device)) {
+                ok = false;
+                break;
+            }
+        } else if ((events & rx_success_events) == rx_success_events) {
             if (!dw3000_hal_rx_basic_read_received_frame(device, events, &matched)) {
                 ok = false;
                 break;
@@ -561,28 +598,26 @@ static bool dw3000_hal_rx_basic_run_test(dw3000_device_t* device) {
             }
 
             ESP_LOGW(TAG, "valid RX frame did not match test pattern; rearming");
-            if (!dw3000_hal_rx_basic_arm(device)) {
+            if (!dw3000_hal_rx_basic_rearm(device)) {
                 ok = false;
                 break;
             }
-        } else if ((events & rx_error_events) != 0U) {
+        } else if ((events & (DW3000_TXRX_EVENT_RXFCG | DW3000_TXRX_EVENT_RXFR)) != 0U) {
             ++rx_error_count;
             if ((rx_error_count <= 5U) || ((rx_error_count % 32U) == 0U)) {
                 ESP_LOGW(
                     TAG,
-                    "RX error #%u SYS_STATUS=0x%012" PRIX64 "; rearming",
+                    "partial RX event #%u SYS_STATUS=0x%012" PRIX64
+                    " success=0x%012" PRIX64 "; rearming",
                     (unsigned)rx_error_count,
-                    (uint64_t)events
+                    (uint64_t)events,
+                    (uint64_t)(events & rx_success_events)
                 );
             }
-            if (!dw3000_hal_rx_basic_arm(device)) {
+            if (!dw3000_hal_rx_basic_rearm(device)) {
                 ok = false;
                 break;
             }
-        } else if ((events & DW3000_TXRX_EVENT_CMD_ERR) != 0U) {
-            ESP_LOGE(TAG, "RX command error SYS_STATUS=0x%012" PRIX64, (uint64_t)events);
-            ok = false;
-            break;
         } else {
             dw3000_hal_rx_basic_delay_us(device, DW3000_HAL_RX_BASIC_POLL_DELAY_US);
         }
