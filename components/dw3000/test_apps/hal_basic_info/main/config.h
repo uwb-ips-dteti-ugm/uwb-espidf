@@ -10,7 +10,7 @@ static const spi_host_device_t _spi_stub  = SPI3_HOST;
 static const gpio_num_t        _gpio_stub = GPIO_NUM_18;
 
 #define DW3000_HAL_BASIC_INFO_SPI_HOST              SPI3_HOST
-#define DW3000_HAL_BASIC_INFO_SPI_CLOCK_HZ          16000000
+#define DW3000_HAL_BASIC_INFO_SPI_CLOCK_HZ          6000000
 #define DW3000_HAL_BASIC_INFO_PIN_SCK               GPIO_NUM_18
 #define DW3000_HAL_BASIC_INFO_PIN_MISO              GPIO_NUM_19
 #define DW3000_HAL_BASIC_INFO_PIN_MOSI              GPIO_NUM_23

@@ -26,6 +26,7 @@
 #define DW3000_HAL_RX_BASIC_POLL_DELAY_US    1000U
 #define DW3000_HAL_RX_BASIC_REARM_DELAY_US   1000U
 #define DW3000_HAL_RX_BASIC_RADIO_SETTLE_US  1000U
+#define DW3000_HAL_RX_BASIC_TX_FCTRL_PHY_MASK 0x0000F400UL
 
 static const char* TAG = "dw3000_hal_rx_basic";
 
@@ -388,13 +389,29 @@ static dw3000_error_t dw3000_hal_rx_basic_initialize_once(
     return DW3000_ERROR_OK;
 }
 
-static bool dw3000_hal_rx_basic_log_radio_config(dw3000_device_t* device) {
+static uint32_t dw3000_hal_rx_basic_expected_tx_fctrl_phy_bits(
+    const dw3000_device_config_t* config
+) {
+    uint32_t bits = (uint32_t)config->phy.preamble_length << 12U;
+
+    if (config->phy.data_rate == DW3000_PHY_DATA_RATE_6M81) {
+        bits |= 1UL << 10U;
+    }
+
+    return bits;
+}
+
+static bool dw3000_hal_rx_basic_log_radio_config(
+    dw3000_device_t*              device,
+    const dw3000_device_config_t* config
+) {
     uint32_t sys_cfg;
     uint32_t tx_fctrl;
     uint16_t chan_ctrl;
     uint16_t dtune0;
     uint16_t rx_sfd_toc;
     uint16_t pre_toc;
+    uint32_t expected_tx_fctrl;
 
     if (!DW3000_HAL_RX_BASIC_CHECK_DW3000(dw3000_reg_read_u32(
             device,
@@ -441,6 +458,20 @@ static bool dw3000_hal_rx_basic_log_radio_config(dw3000_device_t* device) {
         rx_sfd_toc,
         pre_toc
     );
+
+    expected_tx_fctrl = dw3000_hal_rx_basic_expected_tx_fctrl_phy_bits(config);
+    if (((tx_fctrl & DW3000_HAL_RX_BASIC_TX_FCTRL_PHY_MASK) !=
+         expected_tx_fctrl) ||
+        (rx_sfd_toc != config->rx_tune.sfd_toc)) {
+        ESP_LOGE(
+            TAG,
+            "radio readback mismatch expected TX_FCTRL[phy]=0x%04" PRIX32
+            " RX_SFD_TOC=%" PRIu16 "; SPI/register transport is unstable",
+            expected_tx_fctrl,
+            config->rx_tune.sfd_toc
+        );
+        return false;
+    }
 
     return true;
 }
@@ -497,7 +528,7 @@ static bool dw3000_hal_rx_basic_configure_radio_profile(
         }
     }
 
-    return dw3000_hal_rx_basic_log_radio_config(device);
+    return dw3000_hal_rx_basic_log_radio_config(device, config);
 }
 
 static bool dw3000_hal_rx_basic_initialize(dw3000_hal_rx_basic_app_t* app) {

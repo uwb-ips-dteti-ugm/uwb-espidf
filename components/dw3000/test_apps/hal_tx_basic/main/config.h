@@ -7,7 +7,7 @@
 #include "soc/gpio_num.h"
 
 #define DW3000_HAL_TX_BASIC_SPI_HOST              SPI3_HOST
-#define DW3000_HAL_TX_BASIC_SPI_CLOCK_HZ          16000000
+#define DW3000_HAL_TX_BASIC_SPI_CLOCK_HZ          6000000
 #define DW3000_HAL_TX_BASIC_PIN_SCK               GPIO_NUM_18
 #define DW3000_HAL_TX_BASIC_PIN_MISO              GPIO_NUM_19
 #define DW3000_HAL_TX_BASIC_PIN_MOSI              GPIO_NUM_23
