@@ -188,6 +188,19 @@ bool dw3000_hal_sts_acc_qual_is_sufficient(
     return (threshold != 0U) && (acc_qual >= threshold);
 }
 
+bool dw3000_hal_sts_timestamp_is_reliable(
+    uint8_t                     cps_len,
+    const dw3000_cia_path_ts_t* timestamp,
+    dw3000_sts_acc_qual_t      acc_qual
+) {
+    if (timestamp == NULL) {
+        return false;
+    }
+
+    return (timestamp->toast == 0U) &&
+           dw3000_hal_sts_acc_qual_is_sufficient(cps_len, acc_qual);
+}
+
 dw3000_error_t dw3000_hal_sts_read_config(
     dw3000_device_t*     device,
     dw3000_sts_config_t* config

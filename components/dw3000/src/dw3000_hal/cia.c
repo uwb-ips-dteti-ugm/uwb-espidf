@@ -52,6 +52,10 @@
 #define DW3000_HAL_CIA_TOA_MASK                UINT64_C(0xFFFFFFFFFF)
 #define DW3000_HAL_CIA_POA_SHIFT               8U
 #define DW3000_HAL_CIA_POA_BITS                14U
+#define DW3000_HAL_CIA_IP_TOAST_SHIFT          24U
+#define DW3000_HAL_CIA_IP_TOAST_MASK           0x00FFU
+#define DW3000_HAL_CIA_STS_TOAST_SHIFT         23U
+#define DW3000_HAL_CIA_STS_TOAST_MASK          0x01FFU
 
 #define DW3000_HAL_CIA_TDOA_BITS               41U
 #define DW3000_HAL_CIA_PDOA_BITS               14U
@@ -63,6 +67,12 @@
 #define DW3000_HAL_CIA_DIAG_PEAK_AMPL_MASK     0x001FFFFFUL
 #define DW3000_HAL_CIA_DIAG_PEAK_INDEX_SHIFT   21U
 #define DW3000_HAL_CIA_DIAG_FP_AMPL_MASK       0x003FFFFFUL
+
+typedef struct {
+    dw3000_reg_desc_t reg;
+    uint8_t           toast_shift;
+    uint16_t          toast_mask;
+} dw3000_hal_cia_path_ts_regs_t;
 
 typedef struct {
     dw3000_reg_desc_t peak;
@@ -270,6 +280,8 @@ static void dw3000_hal_cia_decode_sts_conf(
 
 static void dw3000_hal_cia_decode_path_timestamp(
     const uint8_t            raw[8],
+    uint8_t                  toast_shift,
+    uint16_t                 toast_mask,
     dw3000_cia_path_ts_t*    timestamp
 ) {
     uint32_t upper = (uint32_t)raw[4] |
@@ -284,21 +296,28 @@ static void dw3000_hal_cia_decode_path_timestamp(
         poa,
         DW3000_HAL_CIA_POA_BITS
     );
+    timestamp->toast = (uint16_t)((upper >> toast_shift) & toast_mask);
 }
 
-static dw3000_error_t dw3000_hal_cia_path_timestamp_reg(
-    dw3000_hal_cia_path_t path,
-    dw3000_reg_desc_t*    reg
+static dw3000_error_t dw3000_hal_cia_path_timestamp_regs(
+    dw3000_hal_cia_path_t          path,
+    dw3000_hal_cia_path_ts_regs_t* regs
 ) {
     switch (path) {
         case DW3000_HAL_CIA_PATH_IP:
-            *reg = DW3000_REG_IP_TS;
+            regs->reg         = DW3000_REG_IP_TS;
+            regs->toast_shift = DW3000_HAL_CIA_IP_TOAST_SHIFT;
+            regs->toast_mask  = DW3000_HAL_CIA_IP_TOAST_MASK;
             return DW3000_ERROR_OK;
         case DW3000_HAL_CIA_PATH_STS:
-            *reg = DW3000_REG_STS_TS;
+            regs->reg         = DW3000_REG_STS_TS;
+            regs->toast_shift = DW3000_HAL_CIA_STS_TOAST_SHIFT;
+            regs->toast_mask  = DW3000_HAL_CIA_STS_TOAST_MASK;
             return DW3000_ERROR_OK;
         case DW3000_HAL_CIA_PATH_STS1:
-            *reg = DW3000_REG_STS1_TS;
+            regs->reg         = DW3000_REG_STS1_TS;
+            regs->toast_shift = DW3000_HAL_CIA_STS_TOAST_SHIFT;
+            regs->toast_mask  = DW3000_HAL_CIA_STS_TOAST_MASK;
             return DW3000_ERROR_OK;
         default:
             return DW3000_ERROR_INVALID_ARG;
@@ -790,15 +809,15 @@ dw3000_error_t dw3000_hal_cia_read_path_timestamp(
     dw3000_hal_cia_path_t  path,
     dw3000_cia_path_ts_t*  timestamp
 ) {
-    dw3000_error_t  err;
-    dw3000_reg_desc_t reg;
-    uint8_t         raw[8];
+    dw3000_error_t                 err;
+    dw3000_hal_cia_path_ts_regs_t  regs;
+    uint8_t                        raw[8];
 
     if ((device == NULL) || (timestamp == NULL)) {
         return DW3000_ERROR_INVALID_ARG;
     }
 
-    err = dw3000_hal_cia_path_timestamp_reg(path, &reg);
+    err = dw3000_hal_cia_path_timestamp_regs(path, &regs);
     if (err != DW3000_ERROR_OK) {
         return err;
     }
@@ -808,12 +827,17 @@ dw3000_error_t dw3000_hal_cia_read_path_timestamp(
         return err;
     }
 
-    err = dw3000_reg_read(device, reg, raw, sizeof(raw));
+    err = dw3000_reg_read(device, regs.reg, raw, sizeof(raw));
     if (err != DW3000_ERROR_OK) {
         return err;
     }
 
-    dw3000_hal_cia_decode_path_timestamp(raw, timestamp);
+    dw3000_hal_cia_decode_path_timestamp(
+        raw,
+        regs.toast_shift,
+        regs.toast_mask,
+        timestamp
+    );
     return DW3000_ERROR_OK;
 }
 

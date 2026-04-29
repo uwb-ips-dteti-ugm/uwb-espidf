@@ -6,6 +6,7 @@
 
 #include "dw3000_device.h"
 #include "dw3000_error.h"
+#include "dw3000_types/cia.h"
 #include "dw3000_types/sts.h"
 
 #ifdef __cplusplus
@@ -33,6 +34,12 @@ uint16_t dw3000_hal_sts_acc_qual_threshold(uint8_t cps_len);
 bool dw3000_hal_sts_acc_qual_is_sufficient(
     uint8_t               cps_len,
     dw3000_sts_acc_qual_t acc_qual
+);
+
+bool dw3000_hal_sts_timestamp_is_reliable(
+    uint8_t                    cps_len,
+    const dw3000_cia_path_ts_t* timestamp,
+    dw3000_sts_acc_qual_t      acc_qual
 );
 
 dw3000_error_t dw3000_hal_sts_read_config(

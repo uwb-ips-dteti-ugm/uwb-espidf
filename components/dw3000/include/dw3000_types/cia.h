@@ -16,12 +16,13 @@ extern "C" {
 typedef uint16_t dw3000_cia_antenna_delay_t;
 
 /* IP_TS (0x0C:00), STS_TS (0x0C:08), STS1_TS (0x0C:10). Each is an 8-byte
-   block holding a 40-bit segment time-of-arrival plus 14-bit signed
-   phase-of-arrival. The post-CIA aggregated RX timestamp lives in
-   RX_TIME (TXRX layer), not here. */
+   block holding a 40-bit segment time-of-arrival, 14-bit signed
+   phase-of-arrival, and path-specific TOA status. The post-CIA aggregated
+   RX timestamp lives in RX_TIME (TXRX layer), not here. */
 typedef struct {
     dw3000_txrx_timestamp_t toa; /* 40-bit, ~15.65 ps units */
     int16_t                 poa; /* 14-bit signed           */
+    uint16_t                toast; /* raw TOA status bits     */
 } dw3000_cia_path_ts_t;
 
 /* TDOA (0x0C:18) — 41-bit signed difference between IP TOA and STS TOA,
