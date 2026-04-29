@@ -72,8 +72,14 @@ typedef enum {
     DW3000_AES_PORT_RX_0    = 0x1U,
     DW3000_AES_PORT_RX_1    = 0x2U,
     DW3000_AES_PORT_TX      = 0x3U,
+    DW3000_AES_PORT_STS_KEY = 0x4U, /* DST_PORT only */
     DW3000_AES_PORT_NONE    = 0x7U,
 } dw3000_aes_port_t;
+
+typedef enum {
+    DW3000_AES_ENDIAN_BIG    = 0x0U,
+    DW3000_AES_ENDIAN_LITTLE = 0x1U,
+} dw3000_aes_endianness_t;
 
 /* DMA_CFG (0x01:44). HDR_SIZE bytes are authenticated only; PYLD_SIZE
    bytes are authenticated and (en|de)crypted. */
@@ -82,6 +88,7 @@ typedef struct {
     uint16_t          src_addr; /* 10 bits */
     dw3000_aes_port_t dst_port;
     uint16_t          dst_addr;  /* 10 bits */
+    dw3000_aes_endianness_t endianness;
     uint8_t           hdr_size;  /*  7 bits */
     uint16_t          pyld_size; /* 10 bits */
 } dw3000_aes_dma_cfg_t;
@@ -94,8 +101,13 @@ typedef enum {
     DW3000_AES_STS_TRANS_ERR = 1U << 2,
     DW3000_AES_STS_MEM_CONF  = 1U << 3,
     DW3000_AES_STS_RAM_EMPTY = 1U << 4,
-    DW3000_AES_STS_AES_ERR   = 1U << 5,
+    DW3000_AES_STS_RAM_FULL  = 1U << 5,
 } dw3000_aes_status_t;
+
+#define DW3000_AES_STS_ERROR_MASK \
+    ((uint32_t)DW3000_AES_STS_AUTH_ERR | \
+     (uint32_t)DW3000_AES_STS_TRANS_ERR | \
+     (uint32_t)DW3000_AES_STS_MEM_CONF)
 
 /* AES_START (0x01:4C) — write this byte to kick off one operation.
    Self-clearing; poll AES_STS or wait on EVENT_AES_DONE. */
@@ -103,6 +115,10 @@ typedef enum {
 
 /* AES_KEY_RAM (0x17) holds eight 16-byte slots, indexed by KEY_ADDR. */
 #define DW3000_AES_KEY_RAM_SLOTS 8U
+#define DW3000_AES_KEY_RAM_SLOT_SIZE 16U
+#define DW3000_AES_SCRATCH_RAM_SIZE 127U
+#define DW3000_AES_FRAME_BUFFER_SIZE 1024U
+#define DW3000_AES_STS_KEY_SIZE 16U
 
 typedef struct {
     dw3000_aes_mode_t      mode;

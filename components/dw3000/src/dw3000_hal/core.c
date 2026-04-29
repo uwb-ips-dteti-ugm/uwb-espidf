@@ -5,7 +5,17 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "dw3000_hal/aes.h"
+#include "dw3000_hal/aon.h"
+#include "dw3000_hal/calib.h"
+#include "dw3000_hal/cia.h"
+#include "dw3000_hal/gpio.h"
+#include "dw3000_hal/mac.h"
+#include "dw3000_hal/phy.h"
 #include "dw3000_hal/pmsc.h"
+#include "dw3000_hal/rx.h"
+#include "dw3000_hal/status.h"
+#include "dw3000_hal/sts.h"
 #include "dw3000_register.h"
 
 #define DW3000_HAL_DEVICE_ID_REV_PRODUCTION 0x02U
@@ -18,6 +28,7 @@
 #define DW3000_HAL_DGC_THR_64_OPT   0x32U
 
 #define DW3000_HAL_DEFAULT_STS_CPS_LEN 7U
+#define DW3000_HAL_INIT_KNOWN_STEPS ((uint32_t)DW3000_HAL_INIT_STEP_ALL)
 
 static uint32_t dw3000_hal_min_u32(uint32_t a, uint32_t b) {
     return (a < b) ? a : b;
@@ -57,6 +68,12 @@ static void dw3000_hal_mark_idle_rc(dw3000_device_t* device) {
     );
 }
 
+static bool dw3000_hal_is_idle_for_config(const dw3000_device_t* device) {
+    return (device->state_flags & (DW3000_DEVICE_STATE_RX_ON |
+                                   DW3000_DEVICE_STATE_TX_PENDING |
+                                   DW3000_DEVICE_STATE_SLEEPING)) == 0U;
+}
+
 static dw3000_error_t dw3000_hal_clear_spi_ready(dw3000_device_t* device) {
     return dw3000_reg_write_u32(
         device,
@@ -73,6 +90,17 @@ void dw3000_hal_default_bringup(dw3000_hal_bringup_t* bringup) {
     bringup->reset_assert_us = DW3000_HAL_DEFAULT_RESET_ASSERT_US;
     bringup->reset_settle_us = DW3000_HAL_DEFAULT_RESET_SETTLE_US;
     bringup->ready_timeout_us = DW3000_HAL_DEFAULT_READY_TIMEOUT_US;
+}
+
+void dw3000_hal_default_init_options(
+    dw3000_hal_init_options_t* options
+) {
+    if (options == NULL) {
+        return;
+    }
+
+    options->steps = DW3000_HAL_INIT_STEP_ALL;
+    options->idle_pll_timeout_us = DW3000_HAL_DEFAULT_READY_TIMEOUT_US;
 }
 
 void dw3000_hal_default_config(dw3000_device_config_t* config) {
@@ -141,6 +169,21 @@ void dw3000_hal_default_config(dw3000_device_config_t* config) {
     config->gpio.irq.edge_mode   = 0U;
     config->gpio.irq.both_edges  = 0U;
     config->gpio.irq.debounce    = 0U;
+
+    config->aes.mode             = DW3000_AES_MODE_ENCRYPT;
+    config->aes.key_size         = DW3000_AES_KEY_SIZE_128;
+    config->aes.tag_size         = DW3000_AES_TAG_SIZE_NONE;
+    config->aes.core             = DW3000_AES_CORE_GCM;
+    config->aes.key_src          = DW3000_AES_KEY_SRC_REGISTER;
+    config->aes.flags            = 0U;
+    config->aes.key_addr         = 0U;
+    config->aes.dma.src_port     = DW3000_AES_PORT_SCRATCH;
+    config->aes.dma.src_addr     = 0U;
+    config->aes.dma.dst_port     = DW3000_AES_PORT_SCRATCH;
+    config->aes.dma.dst_addr     = 0U;
+    config->aes.dma.endianness   = DW3000_AES_ENDIAN_BIG;
+    config->aes.dma.hdr_size     = 0U;
+    config->aes.dma.pyld_size    = 0U;
 
     config->rx_tune.sfd_toc = 65U;
     config->rx_tune.pre_toc = 0U;
@@ -427,4 +470,185 @@ dw3000_error_t dw3000_hal_bringup(
     );
 
     return DW3000_ERROR_OK;
+}
+
+dw3000_error_t dw3000_hal_configure_device(
+    dw3000_device_t*                  device,
+    const dw3000_hal_init_options_t*  options
+) {
+    dw3000_error_t           err;
+    dw3000_hal_init_options_t default_options;
+    const dw3000_hal_init_options_t* actual_options = options;
+    uint32_t                 steps;
+
+    if (device == NULL) {
+        return DW3000_ERROR_INVALID_ARG;
+    }
+
+    if ((device->state_flags & DW3000_DEVICE_STATE_PRESENT) == 0U) {
+        return DW3000_ERROR_INVALID_STATE;
+    }
+
+    if (!dw3000_hal_is_idle_for_config(device)) {
+        return DW3000_ERROR_BUSY;
+    }
+
+    if (actual_options == NULL) {
+        dw3000_hal_default_init_options(&default_options);
+        actual_options = &default_options;
+    }
+
+    steps = (uint32_t)actual_options->steps;
+    if ((steps & ~DW3000_HAL_INIT_KNOWN_STEPS) != 0U) {
+        return DW3000_ERROR_INVALID_ARG;
+    }
+
+    if (((steps & (uint32_t)DW3000_HAL_INIT_STEP_CALIBRATION) != 0U) &&
+        device->config.load_otp_calibration &&
+        ((device->state_flags & DW3000_DEVICE_STATE_IDLE_PLL) != 0U)) {
+        err = dw3000_hal_pmsc_force_idle_rc(device);
+        if (err != DW3000_ERROR_OK) {
+            return err;
+        }
+    }
+
+    if ((steps & (uint32_t)DW3000_HAL_INIT_STEP_CLEAR_STATUS) != 0U) {
+        err = dw3000_hal_status_clear_all(device);
+        if (err != DW3000_ERROR_OK) {
+            return err;
+        }
+    }
+
+    if ((steps & (uint32_t)DW3000_HAL_INIT_STEP_PMSC) != 0U) {
+        dw3000_pmsc_config_t pmsc_config = device->config.pmsc;
+
+        if ((steps & (uint32_t)DW3000_HAL_INIT_STEP_IDLE_PLL) != 0U) {
+            pmsc_config.seq_flags = (dw3000_pmsc_seq_ctrl_flags_t)(
+                pmsc_config.seq_flags & ~DW3000_PMSC_SEQ_AINIT2IDLE
+            );
+        }
+
+        err = dw3000_hal_pmsc_configure(device, &pmsc_config);
+        if (err != DW3000_ERROR_OK) {
+            return err;
+        }
+    }
+
+    if ((steps & (uint32_t)DW3000_HAL_INIT_STEP_CALIBRATION) != 0U) {
+        err = dw3000_hal_calib_configure_current(device);
+        if (err != DW3000_ERROR_OK) {
+            return err;
+        }
+    }
+
+    if ((steps & (uint32_t)DW3000_HAL_INIT_STEP_PHY) != 0U) {
+        err = dw3000_hal_phy_configure_current(device);
+        if (err != DW3000_ERROR_OK) {
+            return err;
+        }
+    }
+
+    if ((steps & (uint32_t)DW3000_HAL_INIT_STEP_MAC) != 0U) {
+        err = dw3000_hal_mac_configure_current(device);
+        if (err != DW3000_ERROR_OK) {
+            return err;
+        }
+    }
+
+    if ((steps & (uint32_t)DW3000_HAL_INIT_STEP_STS) != 0U) {
+        err = dw3000_hal_sts_configure_current(device);
+        if (err != DW3000_ERROR_OK) {
+            return err;
+        }
+    }
+
+    if ((steps & (uint32_t)DW3000_HAL_INIT_STEP_CIA) != 0U) {
+        err = dw3000_hal_cia_configure_current(device);
+        if (err != DW3000_ERROR_OK) {
+            return err;
+        }
+    }
+
+    if ((steps & (uint32_t)DW3000_HAL_INIT_STEP_GPIO) != 0U) {
+        err = dw3000_hal_gpio_configure_current(device);
+        if (err != DW3000_ERROR_OK) {
+            return err;
+        }
+    }
+
+    if ((steps & (uint32_t)DW3000_HAL_INIT_STEP_AES) != 0U) {
+        err = dw3000_hal_aes_configure_current(device);
+        if (err != DW3000_ERROR_OK) {
+            return err;
+        }
+    }
+
+    if ((steps & (uint32_t)DW3000_HAL_INIT_STEP_AON) != 0U) {
+        err = dw3000_hal_aon_configure_current(device);
+        if (err != DW3000_ERROR_OK) {
+            return err;
+        }
+    }
+
+    if ((steps & (uint32_t)DW3000_HAL_INIT_STEP_RX_DEFAULT) != 0U) {
+        err = dw3000_hal_rx_configure_default(device);
+        if (err != DW3000_ERROR_OK) {
+            return err;
+        }
+    }
+
+    if (((steps & (uint32_t)DW3000_HAL_INIT_STEP_IDLE_PLL) != 0U) &&
+        device->config.auto_init_pll &&
+        ((device->state_flags & DW3000_DEVICE_STATE_IDLE_PLL) == 0U)) {
+        err = dw3000_hal_pmsc_enter_idle_pll(
+            device,
+            actual_options->idle_pll_timeout_us
+        );
+        if (err != DW3000_ERROR_OK) {
+            return err;
+        }
+    }
+
+    device->state_flags = (dw3000_device_state_flags_t)(
+        device->state_flags | DW3000_DEVICE_STATE_INITIALIZED
+    );
+
+    return DW3000_ERROR_OK;
+}
+
+dw3000_error_t dw3000_hal_initialize(
+    dw3000_device_t*                  device,
+    const dw3000_hal_bringup_t*       bringup,
+    const dw3000_hal_init_options_t*  options,
+    const dw3000_port_t*              port,
+    const dw3000_device_config_t*     config
+) {
+    dw3000_error_t         err;
+    dw3000_device_config_t actual_config;
+    dw3000_device_config_t bringup_config;
+
+    if ((device == NULL) || (port == NULL)) {
+        return DW3000_ERROR_INVALID_ARG;
+    }
+
+    if (config == NULL) {
+        dw3000_hal_default_config(&actual_config);
+    } else {
+        actual_config = *config;
+    }
+
+    bringup_config = actual_config;
+    bringup_config.auto_init_pll = false;
+
+    err = dw3000_hal_bringup(device, bringup, port, &bringup_config);
+    if (err != DW3000_ERROR_OK) {
+        return err;
+    }
+
+    device->config = actual_config;
+    device->state_flags = (dw3000_device_state_flags_t)(
+        device->state_flags & ~DW3000_DEVICE_STATE_INITIALIZED
+    );
+
+    return dw3000_hal_configure_device(device, options);
 }

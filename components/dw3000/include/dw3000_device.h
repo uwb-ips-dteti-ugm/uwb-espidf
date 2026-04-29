@@ -6,6 +6,7 @@
 
 #include "dw3000_port.h"
 #include "dw3000_types/aon.h"
+#include "dw3000_types/aes.h"
 #include "dw3000_types/calib.h"
 #include "dw3000_types/cia.h"
 #include "dw3000_types/device.h"
@@ -29,6 +30,7 @@ typedef struct {
     dw3000_pmsc_config_t    pmsc;
     dw3000_aon_config_t     aon;
     dw3000_gpio_config_t    gpio;
+    dw3000_aes_config_t     aes;
     dw3000_calib_config_t   calib;
     dw3000_rx_tune_config_t rx_tune;
 

@@ -24,7 +24,49 @@ typedef struct {
     uint32_t ready_timeout_us;
 } dw3000_hal_bringup_t;
 
+typedef enum {
+    DW3000_HAL_INIT_STEP_CLEAR_STATUS = 1UL << 0,
+    DW3000_HAL_INIT_STEP_PMSC         = 1UL << 1,
+    DW3000_HAL_INIT_STEP_CALIBRATION  = 1UL << 2,
+    DW3000_HAL_INIT_STEP_PHY          = 1UL << 3,
+    DW3000_HAL_INIT_STEP_MAC          = 1UL << 4,
+    DW3000_HAL_INIT_STEP_STS          = 1UL << 5,
+    DW3000_HAL_INIT_STEP_CIA          = 1UL << 6,
+    DW3000_HAL_INIT_STEP_GPIO         = 1UL << 7,
+    DW3000_HAL_INIT_STEP_AES          = 1UL << 8,
+    DW3000_HAL_INIT_STEP_AON          = 1UL << 9,
+    DW3000_HAL_INIT_STEP_RX_DEFAULT   = 1UL << 10,
+    DW3000_HAL_INIT_STEP_IDLE_PLL     = 1UL << 11,
+} dw3000_hal_init_steps_t;
+
+#define DW3000_HAL_INIT_STEP_ALL \
+    ((dw3000_hal_init_steps_t)( \
+        DW3000_HAL_INIT_STEP_CLEAR_STATUS | \
+        DW3000_HAL_INIT_STEP_PMSC | \
+        DW3000_HAL_INIT_STEP_CALIBRATION | \
+        DW3000_HAL_INIT_STEP_PHY | \
+        DW3000_HAL_INIT_STEP_MAC | \
+        DW3000_HAL_INIT_STEP_STS | \
+        DW3000_HAL_INIT_STEP_CIA | \
+        DW3000_HAL_INIT_STEP_GPIO | \
+        DW3000_HAL_INIT_STEP_AES | \
+        DW3000_HAL_INIT_STEP_AON | \
+        DW3000_HAL_INIT_STEP_RX_DEFAULT | \
+        DW3000_HAL_INIT_STEP_IDLE_PLL))
+
+/* Top-level subsystem sequence. CALIBRATION applies OTP factory data when
+   device->config.load_otp_calibration is true. IDLE_PLL is only entered
+   when device->config.auto_init_pll is true. */
+typedef struct {
+    dw3000_hal_init_steps_t steps;
+    uint32_t                idle_pll_timeout_us;
+} dw3000_hal_init_options_t;
+
 void dw3000_hal_default_bringup(dw3000_hal_bringup_t* bringup);
+
+void dw3000_hal_default_init_options(
+    dw3000_hal_init_options_t* options
+);
 
 void dw3000_hal_default_config(dw3000_device_config_t* config);
 
@@ -74,6 +116,24 @@ dw3000_error_t dw3000_hal_bringup(
     const dw3000_hal_bringup_t*   bringup,
     const dw3000_port_t*          port,
     const dw3000_device_config_t* config
+);
+
+/* Apply the ordered product configuration to an already probed, idle
+   device. NULL options uses dw3000_hal_default_init_options(). OTP-backed
+   calibration is run from IDLE_RC, then IDLE_PLL is restored if requested. */
+dw3000_error_t dw3000_hal_configure_device(
+    dw3000_device_t*                    device,
+    const dw3000_hal_init_options_t*    options
+);
+
+/* Full context init + reset/probe + ordered subsystem configuration.
+   PLL entry is deferred until after OTP-backed calibration. */
+dw3000_error_t dw3000_hal_initialize(
+    dw3000_device_t*                    device,
+    const dw3000_hal_bringup_t*         bringup,
+    const dw3000_hal_init_options_t*    options,
+    const dw3000_port_t*                port,
+    const dw3000_device_config_t*       config
 );
 
 static inline bool dw3000_hal_has_capability(

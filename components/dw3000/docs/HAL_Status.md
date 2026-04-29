@@ -22,20 +22,19 @@ This file tracks the component HAL surface so unfinished areas stay explicit.
 | AON sleep/wake | Usable foundation | AON_DIG_CFG/AON_CFG helpers, direct AON RAM access, sleep counter programming, sleep/deepsleep entry, SPIRDY wake completion with OTP LDO/BIAS reload and optional RX/PLL post-wake hooks. |
 | GPIO | Usable foundation | GPIO clocks, mode/function packing, direction, pulls, output state, raw reads, IRQ sense/mode/both-edge/debounce setup, IRQ latch clear, LED and external PA/LNA helpers. |
 | ACC/CIR | Usable foundation | Accumulator clock handling, dummy-octet discard, sample-indexed direct/indirect reads, raw and decoded 24-bit complex CIR samples, Ipatov/STS CIR spans, CIADONE check helper. |
+| AES | Usable foundation | AES_CFG/DMA/IV/key helpers, key RAM/scratch access, CCM*/GCM IV helpers, status/event control, start/wait/run wrappers, and transfer bounds validation. |
+| OTP-backed init orchestration | Usable foundation | Full initialize/configure-device wrappers that order status clear, PMSC, OTP-backed calibration, PHY, MAC, STS, CIA, GPIO, AES, AON, RX defaults, and deferred IDLE_PLL entry. |
 
 ## Remaining
 
 | Area | Needed next | Why it matters |
 | --- | --- | --- |
-| AES HAL | AES_CFG, IV/key, DMA setup, start/status, CCM*/GCM workflow wrappers. | Data security and hardware AES offload are exposed only as register types today. |
-| OTP-backed init orchestration | Top-level ordered init that applies OTP/calibration, PMSC, PHY, MAC, STS, CIA, TX/RX defaults. | The current pieces are individually callable; a product-ready component needs a safe default sequence. |
 | PLL/RF/TX calibration HALs | Dedicated wrappers around PLL, RF, and TX_CAL register files. | Regulatory testing, TX power calibration, and temperature compensation need controlled workflows. |
 | External sync HAL | EC_CTRL/RX_CAL flow and deterministic timebase reset support. | Multi-anchor sync and wired reference-clock systems need this. |
 | ESP-IDF port/examples/tests | Concrete SPI/reset/IRQ port adapter, example app, mocks or host tests. | The HAL compiles, but it still needs integration proof and repeatable verification. |
 
 ## Current Priority
 
-1. AES HAL.
-2. OTP-backed init orchestration.
-3. Advanced sync/RF/TX calibration workflows.
-4. ESP-IDF port/examples/tests.
+1. PLL/RF/TX calibration HALs.
+2. External sync HAL.
+3. ESP-IDF port/examples/tests.
