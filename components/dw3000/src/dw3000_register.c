@@ -7,7 +7,9 @@
 #define DW3000_SPI_WRITE_BIT         0x80U
 #define DW3000_SPI_SUBADDRESS_BIT    0x40U
 #define DW3000_SPI_FILE_ID_SHIFT     1U
-#define DW3000_SPI_SUBADDRESS_SHIFT  1U
+#define DW3000_SPI_SUBADDRESS_MSB    0x01U
+#define DW3000_SPI_SUBADDRESS_MASK   0x3FU
+#define DW3000_SPI_SUBADDRESS_SHIFT  2U
 #define DW3000_SPI_MAX_DIRECT_OFFSET 0x7FU
 #define DW3000_SPI_MAX_INDIRECT_OFS  0x7FFFU
 
@@ -104,8 +106,11 @@ static size_t dw3000_build_direct_header(
         return 1U;
     }
 
-    header[0] = (uint8_t)(command | DW3000_SPI_SUBADDRESS_BIT);
-    header[1] = (uint8_t)(reg.offset << DW3000_SPI_SUBADDRESS_SHIFT);
+    header[0] = (uint8_t)(command |
+                          DW3000_SPI_SUBADDRESS_BIT |
+                          ((reg.offset >> 6U) & DW3000_SPI_SUBADDRESS_MSB));
+    header[1] = (uint8_t)((reg.offset & DW3000_SPI_SUBADDRESS_MASK) << DW3000_SPI_SUBADDRESS_SHIFT);
+
     return 2U;
 }
 
