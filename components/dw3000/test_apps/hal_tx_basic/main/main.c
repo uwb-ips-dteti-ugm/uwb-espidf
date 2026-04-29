@@ -11,6 +11,7 @@
 #include "dw3000_hal/core.h"
 #include "dw3000_hal/fcmd.h"
 #include "dw3000_hal/mac.h"
+#include "dw3000_hal/phy.h"
 #include "dw3000_hal/status.h"
 #include "dw3000_hal/tx.h"
 #include "dw3000_register.h"
@@ -22,6 +23,7 @@
 #define DW3000_HAL_TX_BASIC_FRAME_HEADER_LEN 9U
 #define DW3000_HAL_TX_BASIC_FRAME_MAX_LEN    64U
 #define DW3000_HAL_TX_BASIC_POLL_DELAY_US    100U
+#define DW3000_HAL_TX_BASIC_RADIO_SETTLE_US  1000U
 
 #define DW3000_HAL_TX_BASIC_STOP_EVENTS DW3000_TXRX_EVENT_CMD_ERR
 
@@ -76,7 +78,13 @@ static void dw3000_hal_tx_basic_delay_us(
     uint32_t         delay_us
 ) {
     if (delay_us >= 1000U) {
-        vTaskDelay(pdMS_TO_TICKS((delay_us + 999U) / 1000U));
+        TickType_t ticks = pdMS_TO_TICKS((delay_us + 999U) / 1000U);
+
+        if (ticks == 0U) {
+            ticks = 1U;
+        }
+
+        vTaskDelay(ticks);
     } else if ((delay_us != 0U) && (device->port.delay_us != NULL)) {
         device->port.delay_us(device->port.ctx, delay_us);
     }
@@ -213,28 +221,85 @@ static bool dw3000_hal_tx_basic_teardown(dw3000_hal_tx_basic_app_t* app) {
     return ok;
 }
 
+static void dw3000_hal_tx_basic_apply_radio_profile(
+    dw3000_device_config_t* config
+) {
+    config->phy.preamble_length = DW3000_PHY_PREAMBLE_LEN_128;
+    config->phy.pac_size        = DW3000_PHY_PAC_SIZE_8;
+    config->rx_tune.sfd_toc     = dw3000_hal_phy_sfd_timeout(&config->phy);
+    config->sts.packet_cfg      = DW3000_STS_PACKET_CFG_SP0;
+    config->sts.pdoa_mode       = DW3000_STS_PDOA_MODE_DISABLED;
+    config->sts.sys_cfg_flags   = 0U;
+}
+
+static bool dw3000_hal_tx_basic_log_radio_config(dw3000_device_t* device) {
+    uint32_t tx_fctrl;
+    uint16_t rx_sfd_toc;
+
+    if (!DW3000_HAL_TX_BASIC_CHECK_DW3000(dw3000_reg_read_u32(
+            device,
+            DW3000_REG_TX_FCTRL,
+            &tx_fctrl
+        )) ||
+        !DW3000_HAL_TX_BASIC_CHECK_DW3000(dw3000_reg_read_u16(
+            device,
+            DW3000_REG_RX_SFD_TOC,
+            &rx_sfd_toc
+        ))) {
+        return false;
+    }
+
+    ESP_LOGI(
+        TAG,
+        "radio TX_FCTRL=0x%08" PRIX32 " RX_SFD_TOC=%" PRIu16,
+        tx_fctrl,
+        rx_sfd_toc
+    );
+
+    return true;
+}
+
+static bool dw3000_hal_tx_basic_configure_radio_profile(
+    dw3000_device_t*              device,
+    const dw3000_device_config_t* config
+) {
+    ESP_LOGI(
+        TAG,
+        "desired radio plen=%u pac=%u sfd_toc=%" PRIu16
+        " sts_packet=%u sts_flags=0x%08" PRIX32,
+        (unsigned)dw3000_hal_phy_preamble_symbols(config->phy.preamble_length),
+        (unsigned)dw3000_hal_phy_pac_symbols(config->phy.pac_size),
+        config->rx_tune.sfd_toc,
+        (unsigned)config->sts.packet_cfg,
+        (uint32_t)config->sts.sys_cfg_flags
+    );
+
+    return DW3000_HAL_TX_BASIC_CHECK_DW3000(dw3000_hal_phy_configure(
+        device,
+        &config->phy,
+        &config->rx_tune
+    )) &&
+           dw3000_hal_tx_basic_log_radio_config(device);
+}
+
 static bool dw3000_hal_tx_basic_initialize(dw3000_hal_tx_basic_app_t* app) {
     dw3000_device_config_t config;
 
     dw3000_hal_default_config(&config);
     config.load_otp_calibration = DW3000_HAL_TX_BASIC_LOAD_OTP_CALIBRATION;
     config.auto_init_pll        = DW3000_HAL_TX_BASIC_ENTER_IDLE_PLL;
-    config.phy.preamble_length  = DW3000_PHY_PREAMBLE_LEN_128;
-    config.phy.pac_size         = DW3000_PHY_PAC_SIZE_8;
-    config.rx_tune.sfd_toc      = 129U;
-    config.sts.packet_cfg       = DW3000_STS_PACKET_CFG_SP0;
-    config.sts.pdoa_mode        = DW3000_STS_PDOA_MODE_DISABLED;
-    config.sts.sys_cfg_flags    = 0U;
+    dw3000_hal_tx_basic_apply_radio_profile(&config);
     config.mac.panadr.pan_id    = DW3000_HAL_TX_BASIC_PAN_ID;
     config.mac.panadr.short_addr = DW3000_HAL_TX_BASIC_SRC_ADDR;
 
     return DW3000_HAL_TX_BASIC_CHECK_DW3000(dw3000_hal_initialize(
-        &app->device,
-        NULL,
-        NULL,
-        app->port,
-        &config
-    ));
+               &app->device,
+               NULL,
+               NULL,
+               app->port,
+               &config
+           )) &&
+           dw3000_hal_tx_basic_configure_radio_profile(&app->device, &config);
 }
 
 static bool dw3000_hal_tx_basic_wait_done(
@@ -312,8 +377,13 @@ static bool dw3000_hal_tx_basic_send_one(
     frame.tx_b_offset = 0U;
     frame.fine_plen   = 0U;
 
-    if (!DW3000_HAL_TX_BASIC_CHECK_DW3000(dw3000_hal_fcmd_txrxoff(device)) ||
-        !DW3000_HAL_TX_BASIC_CHECK_DW3000(dw3000_hal_status_clear_all(device)) ||
+    if (!DW3000_HAL_TX_BASIC_CHECK_DW3000(dw3000_hal_fcmd_txrxoff(device))) {
+        return false;
+    }
+
+    dw3000_hal_tx_basic_delay_us(device, DW3000_HAL_TX_BASIC_RADIO_SETTLE_US);
+
+    if (!DW3000_HAL_TX_BASIC_CHECK_DW3000(dw3000_hal_status_clear_all(device)) ||
         !DW3000_HAL_TX_BASIC_CHECK_DW3000(dw3000_hal_tx_prepare_frame(
             device,
             frame_data,

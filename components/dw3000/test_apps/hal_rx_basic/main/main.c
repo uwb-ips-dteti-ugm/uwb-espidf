@@ -11,6 +11,7 @@
 #include "dw3000_hal/core.h"
 #include "dw3000_hal/fcmd.h"
 #include "dw3000_hal/mac.h"
+#include "dw3000_hal/phy.h"
 #include "dw3000_hal/rx.h"
 #include "dw3000_hal/status.h"
 #include "dw3000_register.h"
@@ -23,6 +24,7 @@
 #define DW3000_HAL_RX_BASIC_FRAME_MAX_LEN    127U
 #define DW3000_HAL_RX_BASIC_POLL_DELAY_US    1000U
 #define DW3000_HAL_RX_BASIC_REARM_DELAY_US   1000U
+#define DW3000_HAL_RX_BASIC_RADIO_SETTLE_US  1000U
 
 static const char* TAG = "dw3000_hal_rx_basic";
 
@@ -442,6 +444,40 @@ static bool dw3000_hal_rx_basic_log_radio_config(dw3000_device_t* device) {
     return true;
 }
 
+static void dw3000_hal_rx_basic_apply_radio_profile(
+    dw3000_device_config_t* config
+) {
+    config->phy.preamble_length = DW3000_PHY_PREAMBLE_LEN_128;
+    config->phy.pac_size        = DW3000_PHY_PAC_SIZE_8;
+    config->rx_tune.sfd_toc     = dw3000_hal_phy_sfd_timeout(&config->phy);
+    config->sts.packet_cfg      = DW3000_STS_PACKET_CFG_SP0;
+    config->sts.pdoa_mode       = DW3000_STS_PDOA_MODE_DISABLED;
+    config->sts.sys_cfg_flags   = 0U;
+}
+
+static bool dw3000_hal_rx_basic_configure_radio_profile(
+    dw3000_device_t*              device,
+    const dw3000_device_config_t* config
+) {
+    ESP_LOGI(
+        TAG,
+        "desired radio plen=%u pac=%u sfd_toc=%" PRIu16
+        " sts_packet=%u sts_flags=0x%08" PRIX32,
+        (unsigned)dw3000_hal_phy_preamble_symbols(config->phy.preamble_length),
+        (unsigned)dw3000_hal_phy_pac_symbols(config->phy.pac_size),
+        config->rx_tune.sfd_toc,
+        (unsigned)config->sts.packet_cfg,
+        (uint32_t)config->sts.sys_cfg_flags
+    );
+
+    return DW3000_HAL_RX_BASIC_CHECK_DW3000(dw3000_hal_phy_configure(
+        device,
+        &config->phy,
+        &config->rx_tune
+    )) &&
+           dw3000_hal_rx_basic_log_radio_config(device);
+}
+
 static bool dw3000_hal_rx_basic_initialize(dw3000_hal_rx_basic_app_t* app) {
     dw3000_device_config_t     config;
     dw3000_hal_bringup_t       bringup;
@@ -453,12 +489,7 @@ static bool dw3000_hal_rx_basic_initialize(dw3000_hal_rx_basic_app_t* app) {
     config.load_otp_calibration  = DW3000_HAL_RX_BASIC_LOAD_OTP_CALIBRATION;
     config.auto_init_pll         = DW3000_HAL_RX_BASIC_ENTER_IDLE_PLL;
     config.use_double_buffer     = false;
-    config.phy.preamble_length   = DW3000_PHY_PREAMBLE_LEN_128;
-    config.phy.pac_size          = DW3000_PHY_PAC_SIZE_8;
-    config.rx_tune.sfd_toc       = 129U;
-    config.sts.packet_cfg        = DW3000_STS_PACKET_CFG_SP0;
-    config.sts.pdoa_mode         = DW3000_STS_PDOA_MODE_DISABLED;
-    config.sts.sys_cfg_flags     = 0U;
+    dw3000_hal_rx_basic_apply_radio_profile(&config);
     config.mac.panadr.pan_id     = DW3000_HAL_RX_BASIC_PAN_ID;
     config.mac.panadr.short_addr = DW3000_HAL_RX_BASIC_SHORT_ADDR;
 
@@ -493,7 +524,10 @@ static bool dw3000_hal_rx_basic_initialize(dw3000_hal_rx_basic_app_t* app) {
             &options
         );
         if (err == DW3000_ERROR_OK) {
-            return dw3000_hal_rx_basic_log_radio_config(&app->device);
+            return dw3000_hal_rx_basic_configure_radio_profile(
+                &app->device,
+                &config
+            );
         }
 
         if (attempt < DW3000_HAL_RX_BASIC_INIT_RETRIES) {
@@ -512,8 +546,13 @@ static bool dw3000_hal_rx_basic_initialize(dw3000_hal_rx_basic_app_t* app) {
 }
 
 static bool dw3000_hal_rx_basic_arm(dw3000_device_t* device) {
-    return DW3000_HAL_RX_BASIC_CHECK_DW3000(dw3000_hal_fcmd_txrxoff(device)) &&
-           DW3000_HAL_RX_BASIC_CHECK_DW3000(dw3000_hal_status_clear_all(device)) &&
+    if (!DW3000_HAL_RX_BASIC_CHECK_DW3000(dw3000_hal_fcmd_txrxoff(device))) {
+        return false;
+    }
+
+    dw3000_hal_rx_basic_delay_us(device, DW3000_HAL_RX_BASIC_RADIO_SETTLE_US);
+
+    return DW3000_HAL_RX_BASIC_CHECK_DW3000(dw3000_hal_status_clear_all(device)) &&
            DW3000_HAL_RX_BASIC_CHECK_DW3000(dw3000_hal_rx_start_immediate(device));
 }
 
