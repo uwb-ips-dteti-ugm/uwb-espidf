@@ -22,8 +22,8 @@ typedef uint8_t dw3000_pll_coarse_code_t;
    coarse-code search; USE_OLD bypasses the search and applies the
    value already in PLL_CC (faster wake from sleep). */
 typedef enum {
-    DW3000_PLL_CAL_EN      = 1U << 0,
-    DW3000_PLL_CAL_USE_OLD = 1U << 8,
+    DW3000_PLL_CAL_USE_OLD = 1U << 0,
+    DW3000_PLL_CAL_EN      = 1U << 8,
 } dw3000_pll_cal_flags_t;
 
 /* XTAL (0x09:14) — see dw3000_calib_xtal_trim_t in calib.h. */

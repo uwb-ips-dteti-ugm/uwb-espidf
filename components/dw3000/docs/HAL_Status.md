@@ -18,12 +18,12 @@ This file tracks the component HAL surface so unfinished areas stay explicit.
 | STS | Usable foundation | STS length/key/IV, STS SYS_CFG bits, ACC_QUAL checks, LOAD_IV/RST_LAST helpers. |
 | PMSC/power state | Usable foundation | Clock control, sequencer flags, CPLOCK wait, IDLE_PLL entry, FORCE2INIT to IDLE_RC, SOFT_RST pulse, TXFSEQ, LED, BIAS_CTRL access. |
 | OTP | Usable foundation | OTP word reads, SRDATA read, DGC/LDO/BIAS/OPS kick helpers, guarded word programming API. |
+| Calibration | Usable foundation | TX power, XTAL trim, antenna-delay wrappers, SAR measurement/conversion, RX calibration, PGC helpers, PLL recalibration, OTP factory-kick helper. |
 
 ## Remaining
 
 | Area | Needed next | Why it matters |
 | --- | --- | --- |
-| Calibration HAL | PGF/RX calibration, PLL recalibration, SAR temperature/voltage, XTAL trim, antenna-delay workflows. | RX sensitivity, channel 9 PLL stability, timestamp accuracy, and production board tuning depend on it. |
 | AON sleep/wake HAL | AON config/save/restore, sleep/deepsleep entry, wake-source setup, post-wake recalibration hooks. | Low-power operation is not safe without explicit retained config and wake sequencing. |
 | AES HAL | AES_CFG, IV/key, DMA setup, start/status, CCM*/GCM workflow wrappers. | Data security and hardware AES offload are exposed only as register types today. |
 | GPIO HAL | GPIO mode, direction, pulls, IRQ/debounce, LED and external PA/LNA modes. | Board integration, interrupts, activity LEDs, and RF front-end control need a stable API. |
@@ -35,8 +35,8 @@ This file tracks the component HAL surface so unfinished areas stay explicit.
 
 ## Current Priority
 
-1. Calibration HAL using OTP data.
-2. AON sleep/wake HAL.
-3. GPIO and ACC/CIR HALs.
-4. AES and advanced sync/RF/TX calibration workflows.
-5. OTP-backed init orchestration.
+1. AON sleep/wake HAL.
+2. GPIO and ACC/CIR HALs.
+3. AES and advanced sync/RF/TX calibration workflows.
+4. OTP-backed init orchestration.
+5. ESP-IDF port/examples/tests.

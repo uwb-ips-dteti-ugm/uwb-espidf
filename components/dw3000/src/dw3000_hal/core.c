@@ -102,6 +102,12 @@ void dw3000_hal_default_config(dw3000_device_config_t* config) {
     config->sts.pdoa_mode     = DW3000_STS_PDOA_MODE_DISABLED;
     config->sts.sys_cfg_flags = DW3000_STS_SYS_CFG_CIA_STS;
 
+    config->calib.tx_power.data = DW3000_CALIB_TX_POWER_DEFAULT_BYTE;
+    config->calib.tx_power.phr  = DW3000_CALIB_TX_POWER_DEFAULT_BYTE;
+    config->calib.tx_power.shr  = DW3000_CALIB_TX_POWER_DEFAULT_BYTE;
+    config->calib.tx_power.sts  = DW3000_CALIB_TX_POWER_DEFAULT_BYTE;
+    config->calib.xtal_trim     = 0U;
+
     config->pmsc.clk_ctrl.sys_clk = DW3000_PMSC_CLK_SRC_AUTO;
     config->pmsc.clk_ctrl.rx_clk  = DW3000_PMSC_CLK_SRC_AUTO;
     config->pmsc.clk_ctrl.tx_clk  = DW3000_PMSC_CLK_SRC_AUTO;
