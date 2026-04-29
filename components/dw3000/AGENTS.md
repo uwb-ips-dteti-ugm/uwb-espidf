@@ -95,6 +95,7 @@ Contains reference material such as single-sided and double-sided two-way rangin
 ### `docs/13_Features_Summary.md`
 
 Maps the full DW3000 feature surface area (PHY, timestamping, STS, MAC assists, AES, power, calibration, OTP, sync) and proposes a practical implementation priority order for the driver. Use this to orient the overall component architecture before reading individual subsystem chapters.
+
 ## When To Use The PDF
 
 Consult `docs/DW3000 User Manual.pdf` only when:
