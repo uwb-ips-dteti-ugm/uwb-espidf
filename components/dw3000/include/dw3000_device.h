@@ -73,6 +73,16 @@ typedef struct {
     uint8_t active_rx_buffer;
 } dw3000_device_t;
 
+/* Allocate a device context and initialize it with copied port/config data.
+   Passing NULL config uses the HAL default configuration. Returns NULL on
+   allocation failure or invalid arguments. */
+dw3000_device_t* dw3000_device_new(
+    const dw3000_port_t*          port,
+    const dw3000_device_config_t* config
+);
+
+void dw3000_device_delete(dw3000_device_t* device);
+
 #ifdef __cplusplus
 }
 #endif
