@@ -4,8 +4,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "dw3000_types/device.h"
-#include "dw3000_types/err.h"
+#include "dw3000_device.h"
+#include "dw3000_err.h"
 #include "dw3000_types/reg.h"
 
 #ifdef __cplusplus

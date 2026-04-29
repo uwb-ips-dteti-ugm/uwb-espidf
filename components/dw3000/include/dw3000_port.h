@@ -5,13 +5,13 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "err.h"
+#include "dw3000_error.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef dw3000_err_t (*dw3000_spi_write_fn)(
+typedef dw3000_error_t (*dw3000_spi_write_fn)(
     void* ctx,
     const uint8_t* header,
     size_t header_len,
@@ -19,7 +19,7 @@ typedef dw3000_err_t (*dw3000_spi_write_fn)(
     size_t data_len
 );
 
-typedef dw3000_err_t (*dw3000_spi_read_fn)(
+typedef dw3000_error_t (*dw3000_spi_read_fn)(
     void* ctx,
     const uint8_t* header,
     size_t header_len,

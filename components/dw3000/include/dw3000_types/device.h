@@ -3,31 +3,26 @@
 
 #include <stdint.h>
 
-#include "mac.h"
-#include "phy.h"
-#include "port.h"
-#include "sleep.h"
-#include "sts.h"
-#include "sync.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+/* DEV_ID (0x00:00) — 32-bit device identifier read on every cold boot
+   to confirm silicon presence and dispatch revision-specific
+   calibration paths. Layout (low→high):
+     [ 7: 0] REV    silicon revision
+     [11: 8] VER    variant
+     [15:12] MODEL  chip family   (DW3000 family = 0x3)
+     [31:16] RIDTAG manufacturer  (Decawave   = 0xDECA) */
 typedef struct {
-    dw3000_phy_config_t phy;
-    dw3000_mac_config_t mac;
-    dw3000_sts_config_t sts;
-    dw3000_sync_config_t sync;
-    dw3000_sleep_config_t sleep;
-    dw3000_address_t address;
-} dw3000_device_config_t;
+    uint8_t  rev;
+    uint8_t  ver;
+    uint8_t  model;
+    uint16_t ridtag;
+} dw3000_device_id_t;
 
-typedef struct {
-    dw3000_port_t port;
-    dw3000_device_config_t config;
-    uint32_t state_flags;
-} dw3000_device_t;
+#define DW3000_DEVICE_RIDTAG_DECAWAVE 0xDECAU
+#define DW3000_DEVICE_MODEL_DW3000    0x03U
 
 #ifdef __cplusplus
 }
