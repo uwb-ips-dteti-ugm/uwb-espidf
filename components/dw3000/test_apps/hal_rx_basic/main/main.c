@@ -13,6 +13,7 @@
 #include "dw3000_hal/mac.h"
 #include "dw3000_hal/rx.h"
 #include "dw3000_hal/status.h"
+#include "dw3000_register.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
@@ -227,6 +228,74 @@ static bool dw3000_hal_rx_basic_setup(dw3000_hal_rx_basic_app_t* app) {
     return true;
 }
 
+static void dw3000_hal_rx_basic_log_init_snapshot(
+    dw3000_device_t* device,
+    const char*      stage
+) {
+    dw3000_txrx_event_t status;
+    dw3000_device_id_t  id;
+    uint32_t            sys_state;
+    dw3000_error_t      err;
+
+    err = dw3000_hal_status_read(device, &status);
+    if (err == DW3000_ERROR_OK) {
+        ESP_LOGE(
+            TAG,
+            "%s snapshot SYS_STATUS=0x%012" PRIX64,
+            stage,
+            (uint64_t)status
+        );
+    } else {
+        ESP_LOGE(
+            TAG,
+            "%s snapshot SYS_STATUS read failed: %s",
+            stage,
+            dw3000_error_to_string(err)
+        );
+    }
+
+    err = dw3000_hal_read_device_id(device, &id);
+    if (err == DW3000_ERROR_OK) {
+        ESP_LOGE(
+            TAG,
+            "%s snapshot DEV_ID ridtag=0x%04" PRIX16 " model=0x%02" PRIX8
+            " ver=0x%01" PRIX8 " rev=0x%01" PRIX8,
+            stage,
+            id.ridtag,
+            id.model,
+            id.ver,
+            id.rev
+        );
+    } else {
+        ESP_LOGE(
+            TAG,
+            "%s snapshot DEV_ID read failed: %s",
+            stage,
+            dw3000_error_to_string(err)
+        );
+    }
+
+    err = dw3000_reg_read_u32(device, DW3000_REG_SYS_STATE, &sys_state);
+    if (err == DW3000_ERROR_OK) {
+        ESP_LOGE(
+            TAG,
+            "%s snapshot SYS_STATE=0x%08" PRIX32
+            " state_flags=0x%08" PRIX32,
+            stage,
+            sys_state,
+            (uint32_t)device->state_flags
+        );
+    } else {
+        ESP_LOGE(
+            TAG,
+            "%s snapshot SYS_STATE read failed: %s state_flags=0x%08" PRIX32,
+            stage,
+            dw3000_error_to_string(err),
+            (uint32_t)device->state_flags
+        );
+    }
+}
+
 static bool dw3000_hal_rx_basic_teardown(dw3000_hal_rx_basic_app_t* app) {
     bool ok = true;
 
@@ -250,8 +319,71 @@ static bool dw3000_hal_rx_basic_teardown(dw3000_hal_rx_basic_app_t* app) {
     return ok;
 }
 
+static dw3000_error_t dw3000_hal_rx_basic_initialize_once(
+    dw3000_hal_rx_basic_app_t*       app,
+    const dw3000_device_config_t*    config,
+    const dw3000_hal_bringup_t*      bringup,
+    const dw3000_hal_init_options_t* options
+) {
+    dw3000_device_config_t bringup_config = *config;
+    dw3000_error_t         err;
+
+    bringup_config.auto_init_pll = false;
+
+    err = dw3000_hal_bringup(&app->device, bringup, app->port, &bringup_config);
+    if (err != DW3000_ERROR_OK) {
+        ESP_LOGE(
+            TAG,
+            "bringup failed: %s",
+            dw3000_error_to_string(err)
+        );
+        dw3000_hal_rx_basic_log_init_snapshot(&app->device, "bringup");
+        return err;
+    }
+
+    ESP_LOGI(
+        TAG,
+        "bringup ok DEV_ID ridtag=0x%04" PRIX16 " model=0x%02" PRIX8
+        " ver=0x%01" PRIX8 " rev=0x%01" PRIX8
+        " state_flags=0x%08" PRIX32,
+        app->device.id.ridtag,
+        app->device.id.model,
+        app->device.id.ver,
+        app->device.id.rev,
+        (uint32_t)app->device.state_flags
+    );
+
+    app->device.config = *config;
+    app->device.state_flags = (dw3000_device_state_flags_t)(
+        app->device.state_flags & ~DW3000_DEVICE_STATE_INITIALIZED
+    );
+
+    err = dw3000_hal_configure_device(&app->device, options);
+    if (err != DW3000_ERROR_OK) {
+        ESP_LOGE(
+            TAG,
+            "configure failed: %s",
+            dw3000_error_to_string(err)
+        );
+        dw3000_hal_rx_basic_log_init_snapshot(&app->device, "configure");
+        return err;
+    }
+
+    ESP_LOGI(
+        TAG,
+        "configure ok state_flags=0x%08" PRIX32,
+        (uint32_t)app->device.state_flags
+    );
+
+    return DW3000_ERROR_OK;
+}
+
 static bool dw3000_hal_rx_basic_initialize(dw3000_hal_rx_basic_app_t* app) {
-    dw3000_device_config_t config;
+    dw3000_device_config_t     config;
+    dw3000_hal_bringup_t       bringup;
+    dw3000_hal_init_options_t  options;
+    dw3000_error_t             err = DW3000_ERROR_TIMEOUT;
+    uint32_t                   attempt;
 
     dw3000_hal_default_config(&config);
     config.load_otp_calibration  = DW3000_HAL_RX_BASIC_LOAD_OTP_CALIBRATION;
@@ -260,13 +392,53 @@ static bool dw3000_hal_rx_basic_initialize(dw3000_hal_rx_basic_app_t* app) {
     config.mac.panadr.pan_id     = DW3000_HAL_RX_BASIC_PAN_ID;
     config.mac.panadr.short_addr = DW3000_HAL_RX_BASIC_SHORT_ADDR;
 
-    return DW3000_HAL_RX_BASIC_CHECK_DW3000(dw3000_hal_initialize(
-        &app->device,
-        NULL,
-        NULL,
-        app->port,
-        &config
-    ));
+    dw3000_hal_default_bringup(&bringup);
+    bringup.reset_assert_us  = DW3000_HAL_RX_BASIC_RESET_ASSERT_US;
+    bringup.reset_settle_us  = DW3000_HAL_RX_BASIC_RESET_SETTLE_US;
+    bringup.ready_timeout_us = DW3000_HAL_RX_BASIC_READY_TIMEOUT_US;
+
+    dw3000_hal_default_init_options(&options);
+    options.idle_pll_timeout_us = DW3000_HAL_RX_BASIC_IDLE_PLL_TIMEOUT_US;
+
+    for (attempt = 1U;
+         attempt <= DW3000_HAL_RX_BASIC_INIT_RETRIES;
+         ++attempt) {
+        ESP_LOGI(
+            TAG,
+            "init attempt %" PRIu32 "/%" PRIu32
+            " reset_assert=%" PRIu32 "us reset_settle=%" PRIu32
+            "us ready_timeout=%" PRIu32 "us idle_pll_timeout=%" PRIu32 "us",
+            attempt,
+            (uint32_t)DW3000_HAL_RX_BASIC_INIT_RETRIES,
+            bringup.reset_assert_us,
+            bringup.reset_settle_us,
+            bringup.ready_timeout_us,
+            options.idle_pll_timeout_us
+        );
+
+        err = dw3000_hal_rx_basic_initialize_once(
+            app,
+            &config,
+            &bringup,
+            &options
+        );
+        if (err == DW3000_ERROR_OK) {
+            return true;
+        }
+
+        if (attempt < DW3000_HAL_RX_BASIC_INIT_RETRIES) {
+            vTaskDelay(pdMS_TO_TICKS(20U));
+        }
+    }
+
+    ESP_LOGE(
+        TAG,
+        "initialize failed after %" PRIu32 " attempts: %s",
+        (uint32_t)DW3000_HAL_RX_BASIC_INIT_RETRIES,
+        dw3000_error_to_string(err)
+    );
+
+    return false;
 }
 
 static bool dw3000_hal_rx_basic_arm(dw3000_device_t* device) {
