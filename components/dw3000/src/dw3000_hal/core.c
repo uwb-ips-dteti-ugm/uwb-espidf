@@ -130,6 +130,18 @@ void dw3000_hal_default_config(dw3000_device_config_t* config) {
     );
     config->aon.sleep_time = 0U;
 
+    for (uint8_t i = 0U; i < DW3000_GPIO_PIN_COUNT; ++i) {
+        config->gpio.mode.msgp[i] = DW3000_GPIO_FUNCTION_GPIO;
+    }
+    config->gpio.pull_enable     = (dw3000_gpio_pin_t)DW3000_GPIO_PIN_MASK;
+    config->gpio.input           = (dw3000_gpio_pin_t)DW3000_GPIO_PIN_MASK;
+    config->gpio.output          = 0U;
+    config->gpio.irq.enable      = 0U;
+    config->gpio.irq.sense_low   = 0U;
+    config->gpio.irq.edge_mode   = 0U;
+    config->gpio.irq.both_edges  = 0U;
+    config->gpio.irq.debounce    = 0U;
+
     config->rx_tune.sfd_toc = 65U;
     config->rx_tune.pre_toc = 0U;
     config->rx_tune.dtune3  = 0xAF5F35CCUL;

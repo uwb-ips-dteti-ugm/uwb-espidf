@@ -9,6 +9,7 @@
 #include "dw3000_types/calib.h"
 #include "dw3000_types/cia.h"
 #include "dw3000_types/device.h"
+#include "dw3000_types/gpio.h"
 #include "dw3000_types/mac.h"
 #include "dw3000_types/phy.h"
 #include "dw3000_types/pmsc.h"
@@ -27,6 +28,7 @@ typedef struct {
     dw3000_cia_config_t     cia;
     dw3000_pmsc_config_t    pmsc;
     dw3000_aon_config_t     aon;
+    dw3000_gpio_config_t    gpio;
     dw3000_calib_config_t   calib;
     dw3000_rx_tune_config_t rx_tune;
 

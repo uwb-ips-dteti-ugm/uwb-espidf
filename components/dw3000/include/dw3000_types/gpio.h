@@ -10,6 +10,7 @@ extern "C" {
 /* DW3000 exposes 9 GPIO pins (GPIO0..GPIO8). Almost every register in
    file 0x05 is a per-pin bitmap where bit N belongs to GPIO N. */
 #define DW3000_GPIO_PIN_COUNT 9U
+#define DW3000_GPIO_PIN_MASK  0x01FFU
 
 typedef enum {
     DW3000_GPIO_PIN_0 = 1U << 0,
@@ -23,13 +24,32 @@ typedef enum {
     DW3000_GPIO_PIN_8 = 1U << 8,
 } dw3000_gpio_pin_t;
 
+typedef uint8_t dw3000_gpio_pin_index_t;
+typedef uint8_t dw3000_gpio_function_t;
+
+#define DW3000_GPIO_FUNCTION_GPIO      0U
+#define DW3000_GPIO_FUNCTION_ALT_1     1U
+#define DW3000_GPIO_FUNCTION_ALT_2     2U
+#define DW3000_GPIO_FUNCTION_MASK      0x07U
+
+#define DW3000_GPIO0_FUNCTION_RXOKLED  DW3000_GPIO_FUNCTION_ALT_1
+#define DW3000_GPIO1_FUNCTION_SFDLED   DW3000_GPIO_FUNCTION_ALT_1
+#define DW3000_GPIO2_FUNCTION_RXLED    DW3000_GPIO_FUNCTION_ALT_1
+#define DW3000_GPIO3_FUNCTION_TXLED    DW3000_GPIO_FUNCTION_ALT_1
+#define DW3000_GPIO4_FUNCTION_EXTPA    DW3000_GPIO_FUNCTION_ALT_1
+#define DW3000_GPIO4_FUNCTION_IRQ      DW3000_GPIO_FUNCTION_ALT_2
+#define DW3000_GPIO5_FUNCTION_EXTTXE   DW3000_GPIO_FUNCTION_ALT_1
+#define DW3000_GPIO6_FUNCTION_EXTRXE   DW3000_GPIO_FUNCTION_ALT_1
+#define DW3000_GPIO7_FUNCTION_GPIO     DW3000_GPIO_FUNCTION_ALT_1
+#define DW3000_GPIO8_FUNCTION_GPIO     DW3000_GPIO_FUNCTION_ALT_1
+
 /* GPIO_MODE (0x05:00). MSGP[i] is the 3-bit function selector for
    GPIO i. MSGP[i] = 0 routes to generic GPIO; values 1..7 are
    pin-specific peripheral aliases (RX/TX/SFD LEDs on pins 0..3,
    external PA/LNA control on pins 4..6, SPI/IRQ debug on 7..8).
    See DW3000 user manual Table 4 for the full per-pin map. */
 typedef struct {
-    uint8_t msgp[DW3000_GPIO_PIN_COUNT]; /* 3 bits each */
+    dw3000_gpio_function_t msgp[DW3000_GPIO_PIN_COUNT]; /* 3 bits each */
 } dw3000_gpio_mode_t;
 
 /* IRQ configuration spread across GPIO_IRQE (0x10), GPIO_ISEN (0x18),

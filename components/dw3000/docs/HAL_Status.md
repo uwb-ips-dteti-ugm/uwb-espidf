@@ -20,22 +20,22 @@ This file tracks the component HAL surface so unfinished areas stay explicit.
 | OTP | Usable foundation | OTP word reads, SRDATA read, DGC/LDO/BIAS/OPS kick helpers, guarded word programming API. |
 | Calibration | Usable foundation | TX power, XTAL trim, antenna-delay wrappers, SAR measurement/conversion, RX calibration, PGC helpers, PLL recalibration, OTP factory-kick helper. |
 | AON sleep/wake | Usable foundation | AON_DIG_CFG/AON_CFG helpers, direct AON RAM access, sleep counter programming, sleep/deepsleep entry, SPIRDY wake completion with OTP LDO/BIAS reload and optional RX/PLL post-wake hooks. |
+| GPIO | Usable foundation | GPIO clocks, mode/function packing, direction, pulls, output state, raw reads, IRQ sense/mode/both-edge/debounce setup, IRQ latch clear, LED and external PA/LNA helpers. |
+| ACC/CIR | Usable foundation | Accumulator clock handling, dummy-octet discard, sample-indexed direct/indirect reads, raw and decoded 24-bit complex CIR samples, Ipatov/STS CIR spans, CIADONE check helper. |
 
 ## Remaining
 
 | Area | Needed next | Why it matters |
 | --- | --- | --- |
 | AES HAL | AES_CFG, IV/key, DMA setup, start/status, CCM*/GCM workflow wrappers. | Data security and hardware AES offload are exposed only as register types today. |
-| GPIO HAL | GPIO mode, direction, pulls, IRQ/debounce, LED and external PA/LNA modes. | Board integration, interrupts, activity LEDs, and RF front-end control need a stable API. |
 | OTP-backed init orchestration | Top-level ordered init that applies OTP/calibration, PMSC, PHY, MAC, STS, CIA, TX/RX defaults. | The current pieces are individually callable; a product-ready component needs a safe default sequence. |
-| ACC/CIR HAL | Safe accumulator reads, dummy-byte handling, indirect reads above offset 127, CIR sample decoding. | Diagnostics, NLOS analysis, and advanced timestamp quality checks need CIR data. |
 | PLL/RF/TX calibration HALs | Dedicated wrappers around PLL, RF, and TX_CAL register files. | Regulatory testing, TX power calibration, and temperature compensation need controlled workflows. |
 | External sync HAL | EC_CTRL/RX_CAL flow and deterministic timebase reset support. | Multi-anchor sync and wired reference-clock systems need this. |
 | ESP-IDF port/examples/tests | Concrete SPI/reset/IRQ port adapter, example app, mocks or host tests. | The HAL compiles, but it still needs integration proof and repeatable verification. |
 
 ## Current Priority
 
-1. GPIO and ACC/CIR HALs.
-2. AES and advanced sync/RF/TX calibration workflows.
-3. OTP-backed init orchestration.
+1. AES HAL.
+2. OTP-backed init orchestration.
+3. Advanced sync/RF/TX calibration workflows.
 4. ESP-IDF port/examples/tests.

@@ -15,11 +15,26 @@ extern "C" {
    read of the first sample. The HAL handles those plumbing details
    and surfaces decoded samples to callers. */
 #define DW3000_ACC_MEM_SIZE 12288U
+#define DW3000_ACC_SAMPLE_SIZE 6U
+#define DW3000_ACC_SAMPLE_COUNT (DW3000_ACC_MEM_SIZE / DW3000_ACC_SAMPLE_SIZE)
+
+#define DW3000_ACC_IPATOV_START_SAMPLE 0U
+#define DW3000_ACC_IPATOV_16M_SAMPLES  992U
+#define DW3000_ACC_IPATOV_64M_SAMPLES  1016U
+#define DW3000_ACC_STS0_START_SAMPLE   1024U
+#define DW3000_ACC_STS1_START_SAMPLE   1536U
+#define DW3000_ACC_STS_SAMPLES         512U
 
 typedef struct {
     int32_t real;
     int32_t imag;
 } dw3000_acc_sample_t;
+
+typedef enum {
+    DW3000_ACC_CIR_IPATOV = 0U,
+    DW3000_ACC_CIR_STS0   = 1U,
+    DW3000_ACC_CIR_STS1   = 2U,
+} dw3000_acc_cir_t;
 
 #ifdef __cplusplus
 }
