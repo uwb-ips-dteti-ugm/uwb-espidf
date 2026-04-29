@@ -27,20 +27,35 @@ typedef dw3000_rf_enable_t dw3000_rf_ctrl_mask_t;
    per-board; values come from the application's antenna design. */
 typedef uint32_t dw3000_rf_switch_t;
 
-/* RF_TX_CTRL_1 (0x07:1A) — 8-bit channel-specific TX gain word.
-   Per the user manual: 0x0E for channel 5, 0x34 for channel 9. */
+/* RF_ENABLE / RF_CTRL_MASK forced-TX values used for continuous-wave and
+   spectrum testing. Normal TX/RX operation leaves RF sequencing to PMSC. */
+#define DW3000_RF_FORCE_TX_CH5 0x02003C00UL
+#define DW3000_RF_FORCE_TX_CH9 0x02001C00UL
+
+/* RF_TX_CTRL_1 (0x07:1A) — 8-bit TX gain word. */
 typedef uint8_t dw3000_rf_tx_ctrl_1_t;
+
+#define DW3000_RF_TX_CTRL_1_OPT 0x0EU
 
 /* RF_TX_CTRL_2 (0x07:1C) — 32-bit channel-specific TX configuration
    word, from the channel-configuration table in the user manual. */
 typedef uint32_t dw3000_rf_tx_ctrl_2_t;
 
+#define DW3000_RF_TX_CTRL_2_CH5 0x1C071134UL
+#define DW3000_RF_TX_CTRL_2_CH9 0x1C010034UL
+#define DW3000_RF_PG_DELAY_MASK 0x3FU
+
 /* TX_TEST (0x07:28) — TX test-pattern selector. Compliance / spectrum
    testing only. */
 typedef uint8_t dw3000_rf_tx_test_t;
 
+#define DW3000_RF_TX_TEST_NORMAL 0x00U
+#define DW3000_RF_TX_TEST_CW     0x0FU
+
 /* SAR_TEST (0x07:34) — SAR ADC test-mode selector. */
 typedef uint8_t dw3000_rf_sar_test_t;
+
+#define DW3000_RF_SAR_TEST_RDEN (1U << 2)
 
 /* LDO_TUNE (0x07:40) — 64-bit opaque LDO trim word, loaded from OTP
    via OTP_CFG.LDO_KICK. Not user-authored. */
@@ -65,6 +80,8 @@ typedef enum {
 
 /* LDO_RLOAD (0x07:51) — LDO load-resistance trim, sourced from OTP. */
 typedef uint8_t dw3000_rf_ldo_rload_t;
+
+#define DW3000_RF_LDO_RLOAD_OPT 0x14U
 
 typedef struct {
     dw3000_rf_tx_ctrl_1_t tx_ctrl_1;

@@ -13,10 +13,15 @@ extern "C" {
    based on dw3000_phy_channel_t. */
 typedef uint16_t dw3000_pll_cfg_t;
 
+#define DW3000_PLL_CFG_CH5 0x1F3CU
+#define DW3000_PLL_CFG_CH9 0x0F3CU
+
 /* PLL_CC (0x09:04) — PLL coarse calibration code, 8 bits. Either
    programmed from a previously-stored value or written by the
    PLL_CAL.CAL_EN auto-calibration sequence. */
 typedef uint8_t dw3000_pll_coarse_code_t;
+
+#define DW3000_PLL_COARSE_CODE_MASK 0x7FU
 
 /* PLL_CAL (0x09:08) — calibration controls. CAL_EN kicks the PLL
    coarse-code search; USE_OLD bypasses the search and applies the
@@ -25,6 +30,9 @@ typedef enum {
     DW3000_PLL_CAL_USE_OLD = 1U << 0,
     DW3000_PLL_CAL_EN      = 1U << 8,
 } dw3000_pll_cal_flags_t;
+
+#define DW3000_PLL_CAL_FLAGS_MASK \
+    ((uint16_t)DW3000_PLL_CAL_USE_OLD | (uint16_t)DW3000_PLL_CAL_EN)
 
 /* XTAL (0x09:14) — see dw3000_calib_xtal_trim_t in calib.h. */
 

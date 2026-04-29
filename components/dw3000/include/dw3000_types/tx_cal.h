@@ -38,10 +38,14 @@ typedef enum {
     DW3000_TX_CAL_PGC_AUTOCAL_EN = 1U << 1,
 } dw3000_tx_cal_pgc_ctrl_t;
 
+#define DW3000_TX_CAL_PGC_TMEAS_MAX 0x0FU
+
 /* PGC_STATUS (0x08:14) — flags above the 12-bit delay result. */
 typedef enum {
     DW3000_TX_CAL_PGC_AUTOCAL_DONE = 1U << 12,
 } dw3000_tx_cal_pgc_status_flags_t;
+
+#define DW3000_TX_CAL_PGC_DELAY_MASK 0x0FFFU
 
 typedef struct {
     uint16_t                         delay; /* bits [11:0] */
@@ -52,9 +56,14 @@ typedef struct {
    use only. */
 typedef uint16_t dw3000_tx_cal_pg_test_t;
 
+#define DW3000_TX_CAL_PG_TEST_NORMAL 0x0000U
+#define DW3000_TX_CAL_PG_TEST_CW     0x000FU
+
 /* PG_CAL_TARGET (0x08:1C) — 12-bit target delay the PGC autocal loop
    converges towards. Channel-dependent; sourced from OTP. */
 typedef uint16_t dw3000_tx_cal_pg_target_t;
+
+#define DW3000_TX_CAL_PG_TARGET_MASK 0x0FFFU
 
 typedef struct {
     dw3000_tx_cal_pgc_ctrl_t  pgc_ctrl;
