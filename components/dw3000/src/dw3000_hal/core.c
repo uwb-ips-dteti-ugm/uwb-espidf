@@ -16,6 +16,8 @@
 #define DW3000_HAL_DGC_THR_64_SHIFT 9U
 #define DW3000_HAL_DGC_THR_64_OPT   0x32U
 
+#define DW3000_HAL_DEFAULT_STS_CPS_LEN 7U
+
 static uint32_t dw3000_hal_min_u32(uint32_t a, uint32_t b) {
     return (a < b) ? a : b;
 }
@@ -92,6 +94,12 @@ void dw3000_hal_default_config(dw3000_device_config_t* config) {
 
     config->mac.panadr.pan_id     = 0xFFFFU;
     config->mac.panadr.short_addr = 0xFFFFU;
+
+    config->sts.cps_len       = DW3000_HAL_DEFAULT_STS_CPS_LEN;
+    config->sts.iv.bytes[0]   = 1U;
+    config->sts.packet_cfg    = DW3000_STS_PACKET_CFG_SP0;
+    config->sts.pdoa_mode     = DW3000_STS_PDOA_MODE_DISABLED;
+    config->sts.sys_cfg_flags = DW3000_STS_SYS_CFG_CIA_STS;
 
     config->rx_tune.sfd_toc = 65U;
     config->rx_tune.pre_toc = 0U;
