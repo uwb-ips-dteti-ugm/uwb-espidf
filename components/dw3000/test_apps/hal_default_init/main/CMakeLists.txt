@@ -1,0 +1,10 @@
+idf_component_register(
+    SRCS
+        "main.c"
+    INCLUDE_DIRS
+        "."
+    REQUIRES
+        dw3000
+        esp_driver_gpio
+        esp_driver_spi
+)
