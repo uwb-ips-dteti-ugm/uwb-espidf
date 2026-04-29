@@ -14,7 +14,6 @@
 
 #define DW3000_ESPIDF_CTX_MAGIC          0x44334944UL
 #define DW3000_ESPIDF_SPI_MAX_HEADER_LEN 2U
-#define DW3000_ESPIDF_SPI_INLINE_LEN     64U
 
 typedef struct {
     uint32_t            magic;
@@ -132,6 +131,19 @@ static dw3000_error_t dw3000_espidf_validate_spi_access(
     }
 
     return DW3000_ERROR_OK;
+}
+
+static uint16_t dw3000_espidf_spi_header_cmd(
+    const uint8_t* header,
+    size_t         header_len
+) {
+    uint16_t cmd = header[0];
+
+    if (header_len > 1U) {
+        cmd = (uint16_t)((cmd << 8U) | header[1]);
+    }
+
+    return cmd;
 }
 
 void dw3000_espidf_delay_us(void* ctx, uint32_t delay_us) {
@@ -277,12 +289,9 @@ dw3000_error_t dw3000_espidf_spi_write(
     const void*    data,
     size_t         data_len
 ) {
-    dw3000_error_t        err;
-    dw3000_espidf_ctx_t*  espidf_ctx;
-    spi_transaction_t     transaction;
-    size_t                total_len;
-    uint8_t               tx_inline[DW3000_ESPIDF_SPI_INLINE_LEN];
-    uint8_t*              tx_data = tx_inline;
+    dw3000_error_t       err;
+    dw3000_espidf_ctx_t* espidf_ctx;
+    spi_transaction_ext_t transaction;
 
     err = dw3000_espidf_validate_spi_access(
         ctx,
@@ -296,31 +305,17 @@ dw3000_error_t dw3000_espidf_spi_write(
     }
 
     espidf_ctx = dw3000_espidf_ctx(ctx);
-    total_len  = header_len + data_len;
-
-    if (total_len > sizeof(tx_inline)) {
-        tx_data = (uint8_t*)malloc(total_len);
-        if (tx_data == NULL) {
-            return DW3000_ERROR_NO_MEMORY;
-        }
-    }
-
-    memcpy(tx_data, header, header_len);
-    if (data_len != 0U) {
-        memcpy(&tx_data[header_len], data, data_len);
-    }
 
     memset(&transaction, 0, sizeof(transaction));
-    transaction.length    = total_len * 8U;
-    transaction.tx_buffer = tx_data;
+    transaction.base.flags     = SPI_TRANS_VARIABLE_CMD;
+    transaction.base.cmd       = dw3000_espidf_spi_header_cmd(header, header_len);
+    transaction.base.length    = (uint32_t)(data_len * 8U);
+    transaction.base.tx_buffer = data;
+    transaction.command_bits   = (uint8_t)(header_len * 8U);
 
     err = dw3000_espidf_from_esp_err(
-        spi_device_polling_transmit(espidf_ctx->spi, &transaction)
+        spi_device_polling_transmit(espidf_ctx->spi, &transaction.base)
     );
-
-    if (tx_data != tx_inline) {
-        free(tx_data);
-    }
 
     return err;
 }
@@ -332,14 +327,9 @@ dw3000_error_t dw3000_espidf_spi_read(
     void*          data,
     size_t         data_len
 ) {
-    dw3000_error_t        err;
-    dw3000_espidf_ctx_t*  espidf_ctx;
-    spi_transaction_t     transaction;
-    size_t                total_len;
-    uint8_t               tx_inline[DW3000_ESPIDF_SPI_INLINE_LEN];
-    uint8_t               rx_inline[DW3000_ESPIDF_SPI_INLINE_LEN];
-    uint8_t*              tx_data = tx_inline;
-    uint8_t*              rx_data = rx_inline;
+    dw3000_error_t       err;
+    dw3000_espidf_ctx_t* espidf_ctx;
+    spi_transaction_ext_t transaction;
 
     err = dw3000_espidf_validate_spi_access(
         ctx,
@@ -353,45 +343,18 @@ dw3000_error_t dw3000_espidf_spi_read(
     }
 
     espidf_ctx = dw3000_espidf_ctx(ctx);
-    total_len  = header_len + data_len;
-
-    if (total_len > sizeof(tx_inline)) {
-        tx_data = (uint8_t*)calloc(total_len, sizeof(*tx_data));
-        if (tx_data == NULL) {
-            return DW3000_ERROR_NO_MEMORY;
-        }
-
-        rx_data = (uint8_t*)malloc(total_len);
-        if (rx_data == NULL) {
-            free(tx_data);
-            return DW3000_ERROR_NO_MEMORY;
-        }
-    } else {
-        memset(tx_data, 0, total_len);
-    }
-
-    memcpy(tx_data, header, header_len);
 
     memset(&transaction, 0, sizeof(transaction));
-    transaction.length    = total_len * 8U;
-    transaction.rxlength  = total_len * 8U;
-    transaction.tx_buffer = tx_data;
-    transaction.rx_buffer = rx_data;
+    transaction.base.flags     = SPI_TRANS_VARIABLE_CMD;
+    transaction.base.cmd       = dw3000_espidf_spi_header_cmd(header, header_len);
+    transaction.base.length    = (uint32_t)(data_len * 8U);
+    transaction.base.rxlength  = (uint32_t)(data_len * 8U);
+    transaction.base.rx_buffer = data;
+    transaction.command_bits   = (uint8_t)(header_len * 8U);
 
     err = dw3000_espidf_from_esp_err(
-        spi_device_polling_transmit(espidf_ctx->spi, &transaction)
+        spi_device_polling_transmit(espidf_ctx->spi, &transaction.base)
     );
-    if (err == DW3000_ERROR_OK) {
-        memcpy(data, &rx_data[header_len], data_len);
-    }
-
-    if (tx_data != tx_inline) {
-        free(tx_data);
-    }
-
-    if (rx_data != rx_inline) {
-        free(rx_data);
-    }
 
     return err;
 }

@@ -27,7 +27,7 @@ The higher-level convenience API is tracked separately in `Dev_Status_API.md`.
 | OTP-backed init orchestration | Usable foundation | Full initialize/configure-device wrappers that order status clear, PMSC, OTP-backed calibration, PHY, MAC, STS, CIA, GPIO, AES, AON, RX defaults, and deferred IDLE_PLL entry.                          |
 | PLL/RF/TX_CAL                 | Usable foundation | Dedicated register-file HALs for RF path forcing, TX test modes, LDO/SAR test access, PLL CFG/CC/CAL/XTAL access, SAR readings, PGC control/status, and pulse-generator calibration target/test access. |
 | External sync                 | Usable foundation | EC_CTRL OSTR configuration, documented wait validation, PLL_SYNC convenience helper, top-level disabled-by-default init step, and RX_CAL bridge wrappers for the shared register file.                  |
-| ESP-IDF port adapter          | Usable foundation | Allocated dw3000_port_t wrapper with ESP-IDF SPI polling transactions, DW3000 headers sent as ordinary MOSI bytes in one CS-framed transaction, active-low reset GPIO, IRQ GPIO read, delay, microsecond timestamp, and recursive mutex callbacks. |
+| ESP-IDF port adapter          | Usable foundation | Allocated dw3000_port_t wrapper with ESP-IDF SPI polling transactions, DW3000 headers sent in the command phase, active-low reset GPIO, IRQ GPIO read, delay, microsecond timestamp, and recursive mutex callbacks. |
 
 ## Hardware Bring-Up Test Apps
 
