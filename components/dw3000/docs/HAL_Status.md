@@ -17,12 +17,12 @@ This file tracks the component HAL surface so unfinished areas stay explicit.
 | CIA | Usable foundation | Antenna delay, CIA path timestamp/diagnostic reads, PDoA/TDoA helpers, TOAST decoding. |
 | STS | Usable foundation | STS length/key/IV, STS SYS_CFG bits, ACC_QUAL checks, LOAD_IV/RST_LAST helpers. |
 | PMSC/power state | Usable foundation | Clock control, sequencer flags, CPLOCK wait, IDLE_PLL entry, FORCE2INIT to IDLE_RC, SOFT_RST pulse, TXFSEQ, LED, BIAS_CTRL access. |
+| OTP | Usable foundation | OTP word reads, SRDATA read, DGC/LDO/BIAS/OPS kick helpers, guarded word programming API. |
 
 ## Remaining
 
 | Area | Needed next | Why it matters |
 | --- | --- | --- |
-| OTP HAL | Read/program/kick flows for factory and customer OTP words. | Calibration values such as LDOTUNE, BIASTUNE, DGC, PLL lock code, antenna delay, and optional keys must be loaded correctly for real hardware. |
 | Calibration HAL | PGF/RX calibration, PLL recalibration, SAR temperature/voltage, XTAL trim, antenna-delay workflows. | RX sensitivity, channel 9 PLL stability, timestamp accuracy, and production board tuning depend on it. |
 | AON sleep/wake HAL | AON config/save/restore, sleep/deepsleep entry, wake-source setup, post-wake recalibration hooks. | Low-power operation is not safe without explicit retained config and wake sequencing. |
 | AES HAL | AES_CFG, IV/key, DMA setup, start/status, CCM*/GCM workflow wrappers. | Data security and hardware AES offload are exposed only as register types today. |
@@ -35,8 +35,8 @@ This file tracks the component HAL surface so unfinished areas stay explicit.
 
 ## Current Priority
 
-1. OTP HAL.
-2. Calibration HAL using OTP data.
-3. AON sleep/wake HAL.
-4. GPIO and ACC/CIR HALs.
-5. AES and advanced sync/RF/TX calibration workflows.
+1. Calibration HAL using OTP data.
+2. AON sleep/wake HAL.
+3. GPIO and ACC/CIR HALs.
+4. AES and advanced sync/RF/TX calibration workflows.
+5. OTP-backed init orchestration.
