@@ -587,7 +587,7 @@ static bool dw3000_hal_rx_basic_run_test(dw3000_device_t* device) {
                 ok = false;
                 break;
             }
-        } else if ((events & rx_success_events) == rx_success_events) {
+        } else if ((events & DW3000_TXRX_EVENT_RXFCG) != 0U) {
             if (!dw3000_hal_rx_basic_read_received_frame(device, events, &matched)) {
                 ok = false;
                 break;
@@ -602,7 +602,7 @@ static bool dw3000_hal_rx_basic_run_test(dw3000_device_t* device) {
                 ok = false;
                 break;
             }
-        } else if ((events & (DW3000_TXRX_EVENT_RXFCG | DW3000_TXRX_EVENT_RXFR)) != 0U) {
+        } else if ((events & DW3000_TXRX_EVENT_RXFR) != 0U) {
             ++rx_error_count;
             if ((rx_error_count <= 5U) || ((rx_error_count % 32U) == 0U)) {
                 ESP_LOGW(
