@@ -35,11 +35,12 @@ typedef struct {
     bool    fp_th_md; /* FP_TH_MD             */
 } dw3000_cia_pdoa_t;
 
-/* CIA_DIAG_0 / CIA_DIAG_1 (0x0C:20, 0x0C:24) — top-level CIR summary
-   shared by both the preamble and STS analyses. */
+/* CIA_DIAG_0 / CIA_DIAG_1 (0x0C:20, 0x0C:24). CIA_DIAG_0 exposes the
+   carrier offset estimate; CIA_DIAG_1 is reserved but surfaced raw so the
+   register can be mirrored without inventing semantics. */
 typedef struct {
-    uint16_t cir_pwr;    /* CIA_DIAG_0 channel impulse response power */
-    uint16_t pacc_count; /* CIA_DIAG_1 accumulator count              */
+    int16_t  clock_offset; /* COE_PPM, 13-bit signed fixed-point raw value */
+    uint32_t reserved;     /* CIA_DIAG_1 raw reserved diagnostic value     */
 } dw3000_cia_diag_t;
 
 /* IP_DIAG_* (0x0C:28..58), STS_DIAG_* (0x0C:5C..0x0D:20), STS1_DIAG_*
@@ -47,13 +48,14 @@ typedef struct {
    first-path power and CIR peak inspection are surfaced; the rest of the
    diagnostic registers stay reachable via reg.h. */
 typedef struct {
-    uint16_t fp_index;       /* first-path index, Q10.6              */
-    uint16_t fp_ampl1;       /* first-path amplitude, sample n       */
-    uint16_t fp_ampl2;       /* first-path amplitude, sample n+1     */
-    uint16_t fp_ampl3;       /* first-path amplitude, sample n+2     */
-    uint16_t peak_amplitude; /* CIR peak amplitude                   */
+    uint16_t fp_index;       /* first-path index, Q10.6 or Q9.6      */
+    uint32_t cir_pwr;        /* CIR power/channel area, 16/17 bits   */
+    uint32_t fp_ampl1;       /* first-path amplitude, sample n       */
+    uint32_t fp_ampl2;       /* first-path amplitude, sample n+1     */
+    uint32_t fp_ampl3;       /* first-path amplitude, sample n+2     */
+    uint32_t peak_amplitude; /* CIR peak amplitude, 21 bits          */
     uint16_t peak_index;     /* CIR peak index                       */
-    uint16_t pacc_nosat;     /* preamble accumulator count, no sat   */
+    uint16_t pacc_nosat;     /* accumulated symbol/chip count        */
 } dw3000_cia_path_diag_t;
 
 /* CIA_CONF (0x0E:00) bits outside RX_ANTD. HAL merges with RX_ANTD on
@@ -72,21 +74,20 @@ typedef struct {
 typedef struct {
     uint8_t ntm;   /* IP_NTM,   5 bits */
     uint8_t pmult; /* IP_PMULT, 2 bits */
-    uint8_t rtm;   /* IP_RTM,   6 bits */
+    uint8_t rtm;   /* IP_RTM,   5 bits */
 } dw3000_cia_ip_conf_t;
 
 /* STS_CONF_0 (0x0E:12) + STS_CONF_1 (0x0E:16) — STS CIA tuning. */
 typedef struct {
     uint8_t  ntm;   /* STS_NTM,    5 bits  */
     uint8_t  pmult; /* STS_PMULT,  2 bits  */
-    uint8_t  rtm;   /* STS_RTM,    6 bits  */
-    uint16_t mnth;  /* STS_MNTH,  16 bits  */
+    uint8_t  rtm;   /* reserved by current register map; keep 0 */
+    uint16_t mnth;  /* STS_MNTH,   7 bits  */
     bool     cq_en; /* STS_CQ_EN           */
 } dw3000_cia_sts_conf_t;
 
-/* CIA_ADJUST (0x0E:1A) — 16-bit signed timestamp correction applied by
-   the CIA before exposing RX_TIME. */
-typedef int16_t dw3000_cia_adjust_t;
+/* CIA_ADJUST (0x0E:1A) — 14-bit unsigned PDoA angle adjustment. */
+typedef uint16_t dw3000_cia_adjust_t;
 
 typedef struct {
     dw3000_cia_antenna_delay_t rx_antd;
