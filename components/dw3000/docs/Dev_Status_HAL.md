@@ -29,12 +29,26 @@ The higher-level convenience API is tracked separately in `Dev_Status_API.md`.
 | External sync                 | Usable foundation | EC_CTRL OSTR configuration, documented wait validation, PLL_SYNC convenience helper, top-level disabled-by-default init step, and RX_CAL bridge wrappers for the shared register file.                  |
 | ESP-IDF port adapter          | Usable foundation | Allocated dw3000_port_t wrapper with ESP-IDF SPI polling transactions, command-phase DW3000 headers, active-low reset GPIO, IRQ GPIO read, delay, microsecond timestamp, and recursive mutex callbacks. |
 
+## Hardware Bring-Up Test Apps
+
+| App                         | Status              | Coverage                                                                                              |
+| --------------------------- | ------------------- | ----------------------------------------------------------------------------------------------------- |
+| `hal_basic_info`            | Hardware pass       | ESP-IDF port setup plus informative DEV_ID, SYS_STATUS, SYS_CFG, SYS_TIME, SYS_STATE, EUI, and PANADR reads. |
+| `hal_default_init`          | Hardware pass       | Default HAL initialization and readbacks across status, MAC, STS, CIA, GPIO, AES, PMSC, and selected raw registers. |
+| `hal_aes_engine`            | Hardware pass       | AES key RAM, scratch RAM, AES-GCM encrypt/decrypt, AES status, and AES_DONE event generation.          |
+| `hal_gpio_irq`              | Build pass          | Active IRQ GPIO validation using AES_DONE as a deterministic interrupt source; needs hardware log confirmation. |
+
 ## Remaining
 
-| Area                   | Needed next                           | Why it matters                                                                      |
-| ---------------------- | ------------------------------------- | ----------------------------------------------------------------------------------- |
-| ESP-IDF examples/tests | Example app plus mocks or host tests. | The HAL compiles, but it still needs integration proof and repeatable verification. |
+| Area                         | Needed next                                   | Why it matters                                                                 |
+| ---------------------------- | --------------------------------------------- | ------------------------------------------------------------------------------ |
+| GPIO/IRQ hardware proof      | Flash/run `hal_gpio_irq` and confirm pass log. | Proves enabled SYS_STATUS events drive the physical IRQ pin through the port.   |
+| RX/TX hardware proof         | Two-node TX/RX test apps or one app with role selection. | Proves the frame path, timestamps, delayed TX/RX, and interrupt/status clearing. |
+| ACC/CIR hardware proof       | Read accumulator/CIR data after a real received frame. | ACC/CIR reads are only meaningful after CIADONE on an actual receive path.      |
+| Repeatable host/unit tests   | Add focused mocks under a future test folder. | Hardware tests prove the board; host tests catch regressions without hardware.  |
 
 ## Current Priority
 
-1. ESP-IDF examples/tests.
+1. Run `hal_gpio_irq` on hardware.
+2. Add a two-node RX/TX hardware test.
+3. Add ACC/CIR inspection after RX is proven.
