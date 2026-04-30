@@ -115,7 +115,6 @@ static size_t build_common_payload(
     memcpy(&frame[offset], DW3000_SS_TWR_MAGIC, sizeof(DW3000_SS_TWR_MAGIC));
     offset += sizeof(DW3000_SS_TWR_MAGIC);
     frame[offset++] = (uint8_t)type;
-    frame[offset++] = seq;
 
     return offset;
 }
@@ -780,9 +779,6 @@ bool dw3000_ss_twr_parse_frame(
 
     offset += sizeof(DW3000_SS_TWR_MAGIC);
     info->type = (dw3000_ss_twr_msg_type_t)frame[offset++];
-    if (frame[offset++] != info->seq) {
-        return false;
-    }
 
     if (info->type == DW3000_SS_TWR_MSG_POLL) {
         return true;
