@@ -47,35 +47,29 @@ static void dw3000_hal_fcmd_update_state(
     dw3000_fcmd_t    command
 ) {
     if (command == DW3000_FCMD_TXRXOFF) {
-        device->state_flags = (dw3000_device_state_flags_t)(
-            (device->state_flags | DW3000_DEVICE_STATE_IDLE_PLL) &
-            ~(DW3000_DEVICE_STATE_IDLE_RC |
-              DW3000_DEVICE_STATE_RX_ON |
-              DW3000_DEVICE_STATE_TX_PENDING |
-              DW3000_DEVICE_STATE_SLEEPING)
-        );
+        device->state_flags = (dw3000_device_state_flags_t)((device->state_flags | DW3000_DEVICE_STATE_IDLE_PLL) &
+                                                            ~(DW3000_DEVICE_STATE_IDLE_RC |
+                                                              DW3000_DEVICE_STATE_RX_ON |
+                                                              DW3000_DEVICE_STATE_TX_PENDING |
+                                                              DW3000_DEVICE_STATE_SLEEPING));
         return;
     }
 
     if (dw3000_hal_fcmd_is_tx_command(command)) {
-        device->state_flags = (dw3000_device_state_flags_t)(
-            (device->state_flags | DW3000_DEVICE_STATE_TX_PENDING) &
-            ~(DW3000_DEVICE_STATE_IDLE_RC |
-              DW3000_DEVICE_STATE_IDLE_PLL |
-              DW3000_DEVICE_STATE_RX_ON |
-              DW3000_DEVICE_STATE_SLEEPING)
-        );
+        device->state_flags = (dw3000_device_state_flags_t)((device->state_flags | DW3000_DEVICE_STATE_TX_PENDING) &
+                                                            ~(DW3000_DEVICE_STATE_IDLE_RC |
+                                                              DW3000_DEVICE_STATE_IDLE_PLL |
+                                                              DW3000_DEVICE_STATE_RX_ON |
+                                                              DW3000_DEVICE_STATE_SLEEPING));
         return;
     }
 
     if (dw3000_hal_fcmd_is_rx_command(command)) {
-        device->state_flags = (dw3000_device_state_flags_t)(
-            (device->state_flags | DW3000_DEVICE_STATE_RX_ON) &
-            ~(DW3000_DEVICE_STATE_IDLE_RC |
-              DW3000_DEVICE_STATE_IDLE_PLL |
-              DW3000_DEVICE_STATE_TX_PENDING |
-              DW3000_DEVICE_STATE_SLEEPING)
-        );
+        device->state_flags = (dw3000_device_state_flags_t)((device->state_flags | DW3000_DEVICE_STATE_RX_ON) &
+                                                            ~(DW3000_DEVICE_STATE_IDLE_RC |
+                                                              DW3000_DEVICE_STATE_IDLE_PLL |
+                                                              DW3000_DEVICE_STATE_TX_PENDING |
+                                                              DW3000_DEVICE_STATE_SLEEPING));
         return;
     }
 
@@ -89,10 +83,8 @@ bool dw3000_hal_fcmd_is_valid(dw3000_fcmd_t command) {
 }
 
 uint8_t dw3000_hal_fcmd_header(dw3000_fcmd_t command) {
-    return (uint8_t)(
-        DW3000_FCMD_SPI_HEADER_PREFIX |
-        ((uint8_t)command << DW3000_FCMD_SPI_OPCODE_SHIFT)
-    );
+    return (uint8_t)(DW3000_FCMD_SPI_HEADER_PREFIX |
+                     ((uint8_t)command << DW3000_FCMD_SPI_OPCODE_SHIFT));
 }
 
 dw3000_error_t dw3000_hal_fcmd_issue(

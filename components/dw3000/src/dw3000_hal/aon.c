@@ -12,18 +12,18 @@
 
 #define DW3000_HAL_AON_DIG_CFG_LEN 3U
 
-#define DW3000_HAL_AON_DIG_CFG_MASK \
+#define DW3000_HAL_AON_DIG_CFG_MASK         \
     ((uint32_t)DW3000_AON_DIG_ONW_AON_DLD | \
      (uint32_t)DW3000_AON_DIG_ONW_RUN_SAR | \
      (uint32_t)DW3000_AON_DIG_ONW_GO2IDLE | \
-     (uint32_t)DW3000_AON_DIG_ONW_GO2RX | \
+     (uint32_t)DW3000_AON_DIG_ONW_GO2RX |   \
      (uint32_t)DW3000_AON_DIG_ONW_PGFCAL)
 
 #define DW3000_HAL_AON_DIG_CFG_AUTO_PLL_MASK \
-    ((uint32_t)DW3000_AON_DIG_ONW_GO2IDLE | \
+    ((uint32_t)DW3000_AON_DIG_ONW_GO2IDLE |  \
      (uint32_t)DW3000_AON_DIG_ONW_GO2RX)
 
-#define DW3000_HAL_AON_CFG_MASK \
+#define DW3000_HAL_AON_CFG_MASK         \
     ((uint8_t)DW3000_AON_CFG_SLEEP_EN | \
      (uint8_t)DW3000_AON_CFG_WAKE_CNT | \
      (uint8_t)DW3000_AON_CFG_BROUT_EN | \
@@ -32,7 +32,7 @@
      (uint8_t)DW3000_AON_CFG_PRES_SLEEP)
 
 #define DW3000_HAL_AON_DEEPSLEEP_WAKE_MASK \
-    ((uint8_t)DW3000_AON_CFG_WAKE_CSN | \
+    ((uint8_t)DW3000_AON_CFG_WAKE_CSN |    \
      (uint8_t)DW3000_AON_CFG_WAKE_WUP)
 
 static bool dw3000_hal_aon_is_idle(const dw3000_device_t* device) {
@@ -51,18 +51,16 @@ static void dw3000_hal_aon_delay_us(
 }
 
 static void dw3000_hal_aon_mark_sleeping(dw3000_device_t* device) {
-    device->state_flags = (dw3000_device_state_flags_t)(
-        (device->state_flags | DW3000_DEVICE_STATE_SLEEPING) &
-        ~(DW3000_DEVICE_STATE_IDLE_RC |
-          DW3000_DEVICE_STATE_IDLE_PLL |
-          DW3000_DEVICE_STATE_RX_ON |
-          DW3000_DEVICE_STATE_TX_PENDING)
-    );
+    device->state_flags = (dw3000_device_state_flags_t)((device->state_flags | DW3000_DEVICE_STATE_SLEEPING) &
+                                                        ~(DW3000_DEVICE_STATE_IDLE_RC |
+                                                          DW3000_DEVICE_STATE_IDLE_PLL |
+                                                          DW3000_DEVICE_STATE_RX_ON |
+                                                          DW3000_DEVICE_STATE_TX_PENDING));
 }
 
 static void dw3000_hal_aon_decode_dig_cfg(
-    const uint8_t*           raw,
-    dw3000_aon_dig_cfg_t*    dig_cfg
+    const uint8_t*        raw,
+    dw3000_aon_dig_cfg_t* dig_cfg
 ) {
     uint32_t value = (uint32_t)raw[0] |
                      ((uint32_t)raw[1] << 8U) |
@@ -72,8 +70,8 @@ static void dw3000_hal_aon_decode_dig_cfg(
 }
 
 static void dw3000_hal_aon_overlay_dig_cfg(
-    uint8_t*                raw,
-    dw3000_aon_dig_cfg_t    dig_cfg
+    uint8_t*             raw,
+    dw3000_aon_dig_cfg_t dig_cfg
 ) {
     uint32_t current = (uint32_t)raw[0] |
                        ((uint32_t)raw[1] << 8U) |
@@ -88,12 +86,12 @@ static void dw3000_hal_aon_overlay_dig_cfg(
 }
 
 static dw3000_error_t dw3000_hal_aon_prepare_sleep(
-    dw3000_device_t*              device,
-    const dw3000_aon_config_t*    config,
-    bool                          deep_sleep
+    dw3000_device_t*           device,
+    const dw3000_aon_config_t* config,
+    bool                       deep_sleep
 ) {
-    dw3000_error_t       err;
-    dw3000_aon_config_t  actual;
+    dw3000_error_t      err;
+    dw3000_aon_config_t actual;
 
     if (device == NULL) {
         return DW3000_ERROR_INVALID_ARG;
@@ -219,9 +217,9 @@ dw3000_error_t dw3000_hal_aon_validate_config(
 }
 
 dw3000_error_t dw3000_hal_aon_sleep_time_from_us(
-    uint32_t                    sleep_us,
-    uint32_t                    lp_osc_hz,
-    dw3000_aon_sleep_time_t*    sleep_time
+    uint32_t                 sleep_us,
+    uint32_t                 lp_osc_hz,
+    dw3000_aon_sleep_time_t* sleep_time
 ) {
     uint64_t numerator;
     uint64_t denominator;
@@ -231,9 +229,9 @@ dw3000_error_t dw3000_hal_aon_sleep_time_from_us(
         return DW3000_ERROR_INVALID_ARG;
     }
 
-    numerator = (uint64_t)sleep_us * (uint64_t)lp_osc_hz;
+    numerator   = (uint64_t)sleep_us * (uint64_t)lp_osc_hz;
     denominator = UINT64_C(1000000) * (uint64_t)DW3000_AON_SLEEP_TIM_LP_TICKS;
-    value = (numerator + denominator - 1U) / denominator;
+    value       = (numerator + denominator - 1U) / denominator;
     if (value == 0U) {
         value = 1U;
     }
@@ -247,8 +245,8 @@ dw3000_error_t dw3000_hal_aon_sleep_time_from_us(
 }
 
 dw3000_error_t dw3000_hal_aon_read_dig_cfg(
-    dw3000_device_t*        device,
-    dw3000_aon_dig_cfg_t*   dig_cfg
+    dw3000_device_t*      device,
+    dw3000_aon_dig_cfg_t* dig_cfg
 ) {
     dw3000_error_t err;
     uint8_t        raw[DW3000_HAL_AON_DIG_CFG_LEN];
@@ -267,8 +265,8 @@ dw3000_error_t dw3000_hal_aon_read_dig_cfg(
 }
 
 dw3000_error_t dw3000_hal_aon_set_dig_cfg(
-    dw3000_device_t*       device,
-    dw3000_aon_dig_cfg_t   dig_cfg
+    dw3000_device_t*     device,
+    dw3000_aon_dig_cfg_t dig_cfg
 ) {
     dw3000_error_t err;
     uint8_t        raw[DW3000_HAL_AON_DIG_CFG_LEN];
@@ -303,8 +301,8 @@ dw3000_error_t dw3000_hal_aon_set_dig_cfg(
 }
 
 dw3000_error_t dw3000_hal_aon_read_cfg(
-    dw3000_device_t*           device,
-    dw3000_aon_cfg_flags_t*    cfg
+    dw3000_device_t*        device,
+    dw3000_aon_cfg_flags_t* cfg
 ) {
     dw3000_error_t err;
     uint8_t        raw;
@@ -323,8 +321,8 @@ dw3000_error_t dw3000_hal_aon_read_cfg(
 }
 
 dw3000_error_t dw3000_hal_aon_set_cfg(
-    dw3000_device_t*          device,
-    dw3000_aon_cfg_flags_t    cfg
+    dw3000_device_t*       device,
+    dw3000_aon_cfg_flags_t cfg
 ) {
     dw3000_error_t err;
     uint8_t        raw;
@@ -360,9 +358,9 @@ dw3000_error_t dw3000_hal_aon_set_cfg(
 }
 
 dw3000_error_t dw3000_hal_aon_read_memory_byte(
-    dw3000_device_t*       device,
-    dw3000_aon_addr_t      addr,
-    dw3000_aon_byte_t*     value
+    dw3000_device_t*   device,
+    dw3000_aon_addr_t  addr,
+    dw3000_aon_byte_t* value
 ) {
     dw3000_error_t err;
     dw3000_error_t clear_err;
@@ -411,9 +409,9 @@ dw3000_error_t dw3000_hal_aon_read_memory_byte(
 }
 
 dw3000_error_t dw3000_hal_aon_write_memory_byte(
-    dw3000_device_t*       device,
-    dw3000_aon_addr_t      addr,
-    dw3000_aon_byte_t      value
+    dw3000_device_t*  device,
+    dw3000_aon_addr_t addr,
+    dw3000_aon_byte_t value
 ) {
     dw3000_error_t err;
     dw3000_error_t clear_err;
@@ -468,10 +466,10 @@ dw3000_error_t dw3000_hal_aon_write_memory_byte(
 }
 
 dw3000_error_t dw3000_hal_aon_read_memory(
-    dw3000_device_t*       device,
-    dw3000_aon_addr_t      start_addr,
-    dw3000_aon_byte_t*     data,
-    size_t                 data_len
+    dw3000_device_t*   device,
+    dw3000_aon_addr_t  start_addr,
+    dw3000_aon_byte_t* data,
+    size_t             data_len
 ) {
     if ((device == NULL) || ((data_len != 0U) && (data == NULL))) {
         return DW3000_ERROR_INVALID_ARG;
@@ -502,10 +500,10 @@ dw3000_error_t dw3000_hal_aon_read_memory(
 }
 
 dw3000_error_t dw3000_hal_aon_write_memory(
-    dw3000_device_t*           device,
-    dw3000_aon_addr_t          start_addr,
-    const dw3000_aon_byte_t*   data,
-    size_t                     data_len
+    dw3000_device_t*         device,
+    dw3000_aon_addr_t        start_addr,
+    const dw3000_aon_byte_t* data,
+    size_t                   data_len
 ) {
     if ((device == NULL) || ((data_len != 0U) && (data == NULL))) {
         return DW3000_ERROR_INVALID_ARG;
@@ -536,8 +534,8 @@ dw3000_error_t dw3000_hal_aon_write_memory(
 }
 
 dw3000_error_t dw3000_hal_aon_read_sleep_time(
-    dw3000_device_t*           device,
-    dw3000_aon_sleep_time_t*   sleep_time
+    dw3000_device_t*         device,
+    dw3000_aon_sleep_time_t* sleep_time
 ) {
     dw3000_error_t err;
     uint8_t        raw[sizeof(*sleep_time)];
@@ -556,15 +554,13 @@ dw3000_error_t dw3000_hal_aon_read_sleep_time(
         return err;
     }
 
-    *sleep_time = (dw3000_aon_sleep_time_t)(
-        (uint16_t)raw[0] | ((uint16_t)raw[1] << 8U)
-    );
+    *sleep_time = (dw3000_aon_sleep_time_t)((uint16_t)raw[0] | ((uint16_t)raw[1] << 8U));
     return DW3000_ERROR_OK;
 }
 
 dw3000_error_t dw3000_hal_aon_set_sleep_time(
-    dw3000_device_t*          device,
-    dw3000_aon_sleep_time_t   sleep_time
+    dw3000_device_t*        device,
+    dw3000_aon_sleep_time_t sleep_time
 ) {
     dw3000_error_t err;
     uint8_t        raw[sizeof(sleep_time)];
@@ -647,11 +643,11 @@ dw3000_error_t dw3000_hal_aon_restore(dw3000_device_t* device) {
 }
 
 dw3000_error_t dw3000_hal_aon_configure(
-    dw3000_device_t*              device,
-    const dw3000_aon_config_t*    config
+    dw3000_device_t*           device,
+    const dw3000_aon_config_t* config
 ) {
-    dw3000_error_t       err;
-    dw3000_aon_config_t  actual;
+    dw3000_error_t      err;
+    dw3000_aon_config_t actual;
 
     if (device == NULL) {
         return DW3000_ERROR_INVALID_ARG;
@@ -702,27 +698,27 @@ dw3000_error_t dw3000_hal_aon_configure_current(dw3000_device_t* device) {
 }
 
 dw3000_error_t dw3000_hal_aon_enter_sleep(
-    dw3000_device_t*              device,
-    const dw3000_aon_config_t*    config
+    dw3000_device_t*           device,
+    const dw3000_aon_config_t* config
 ) {
     return dw3000_hal_aon_prepare_sleep(device, config, false);
 }
 
 dw3000_error_t dw3000_hal_aon_enter_deepsleep(
-    dw3000_device_t*              device,
-    const dw3000_aon_config_t*    config
+    dw3000_device_t*           device,
+    const dw3000_aon_config_t* config
 ) {
     return dw3000_hal_aon_prepare_sleep(device, config, true);
 }
 
 dw3000_error_t dw3000_hal_aon_finish_wake(
-    dw3000_device_t*                          device,
-    const dw3000_hal_aon_wake_options_t*      options,
-    dw3000_calib_rx_cal_result_t*             rx_cal_result
+    dw3000_device_t*                     device,
+    const dw3000_hal_aon_wake_options_t* options,
+    dw3000_calib_rx_cal_result_t*        rx_cal_result
 ) {
-    dw3000_error_t                    err;
-    dw3000_hal_aon_wake_options_t     default_options;
-    dw3000_calib_rx_cal_result_t      local_rx_cal_result;
+    dw3000_error_t                err;
+    dw3000_hal_aon_wake_options_t default_options;
+    dw3000_calib_rx_cal_result_t  local_rx_cal_result;
 
     if (device == NULL) {
         return DW3000_ERROR_INVALID_ARG;
@@ -731,7 +727,7 @@ dw3000_error_t dw3000_hal_aon_finish_wake(
     if (options == NULL) {
         dw3000_hal_aon_default_wake_options(&default_options);
         default_options.enter_idle_pll = device->config.auto_init_pll;
-        options = &default_options;
+        options                        = &default_options;
     }
 
     err = dw3000_hal_wait_for_spi_ready(device, options->spi_ready_timeout_us);
@@ -739,14 +735,10 @@ dw3000_error_t dw3000_hal_aon_finish_wake(
         return err;
     }
 
-    device->config.aon.cfg = (dw3000_aon_cfg_flags_t)(
-        device->config.aon.cfg & ~DW3000_AON_CFG_SLEEP_EN
-    );
+    device->config.aon.cfg = (dw3000_aon_cfg_flags_t)(device->config.aon.cfg & ~DW3000_AON_CFG_SLEEP_EN);
     if (((uint8_t)device->config.aon.cfg & (uint8_t)DW3000_AON_CFG_PRES_SLEEP) == 0U) {
-        device->config.pmsc.seq_flags = (dw3000_pmsc_seq_ctrl_flags_t)(
-            device->config.pmsc.seq_flags &
-            ~(DW3000_PMSC_SEQ_ATX2SLP | DW3000_PMSC_SEQ_ARX2SLP)
-        );
+        device->config.pmsc.seq_flags = (dw3000_pmsc_seq_ctrl_flags_t)(device->config.pmsc.seq_flags &
+                                                                       ~(DW3000_PMSC_SEQ_ATX2SLP | DW3000_PMSC_SEQ_ARX2SLP));
     }
 
     if (options->reload_otp_ldo_bias && device->config.load_otp_calibration) {

@@ -3,38 +3,35 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "dw3000_types/rf.h"
 #include "dw3000_register.h"
+#include "dw3000_types/rf.h"
 
-#define DW3000_PHY_SYS_CFG_PHR_MODE_BIT  (1UL << 4U)
-#define DW3000_PHY_SYS_CFG_PHR_6M8_BIT   (1UL << 5U)
-#define DW3000_PHY_SYS_CFG_MASK          (DW3000_PHY_SYS_CFG_PHR_MODE_BIT | \
-                                          DW3000_PHY_SYS_CFG_PHR_6M8_BIT)
+#define DW3000_PHY_SYS_CFG_PHR_MODE_BIT (1UL << 4U)
+#define DW3000_PHY_SYS_CFG_PHR_6M8_BIT  (1UL << 5U)
+#define DW3000_PHY_SYS_CFG_MASK         (DW3000_PHY_SYS_CFG_PHR_MODE_BIT | DW3000_PHY_SYS_CFG_PHR_6M8_BIT)
 
-#define DW3000_PHY_TX_FCTRL_TXBR_BIT     (1UL << 10U)
-#define DW3000_PHY_TX_FCTRL_TXPSR_SHIFT  12U
-#define DW3000_PHY_TX_FCTRL_TXPSR_MASK   (0xFUL << DW3000_PHY_TX_FCTRL_TXPSR_SHIFT)
-#define DW3000_PHY_TX_FCTRL_MASK         (DW3000_PHY_TX_FCTRL_TXBR_BIT | \
-                                          DW3000_PHY_TX_FCTRL_TXPSR_MASK)
+#define DW3000_PHY_TX_FCTRL_TXBR_BIT    (1UL << 10U)
+#define DW3000_PHY_TX_FCTRL_TXPSR_SHIFT 12U
+#define DW3000_PHY_TX_FCTRL_TXPSR_MASK  (0xFUL << DW3000_PHY_TX_FCTRL_TXPSR_SHIFT)
+#define DW3000_PHY_TX_FCTRL_MASK        (DW3000_PHY_TX_FCTRL_TXBR_BIT | DW3000_PHY_TX_FCTRL_TXPSR_MASK)
 
-#define DW3000_PHY_CHAN_SFD_TYPE_SHIFT   1U
-#define DW3000_PHY_CHAN_TX_PCODE_SHIFT   3U
-#define DW3000_PHY_CHAN_RX_PCODE_SHIFT   8U
+#define DW3000_PHY_CHAN_SFD_TYPE_SHIFT 1U
+#define DW3000_PHY_CHAN_TX_PCODE_SHIFT 3U
+#define DW3000_PHY_CHAN_RX_PCODE_SHIFT 8U
 
-#define DW3000_PHY_DTUNE0_PAC_MASK       0x0003U
-#define DW3000_PHY_DTUNE0_DT0B4_BIT      (1U << 4U)
+#define DW3000_PHY_DTUNE0_PAC_MASK  0x0003U
+#define DW3000_PHY_DTUNE0_DT0B4_BIT (1U << 4U)
 
-#define DW3000_PHY_DGC_CFG_RX_TUNE_EN    (1U << 0U)
-#define DW3000_PHY_DGC_CFG_THR_64_SHIFT  9U
-#define DW3000_PHY_DGC_CFG_THR_64_MASK   (0x3FU << DW3000_PHY_DGC_CFG_THR_64_SHIFT)
-#define DW3000_PHY_DGC_CFG_MASK          (DW3000_PHY_DGC_CFG_RX_TUNE_EN | \
-                                          DW3000_PHY_DGC_CFG_THR_64_MASK)
+#define DW3000_PHY_DGC_CFG_RX_TUNE_EN   (1U << 0U)
+#define DW3000_PHY_DGC_CFG_THR_64_SHIFT 9U
+#define DW3000_PHY_DGC_CFG_THR_64_MASK  (0x3FU << DW3000_PHY_DGC_CFG_THR_64_SHIFT)
+#define DW3000_PHY_DGC_CFG_MASK         (DW3000_PHY_DGC_CFG_RX_TUNE_EN | DW3000_PHY_DGC_CFG_THR_64_MASK)
 
-#define DW3000_PHY_RF_TX_CTRL_2_CH5      0x1C071134UL
-#define DW3000_PHY_RF_TX_CTRL_2_CH9      0x1C010034UL
-#define DW3000_PHY_PLL_CFG_CH5           0x1F3CU
-#define DW3000_PHY_PLL_CFG_CH9           0x0F3CU
-#define DW3000_PHY_PLL_CAL_CFG_LD        0x0081U
+#define DW3000_PHY_RF_TX_CTRL_2_CH5 0x1C071134UL
+#define DW3000_PHY_RF_TX_CTRL_2_CH9 0x1C010034UL
+#define DW3000_PHY_PLL_CFG_CH5      0x1F3CU
+#define DW3000_PHY_PLL_CFG_CH9      0x0F3CU
+#define DW3000_PHY_PLL_CAL_CFG_LD   0x0081U
 
 static bool dw3000_hal_phy_is_idle(const dw3000_device_t* device) {
     return (device->state_flags & (DW3000_DEVICE_STATE_RX_ON |
@@ -68,12 +65,10 @@ static bool dw3000_hal_phy_preamble_code_matches_prf(
 }
 
 static uint16_t dw3000_hal_phy_build_chan_ctrl(const dw3000_phy_config_t* config) {
-    return (uint16_t)(
-        ((uint16_t)config->channel & 0x1U) |
-        (((uint16_t)config->sfd_type & 0x3U) << DW3000_PHY_CHAN_SFD_TYPE_SHIFT) |
-        (((uint16_t)config->tx_preamble_code & 0x1FU) << DW3000_PHY_CHAN_TX_PCODE_SHIFT) |
-        (((uint16_t)config->rx_preamble_code & 0x1FU) << DW3000_PHY_CHAN_RX_PCODE_SHIFT)
-    );
+    return (uint16_t)(((uint16_t)config->channel & 0x1U) |
+                      (((uint16_t)config->sfd_type & 0x3U) << DW3000_PHY_CHAN_SFD_TYPE_SHIFT) |
+                      (((uint16_t)config->tx_preamble_code & 0x1FU) << DW3000_PHY_CHAN_TX_PCODE_SHIFT) |
+                      (((uint16_t)config->rx_preamble_code & 0x1FU) << DW3000_PHY_CHAN_RX_PCODE_SHIFT));
 }
 
 static uint32_t dw3000_hal_phy_build_sys_cfg_bits(const dw3000_phy_config_t* config) {
@@ -101,15 +96,11 @@ static uint32_t dw3000_hal_phy_build_tx_fctrl_bits(const dw3000_phy_config_t* co
 }
 
 static uint32_t dw3000_hal_phy_rf_tx_ctrl_2(dw3000_phy_channel_t channel) {
-    return (channel == DW3000_PHY_CHANNEL_9) ?
-        DW3000_PHY_RF_TX_CTRL_2_CH9 :
-        DW3000_PHY_RF_TX_CTRL_2_CH5;
+    return (channel == DW3000_PHY_CHANNEL_9) ? DW3000_PHY_RF_TX_CTRL_2_CH9 : DW3000_PHY_RF_TX_CTRL_2_CH5;
 }
 
 static uint16_t dw3000_hal_phy_pll_cfg(dw3000_phy_channel_t channel) {
-    return (channel == DW3000_PHY_CHANNEL_9) ?
-        DW3000_PHY_PLL_CFG_CH9 :
-        DW3000_PHY_PLL_CFG_CH5;
+    return (channel == DW3000_PHY_CHANNEL_9) ? DW3000_PHY_PLL_CFG_CH9 : DW3000_PHY_PLL_CFG_CH5;
 }
 
 static dw3000_error_t dw3000_hal_phy_write_sys_cfg(
@@ -169,18 +160,16 @@ static dw3000_error_t dw3000_hal_phy_write_dtune0(
         return err;
     }
 
-    value = (uint16_t)(
-        (value & ~(DW3000_PHY_DTUNE0_PAC_MASK | DW3000_PHY_DTUNE0_DT0B4_BIT)) |
-        ((uint16_t)config->pac_size & DW3000_PHY_DTUNE0_PAC_MASK)
-    );
+    value = (uint16_t)((value & ~(DW3000_PHY_DTUNE0_PAC_MASK | DW3000_PHY_DTUNE0_DT0B4_BIT)) |
+                       ((uint16_t)config->pac_size & DW3000_PHY_DTUNE0_PAC_MASK));
 
     return dw3000_reg_write_u16(device, DW3000_REG_DTUNE0, value);
 }
 
 static dw3000_error_t dw3000_hal_phy_write_dgc_cfg(
-    dw3000_device_t*                device,
-    const dw3000_phy_config_t*      phy_config,
-    const dw3000_rx_tune_config_t*  rx_tune_config
+    dw3000_device_t*               device,
+    const dw3000_phy_config_t*     phy_config,
+    const dw3000_rx_tune_config_t* rx_tune_config
 ) {
     dw3000_error_t err;
     uint16_t       current;
@@ -195,18 +184,16 @@ static dw3000_error_t dw3000_hal_phy_write_dgc_cfg(
         return err;
     }
 
-    current = (uint16_t)(
-        (current & ~DW3000_PHY_DGC_CFG_MASK) |
-        (dgc_cfg & DW3000_PHY_DGC_CFG_MASK)
-    );
+    current = (uint16_t)((current & ~DW3000_PHY_DGC_CFG_MASK) |
+                         (dgc_cfg & DW3000_PHY_DGC_CFG_MASK));
 
     return dw3000_reg_write_u16(device, DW3000_REG_DGC_CFG, current);
 }
 
 static dw3000_error_t dw3000_hal_phy_write_rx_tune(
-    dw3000_device_t*                device,
-    const dw3000_phy_config_t*      phy_config,
-    const dw3000_rx_tune_config_t*  rx_tune_config
+    dw3000_device_t*               device,
+    const dw3000_phy_config_t*     phy_config,
+    const dw3000_rx_tune_config_t* rx_tune_config
 ) {
     dw3000_error_t err;
 
@@ -301,41 +288,41 @@ uint16_t dw3000_hal_phy_preamble_symbols(
     dw3000_phy_preamble_length_t preamble_length
 ) {
     switch (preamble_length) {
-    case DW3000_PHY_PREAMBLE_LEN_32:
-        return 32U;
-    case DW3000_PHY_PREAMBLE_LEN_64:
-        return 64U;
-    case DW3000_PHY_PREAMBLE_LEN_128:
-        return 128U;
-    case DW3000_PHY_PREAMBLE_LEN_256:
-        return 256U;
-    case DW3000_PHY_PREAMBLE_LEN_512:
-        return 512U;
-    case DW3000_PHY_PREAMBLE_LEN_1024:
-        return 1024U;
-    case DW3000_PHY_PREAMBLE_LEN_1536:
-        return 1536U;
-    case DW3000_PHY_PREAMBLE_LEN_2048:
-        return 2048U;
-    case DW3000_PHY_PREAMBLE_LEN_4096:
-        return 4096U;
-    default:
-        return 0U;
+        case DW3000_PHY_PREAMBLE_LEN_32:
+            return 32U;
+        case DW3000_PHY_PREAMBLE_LEN_64:
+            return 64U;
+        case DW3000_PHY_PREAMBLE_LEN_128:
+            return 128U;
+        case DW3000_PHY_PREAMBLE_LEN_256:
+            return 256U;
+        case DW3000_PHY_PREAMBLE_LEN_512:
+            return 512U;
+        case DW3000_PHY_PREAMBLE_LEN_1024:
+            return 1024U;
+        case DW3000_PHY_PREAMBLE_LEN_1536:
+            return 1536U;
+        case DW3000_PHY_PREAMBLE_LEN_2048:
+            return 2048U;
+        case DW3000_PHY_PREAMBLE_LEN_4096:
+            return 4096U;
+        default:
+            return 0U;
     }
 }
 
 uint8_t dw3000_hal_phy_pac_symbols(dw3000_phy_pac_size_t pac_size) {
     switch (pac_size) {
-    case DW3000_PHY_PAC_SIZE_8:
-        return 8U;
-    case DW3000_PHY_PAC_SIZE_16:
-        return 16U;
-    case DW3000_PHY_PAC_SIZE_32:
-        return 32U;
-    case DW3000_PHY_PAC_SIZE_4:
-        return 4U;
-    default:
-        return 0U;
+        case DW3000_PHY_PAC_SIZE_8:
+            return 8U;
+        case DW3000_PHY_PAC_SIZE_16:
+            return 16U;
+        case DW3000_PHY_PAC_SIZE_32:
+            return 32U;
+        case DW3000_PHY_PAC_SIZE_4:
+            return 4U;
+        default:
+            return 0U;
     }
 }
 
@@ -372,7 +359,7 @@ dw3000_error_t dw3000_hal_phy_configure(
     const dw3000_phy_config_t*     phy_config,
     const dw3000_rx_tune_config_t* rx_tune_config
 ) {
-    dw3000_error_t        err;
+    dw3000_error_t          err;
     dw3000_rx_tune_config_t effective_rx_tune;
 
     if (device == NULL) {
@@ -403,9 +390,7 @@ dw3000_error_t dw3000_hal_phy_configure(
 
     effective_rx_tune = *rx_tune_config;
     if (phy_config->prf == DW3000_PHY_PRF_16_MHZ) {
-        effective_rx_tune.dgc_cfg = (dw3000_rx_tune_dgc_cfg_t)(
-            effective_rx_tune.dgc_cfg & ~DW3000_PHY_DGC_CFG_RX_TUNE_EN
-        );
+        effective_rx_tune.dgc_cfg = (dw3000_rx_tune_dgc_cfg_t)(effective_rx_tune.dgc_cfg & ~DW3000_PHY_DGC_CFG_RX_TUNE_EN);
     }
 
     err = dw3000_reg_write_u16(

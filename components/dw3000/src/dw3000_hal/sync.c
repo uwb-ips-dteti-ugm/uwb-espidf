@@ -8,7 +8,7 @@
 #include "dw3000_register.h"
 
 #define DW3000_HAL_SYNC_OSTS_WAIT_SHIFT 3U
-#define DW3000_HAL_SYNC_OSTS_WAIT_MASK  \
+#define DW3000_HAL_SYNC_OSTS_WAIT_MASK \
     ((uint32_t)DW3000_SYNC_OSTS_WAIT_MAX << DW3000_HAL_SYNC_OSTS_WAIT_SHIFT)
 #define DW3000_HAL_SYNC_EC_CTRL_MASK \
     (DW3000_HAL_SYNC_OSTS_WAIT_MASK | DW3000_SYNC_EC_CTRL_FLAGS_MASK)
@@ -28,16 +28,12 @@ static uint32_t dw3000_hal_sync_encode_config(
 }
 
 static void dw3000_hal_sync_decode_config(
-    uint32_t                raw,
-    dw3000_sync_config_t*   config
+    uint32_t              raw,
+    dw3000_sync_config_t* config
 ) {
-    config->flags = (dw3000_sync_ec_ctrl_flags_t)(
-        raw & DW3000_SYNC_EC_CTRL_FLAGS_MASK
-    );
-    config->wait = (dw3000_sync_osts_wait_t)(
-        (raw & DW3000_HAL_SYNC_OSTS_WAIT_MASK) >>
-        DW3000_HAL_SYNC_OSTS_WAIT_SHIFT
-    );
+    config->flags = (dw3000_sync_ec_ctrl_flags_t)(raw & DW3000_SYNC_EC_CTRL_FLAGS_MASK);
+    config->wait  = (dw3000_sync_osts_wait_t)((raw & DW3000_HAL_SYNC_OSTS_WAIT_MASK) >>
+                                             DW3000_HAL_SYNC_OSTS_WAIT_SHIFT);
 }
 
 bool dw3000_hal_sync_osts_wait_is_valid(
@@ -92,10 +88,8 @@ dw3000_error_t dw3000_hal_sync_write_ec_ctrl(
 
     if (((value & (uint32_t)DW3000_SYNC_OSTR_MODE) != 0U) &&
         !dw3000_hal_sync_osts_wait_is_valid(
-            (dw3000_sync_osts_wait_t)(
-                (value & DW3000_HAL_SYNC_OSTS_WAIT_MASK) >>
-                DW3000_HAL_SYNC_OSTS_WAIT_SHIFT
-            )
+            (dw3000_sync_osts_wait_t)((value & DW3000_HAL_SYNC_OSTS_WAIT_MASK) >>
+                                      DW3000_HAL_SYNC_OSTS_WAIT_SHIFT)
         )) {
         return DW3000_ERROR_INVALID_ARG;
     }
@@ -108,8 +102,8 @@ dw3000_error_t dw3000_hal_sync_write_ec_ctrl(
 }
 
 dw3000_error_t dw3000_hal_sync_read_config(
-    dw3000_device_t*        device,
-    dw3000_sync_config_t*   config
+    dw3000_device_t*      device,
+    dw3000_sync_config_t* config
 ) {
     dw3000_error_t err;
     uint32_t       raw;
@@ -128,8 +122,8 @@ dw3000_error_t dw3000_hal_sync_read_config(
 }
 
 dw3000_error_t dw3000_hal_sync_configure(
-    dw3000_device_t*              device,
-    const dw3000_sync_config_t*   config
+    dw3000_device_t*            device,
+    const dw3000_sync_config_t* config
 ) {
     dw3000_error_t err;
 
@@ -165,10 +159,10 @@ dw3000_error_t dw3000_hal_sync_configure_current(
 }
 
 dw3000_error_t dw3000_hal_sync_set_flags(
-    dw3000_device_t*                device,
-    dw3000_sync_ec_ctrl_flags_t     flags
+    dw3000_device_t*            device,
+    dw3000_sync_ec_ctrl_flags_t flags
 ) {
-    dw3000_error_t      err;
+    dw3000_error_t       err;
     dw3000_sync_config_t config;
 
     if (device == NULL) {
@@ -189,10 +183,10 @@ dw3000_error_t dw3000_hal_sync_set_flags(
 }
 
 dw3000_error_t dw3000_hal_sync_clear_flags(
-    dw3000_device_t*                device,
-    dw3000_sync_ec_ctrl_flags_t     flags
+    dw3000_device_t*            device,
+    dw3000_sync_ec_ctrl_flags_t flags
 ) {
-    dw3000_error_t      err;
+    dw3000_error_t       err;
     dw3000_sync_config_t config;
 
     if (device == NULL) {
@@ -213,10 +207,10 @@ dw3000_error_t dw3000_hal_sync_clear_flags(
 }
 
 dw3000_error_t dw3000_hal_sync_set_osts_wait(
-    dw3000_device_t*           device,
-    dw3000_sync_osts_wait_t    wait
+    dw3000_device_t*        device,
+    dw3000_sync_osts_wait_t wait
 ) {
-    dw3000_error_t      err;
+    dw3000_error_t       err;
     dw3000_sync_config_t config;
 
     if (device == NULL) {
@@ -233,8 +227,8 @@ dw3000_error_t dw3000_hal_sync_set_osts_wait(
 }
 
 dw3000_error_t dw3000_hal_sync_arm_ostr(
-    dw3000_device_t*           device,
-    dw3000_sync_osts_wait_t    wait
+    dw3000_device_t*        device,
+    dw3000_sync_osts_wait_t wait
 ) {
     const dw3000_sync_config_t config = {
         .flags = DW3000_SYNC_OSTR_MODE,
@@ -262,12 +256,12 @@ dw3000_error_t dw3000_hal_sync_set_pll_sync_clock(
 }
 
 dw3000_error_t dw3000_hal_sync_prepare_ostr(
-    dw3000_device_t*           device,
-    dw3000_sync_osts_wait_t    wait
+    dw3000_device_t*        device,
+    dw3000_sync_osts_wait_t wait
 ) {
-    dw3000_error_t                 err;
-    dw3000_pmsc_seq_ctrl_flags_t   seq_flags;
-    bool                           had_pll_sync;
+    dw3000_error_t               err;
+    dw3000_pmsc_seq_ctrl_flags_t seq_flags;
+    bool                         had_pll_sync;
 
     if (device == NULL) {
         return DW3000_ERROR_INVALID_ARG;
@@ -308,8 +302,8 @@ dw3000_error_t dw3000_hal_sync_clear_rx_cal_status(
 }
 
 dw3000_error_t dw3000_hal_sync_read_rx_cal_status(
-    dw3000_device_t*               device,
-    dw3000_calib_rx_cal_status_t*  status
+    dw3000_device_t*              device,
+    dw3000_calib_rx_cal_status_t* status
 ) {
     return dw3000_hal_calib_read_rx_cal_status(device, status);
 }

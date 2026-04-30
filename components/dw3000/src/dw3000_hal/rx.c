@@ -10,31 +10,30 @@
 
 #define DW3000_HAL_RX_FWTO_MAX 0x000FFFFFUL
 
-#define DW3000_HAL_RX_SYS_CFG_MASK \
+#define DW3000_HAL_RX_SYS_CFG_MASK    \
     (DW3000_TXRX_SYS_CFG_DIS_FCS_TX | \
      DW3000_TXRX_SYS_CFG_DIS_FCE |    \
      DW3000_TXRX_SYS_CFG_DIS_DRXB |   \
      DW3000_TXRX_SYS_CFG_RXWTOE |     \
      DW3000_TXRX_SYS_CFG_RXAUTR)
 
-#define DW3000_HAL_RX_FINFO_RXFLEN_MASK 0x000003FFUL
+#define DW3000_HAL_RX_FINFO_RXFLEN_MASK  0x000003FFUL
 #define DW3000_HAL_RX_FINFO_RXNSPL_SHIFT 11U
-#define DW3000_HAL_RX_FINFO_RXBR_BIT (1UL << 13U)
-#define DW3000_HAL_RX_FINFO_RNG_BIT (1UL << 15U)
-#define DW3000_HAL_RX_FINFO_RXPRF_SHIFT 16U
-#define DW3000_HAL_RX_FINFO_RXPSR_SHIFT 18U
+#define DW3000_HAL_RX_FINFO_RXBR_BIT     (1UL << 13U)
+#define DW3000_HAL_RX_FINFO_RNG_BIT      (1UL << 15U)
+#define DW3000_HAL_RX_FINFO_RXPRF_SHIFT  16U
+#define DW3000_HAL_RX_FINFO_RXPSR_SHIFT  18U
 #define DW3000_HAL_RX_FINFO_RXPACC_SHIFT 20U
 
 #define DW3000_HAL_RX_RDB_STATUS_MASK 0xFFU
 #define DW3000_HAL_RX_RDB_DMODE_MASK  0x07U
 
-#define DW3000_HAL_RX_SNIFF_ON_MASK       0x0000000FUL
-#define DW3000_HAL_RX_SNIFF_OFF_SHIFT     8U
-#define DW3000_HAL_RX_SNIFF_OFF_MASK      0x0000FF00UL
-#define DW3000_HAL_RX_SNIFF_MASK          (DW3000_HAL_RX_SNIFF_ON_MASK | \
-                                           DW3000_HAL_RX_SNIFF_OFF_MASK)
-#define DW3000_HAL_RX_SNIFF_MIN_ON        2U
-#define DW3000_HAL_RX_SNIFF_MIN_OFF_US    5U
+#define DW3000_HAL_RX_SNIFF_ON_MASK    0x0000000FUL
+#define DW3000_HAL_RX_SNIFF_OFF_SHIFT  8U
+#define DW3000_HAL_RX_SNIFF_OFF_MASK   0x0000FF00UL
+#define DW3000_HAL_RX_SNIFF_MASK       (DW3000_HAL_RX_SNIFF_ON_MASK | DW3000_HAL_RX_SNIFF_OFF_MASK)
+#define DW3000_HAL_RX_SNIFF_MIN_ON     2U
+#define DW3000_HAL_RX_SNIFF_MIN_OFF_US 5U
 
 #define DW3000_HAL_REG_RX_STAMP_LO \
     DW3000_REG_DESC(DW3000_REG_FILE_GENERAL_CFG_0, 0x0064U, 4U)
@@ -50,13 +49,11 @@ static bool dw3000_hal_rx_is_idle(const dw3000_device_t* device) {
 }
 
 static void dw3000_hal_rx_mark_active(dw3000_device_t* device) {
-    device->state_flags = (dw3000_device_state_flags_t)(
-        (device->state_flags | DW3000_DEVICE_STATE_RX_ON) &
-        ~(DW3000_DEVICE_STATE_IDLE_RC |
-          DW3000_DEVICE_STATE_IDLE_PLL |
-          DW3000_DEVICE_STATE_TX_PENDING |
-          DW3000_DEVICE_STATE_SLEEPING)
-    );
+    device->state_flags = (dw3000_device_state_flags_t)((device->state_flags | DW3000_DEVICE_STATE_RX_ON) &
+                                                        ~(DW3000_DEVICE_STATE_IDLE_RC |
+                                                          DW3000_DEVICE_STATE_IDLE_PLL |
+                                                          DW3000_DEVICE_STATE_TX_PENDING |
+                                                          DW3000_DEVICE_STATE_SLEEPING));
 }
 
 static dw3000_error_t dw3000_hal_rx_write_sys_cfg(
@@ -98,8 +95,8 @@ static dw3000_error_t dw3000_hal_rx_write_sys_cfg(
 }
 
 static dw3000_error_t dw3000_hal_rx_decode_finfo(
-    uint32_t                 raw,
-    dw3000_txrx_rx_finfo_t*  finfo
+    uint32_t                raw,
+    dw3000_txrx_rx_finfo_t* finfo
 ) {
     uint8_t prf = (uint8_t)((raw >> DW3000_HAL_RX_FINFO_RXPRF_SHIFT) & 0x3U);
 
@@ -109,9 +106,7 @@ static dw3000_error_t dw3000_hal_rx_decode_finfo(
 
     finfo->rx_flen   = (uint16_t)(raw & DW3000_HAL_RX_FINFO_RXFLEN_MASK);
     finfo->ranging   = (raw & DW3000_HAL_RX_FINFO_RNG_BIT) != 0U;
-    finfo->data_rate = ((raw & DW3000_HAL_RX_FINFO_RXBR_BIT) != 0U) ?
-        DW3000_PHY_DATA_RATE_6M81 :
-        DW3000_PHY_DATA_RATE_850K;
+    finfo->data_rate = ((raw & DW3000_HAL_RX_FINFO_RXBR_BIT) != 0U) ? DW3000_PHY_DATA_RATE_6M81 : DW3000_PHY_DATA_RATE_850K;
     finfo->prf       = (dw3000_phy_prf_t)prf;
     finfo->rx_psr    = (uint8_t)((raw >> DW3000_HAL_RX_FINFO_RXPSR_SHIFT) & 0x3U);
     finfo->rx_nspl   = (uint8_t)((raw >> DW3000_HAL_RX_FINFO_RXNSPL_SHIFT) & 0x3U);
@@ -251,8 +246,8 @@ dw3000_error_t dw3000_hal_rx_set_reference_time(
 }
 
 dw3000_error_t dw3000_hal_rx_read_finfo(
-    dw3000_device_t*         device,
-    dw3000_txrx_rx_finfo_t*  finfo
+    dw3000_device_t*        device,
+    dw3000_txrx_rx_finfo_t* finfo
 ) {
     dw3000_error_t err;
     uint32_t       raw;
@@ -300,7 +295,7 @@ dw3000_error_t dw3000_hal_rx_read_buffer(
         return DW3000_ERROR_INVALID_SIZE;
     }
 
-    reg = dw3000_hal_rx_buffer_reg(buffer_index);
+    reg        = dw3000_hal_rx_buffer_reg(buffer_index);
     reg.offset = offset;
     reg.length = DW3000_HAL_RX_BUFFER_SIZE - (size_t)offset;
 
@@ -366,7 +361,7 @@ dw3000_error_t dw3000_hal_rx_read_raw_timestamp(
 }
 
 dw3000_error_t dw3000_hal_rx_read_double_buffer_status(
-    dw3000_device_t*         device,
+    dw3000_device_t*          device,
     dw3000_txrx_rdb_status_t* status
 ) {
     uint8_t raw;
@@ -389,7 +384,7 @@ dw3000_error_t dw3000_hal_rx_read_double_buffer_status(
 }
 
 dw3000_error_t dw3000_hal_rx_clear_double_buffer_status(
-    dw3000_device_t*        device,
+    dw3000_device_t*         device,
     dw3000_txrx_rdb_status_t status
 ) {
     if (device == NULL) {
@@ -412,7 +407,7 @@ dw3000_error_t dw3000_hal_rx_clear_double_buffer_status(
 }
 
 dw3000_error_t dw3000_hal_rx_read_double_buffer_diag_mode(
-    dw3000_device_t*        device,
+    dw3000_device_t*         device,
     dw3000_txrx_rdb_dmode_t* mode
 ) {
     uint8_t raw;
@@ -435,7 +430,7 @@ dw3000_error_t dw3000_hal_rx_read_double_buffer_diag_mode(
 }
 
 dw3000_error_t dw3000_hal_rx_set_double_buffer_diag_mode(
-    dw3000_device_t*       device,
+    dw3000_device_t*        device,
     dw3000_txrx_rdb_dmode_t mode
 ) {
     dw3000_error_t err;
@@ -488,7 +483,7 @@ dw3000_error_t dw3000_hal_rx_read_sniff(
 }
 
 dw3000_error_t dw3000_hal_rx_configure_sniff(
-    dw3000_device_t*          device,
+    dw3000_device_t*           device,
     const dw3000_txrx_sniff_t* sniff
 ) {
     if ((device == NULL) || (sniff == NULL)) {
@@ -521,8 +516,8 @@ dw3000_error_t dw3000_hal_rx_disable_sniff(dw3000_device_t* device) {
 }
 
 dw3000_error_t dw3000_hal_rx_clear_events(
-    dw3000_device_t*     device,
-    dw3000_txrx_event_t  events
+    dw3000_device_t*    device,
+    dw3000_txrx_event_t events
 ) {
     return dw3000_hal_status_clear(device, events & dw3000_hal_rx_all_events());
 }

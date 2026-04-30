@@ -29,7 +29,7 @@
 #define DW3000_HAL_DGC_THR_64_OPT   0x32U
 
 #define DW3000_HAL_DEFAULT_STS_CPS_LEN 7U
-#define DW3000_HAL_INIT_KNOWN_STEPS ((uint32_t)DW3000_HAL_INIT_STEP_ALL)
+#define DW3000_HAL_INIT_KNOWN_STEPS    ((uint32_t)DW3000_HAL_INIT_STEP_ALL)
 
 static uint32_t dw3000_hal_min_u32(uint32_t a, uint32_t b) {
     return (a < b) ? a : b;
@@ -47,26 +47,22 @@ static void dw3000_hal_delay_us(
 static void dw3000_hal_clear_runtime_state(dw3000_device_t* device) {
     device->id           = (dw3000_device_id_t){0};
     device->capabilities = DW3000_DEVICE_CAP_NONE;
-    device->state_flags  = (dw3000_device_state_flags_t)(
-        device->state_flags & DW3000_DEVICE_STATE_PORT_READY
-    );
+    device->state_flags  = (dw3000_device_state_flags_t)(device->state_flags & DW3000_DEVICE_STATE_PORT_READY);
 
-    device->sys_cfg_cache          = 0U;
-    device->sys_cfg_cache_valid    = false;
-    device->enabled_events         = 0U;
-    device->enabled_events_valid   = false;
-    device->active_rx_buffer       = 0U;
+    device->sys_cfg_cache        = 0U;
+    device->sys_cfg_cache_valid  = false;
+    device->enabled_events       = 0U;
+    device->enabled_events_valid = false;
+    device->active_rx_buffer     = 0U;
 }
 
 static void dw3000_hal_mark_idle_rc(dw3000_device_t* device) {
-    device->state_flags = (dw3000_device_state_flags_t)(
-        (device->state_flags |
-         DW3000_DEVICE_STATE_IDLE_RC) &
-        ~(DW3000_DEVICE_STATE_IDLE_PLL |
-          DW3000_DEVICE_STATE_RX_ON |
-          DW3000_DEVICE_STATE_TX_PENDING |
-          DW3000_DEVICE_STATE_SLEEPING)
-    );
+    device->state_flags = (dw3000_device_state_flags_t)((device->state_flags |
+                                                         DW3000_DEVICE_STATE_IDLE_RC) &
+                                                        ~(DW3000_DEVICE_STATE_IDLE_PLL |
+                                                          DW3000_DEVICE_STATE_RX_ON |
+                                                          DW3000_DEVICE_STATE_TX_PENDING |
+                                                          DW3000_DEVICE_STATE_SLEEPING));
 }
 
 static bool dw3000_hal_is_idle_for_config(const dw3000_device_t* device) {
@@ -88,8 +84,8 @@ void dw3000_hal_default_bringup(dw3000_hal_bringup_t* bringup) {
         return;
     }
 
-    bringup->reset_assert_us = DW3000_HAL_DEFAULT_RESET_ASSERT_US;
-    bringup->reset_settle_us = DW3000_HAL_DEFAULT_RESET_SETTLE_US;
+    bringup->reset_assert_us  = DW3000_HAL_DEFAULT_RESET_ASSERT_US;
+    bringup->reset_settle_us  = DW3000_HAL_DEFAULT_RESET_SETTLE_US;
     bringup->ready_timeout_us = DW3000_HAL_DEFAULT_READY_TIMEOUT_US;
 }
 
@@ -100,7 +96,7 @@ void dw3000_hal_default_init_options(
         return;
     }
 
-    options->steps = DW3000_HAL_INIT_STEP_ALL;
+    options->steps               = DW3000_HAL_INIT_STEP_ALL;
     options->idle_pll_timeout_us = DW3000_HAL_DEFAULT_READY_TIMEOUT_US;
 }
 
@@ -140,66 +136,60 @@ void dw3000_hal_default_config(dw3000_device_config_t* config) {
     config->sync.flags = 0U;
     config->sync.wait  = 0U;
 
-    config->pmsc.clk_ctrl.sys_clk = DW3000_PMSC_CLK_SRC_AUTO;
-    config->pmsc.clk_ctrl.rx_clk  = DW3000_PMSC_CLK_SRC_AUTO;
-    config->pmsc.clk_ctrl.tx_clk  = DW3000_PMSC_CLK_SRC_AUTO;
-    config->pmsc.clk_ctrl.flags   = 0U;
-    config->pmsc.seq_flags        = DW3000_PMSC_SEQ_CIARUNE;
-    config->pmsc.txfseq           = DW3000_PMSC_TXFSEQ_FINE_ENABLED;
+    config->pmsc.clk_ctrl.sys_clk   = DW3000_PMSC_CLK_SRC_AUTO;
+    config->pmsc.clk_ctrl.rx_clk    = DW3000_PMSC_CLK_SRC_AUTO;
+    config->pmsc.clk_ctrl.tx_clk    = DW3000_PMSC_CLK_SRC_AUTO;
+    config->pmsc.clk_ctrl.flags     = 0U;
+    config->pmsc.seq_flags          = DW3000_PMSC_SEQ_CIARUNE;
+    config->pmsc.txfseq             = DW3000_PMSC_TXFSEQ_FINE_ENABLED;
     config->pmsc.led_ctrl.blink_tim = DW3000_PMSC_LED_BLINK_TIM_DEFAULT;
     config->pmsc.led_ctrl.flags     = DW3000_PMSC_LED_BLNKEN;
     config->pmsc.bias_ctrl          = 0U;
 
-    config->aon.dig_cfg = (dw3000_aon_dig_cfg_t)(
-        DW3000_AON_DIG_ONW_AON_DLD |
-        DW3000_AON_DIG_ONW_RUN_SAR |
-        DW3000_AON_DIG_ONW_PGFCAL
-    );
-    config->aon.cfg = (dw3000_aon_cfg_flags_t)(
-        DW3000_AON_CFG_BROUT_EN |
-        DW3000_AON_CFG_WAKE_CSN |
-        DW3000_AON_CFG_WAKE_WUP
-    );
+    config->aon.dig_cfg    = (dw3000_aon_dig_cfg_t)(DW3000_AON_DIG_ONW_AON_DLD |
+                                                 DW3000_AON_DIG_ONW_RUN_SAR |
+                                                 DW3000_AON_DIG_ONW_PGFCAL);
+    config->aon.cfg        = (dw3000_aon_cfg_flags_t)(DW3000_AON_CFG_BROUT_EN |
+                                               DW3000_AON_CFG_WAKE_CSN |
+                                               DW3000_AON_CFG_WAKE_WUP);
     config->aon.sleep_time = 0U;
 
     for (uint8_t i = 0U; i < DW3000_GPIO_PIN_COUNT; ++i) {
         config->gpio.mode.msgp[i] = DW3000_GPIO_FUNCTION_GPIO;
     }
-    config->gpio.pull_enable     = (dw3000_gpio_pin_t)DW3000_GPIO_PIN_MASK;
-    config->gpio.input           = (dw3000_gpio_pin_t)DW3000_GPIO_PIN_MASK;
-    config->gpio.output          = 0U;
-    config->gpio.irq.enable      = 0U;
-    config->gpio.irq.sense_low   = 0U;
-    config->gpio.irq.edge_mode   = 0U;
-    config->gpio.irq.both_edges  = 0U;
-    config->gpio.irq.debounce    = 0U;
+    config->gpio.pull_enable    = (dw3000_gpio_pin_t)DW3000_GPIO_PIN_MASK;
+    config->gpio.input          = (dw3000_gpio_pin_t)DW3000_GPIO_PIN_MASK;
+    config->gpio.output         = 0U;
+    config->gpio.irq.enable     = 0U;
+    config->gpio.irq.sense_low  = 0U;
+    config->gpio.irq.edge_mode  = 0U;
+    config->gpio.irq.both_edges = 0U;
+    config->gpio.irq.debounce   = 0U;
 
-    config->aes.mode             = DW3000_AES_MODE_ENCRYPT;
-    config->aes.key_size         = DW3000_AES_KEY_SIZE_128;
-    config->aes.tag_size         = DW3000_AES_TAG_SIZE_NONE;
-    config->aes.core             = DW3000_AES_CORE_GCM;
-    config->aes.key_src          = DW3000_AES_KEY_SRC_REGISTER;
-    config->aes.flags            = 0U;
-    config->aes.key_addr         = 0U;
-    config->aes.dma.src_port     = DW3000_AES_PORT_SCRATCH;
-    config->aes.dma.src_addr     = 0U;
-    config->aes.dma.dst_port     = DW3000_AES_PORT_SCRATCH;
-    config->aes.dma.dst_addr     = 0U;
-    config->aes.dma.endianness   = DW3000_AES_ENDIAN_BIG;
-    config->aes.dma.hdr_size     = 0U;
-    config->aes.dma.pyld_size    = 0U;
+    config->aes.mode           = DW3000_AES_MODE_ENCRYPT;
+    config->aes.key_size       = DW3000_AES_KEY_SIZE_128;
+    config->aes.tag_size       = DW3000_AES_TAG_SIZE_NONE;
+    config->aes.core           = DW3000_AES_CORE_GCM;
+    config->aes.key_src        = DW3000_AES_KEY_SRC_REGISTER;
+    config->aes.flags          = 0U;
+    config->aes.key_addr       = 0U;
+    config->aes.dma.src_port   = DW3000_AES_PORT_SCRATCH;
+    config->aes.dma.src_addr   = 0U;
+    config->aes.dma.dst_port   = DW3000_AES_PORT_SCRATCH;
+    config->aes.dma.dst_addr   = 0U;
+    config->aes.dma.endianness = DW3000_AES_ENDIAN_BIG;
+    config->aes.dma.hdr_size   = 0U;
+    config->aes.dma.pyld_size  = 0U;
 
     config->rx_tune.sfd_toc = 65U;
     config->rx_tune.pre_toc = 0U;
     config->rx_tune.dtune3  = 0xAF5F584CUL;
-    config->rx_tune.dgc_cfg = (dw3000_rx_tune_dgc_cfg_t)(
-        DW3000_RX_TUNE_DGC_RX_TUNE_EN |
-        (DW3000_HAL_DGC_THR_64_OPT << DW3000_HAL_DGC_THR_64_SHIFT)
-    );
+    config->rx_tune.dgc_cfg = (dw3000_rx_tune_dgc_cfg_t)(DW3000_RX_TUNE_DGC_RX_TUNE_EN |
+                                                         (DW3000_HAL_DGC_THR_64_OPT << DW3000_HAL_DGC_THR_64_SHIFT));
 
-    config->use_double_buffer     = true;
-    config->load_otp_calibration  = true;
-    config->auto_init_pll         = true;
+    config->use_double_buffer    = true;
+    config->load_otp_calibration = true;
+    config->auto_init_pll        = true;
 }
 
 dw3000_error_t dw3000_hal_init_context(
@@ -324,20 +314,16 @@ dw3000_error_t dw3000_hal_probe(dw3000_device_t* device) {
     }
 
     if (!dw3000_hal_is_supported_device_id(&id)) {
-        device->id = (dw3000_device_id_t){0};
-        device->state_flags = (dw3000_device_state_flags_t)(
-            device->state_flags &
-            ~(DW3000_DEVICE_STATE_PRESENT | DW3000_DEVICE_STATE_INITIALIZED)
-        );
+        device->id           = (dw3000_device_id_t){0};
+        device->state_flags  = (dw3000_device_state_flags_t)(device->state_flags &
+                                                            ~(DW3000_DEVICE_STATE_PRESENT | DW3000_DEVICE_STATE_INITIALIZED));
         device->capabilities = DW3000_DEVICE_CAP_NONE;
         return DW3000_ERROR_NOT_SUPPORTED;
     }
 
     device->id           = id;
     device->capabilities = dw3000_hal_capabilities_from_device_id(&id);
-    device->state_flags  = (dw3000_device_state_flags_t)(
-        device->state_flags | DW3000_DEVICE_STATE_PRESENT
-    );
+    device->state_flags  = (dw3000_device_state_flags_t)(device->state_flags | DW3000_DEVICE_STATE_PRESENT);
 
     return DW3000_ERROR_OK;
 }
@@ -429,8 +415,8 @@ dw3000_error_t dw3000_hal_bringup(
     const dw3000_port_t*          port,
     const dw3000_device_config_t* config
 ) {
-    dw3000_error_t        err;
-    dw3000_hal_bringup_t  default_bringup;
+    dw3000_error_t              err;
+    dw3000_hal_bringup_t        default_bringup;
     const dw3000_hal_bringup_t* actual_bringup = bringup;
 
     if (actual_bringup == NULL) {
@@ -469,21 +455,19 @@ dw3000_error_t dw3000_hal_bringup(
         }
     }
 
-    device->state_flags = (dw3000_device_state_flags_t)(
-        device->state_flags | DW3000_DEVICE_STATE_INITIALIZED
-    );
+    device->state_flags = (dw3000_device_state_flags_t)(device->state_flags | DW3000_DEVICE_STATE_INITIALIZED);
 
     return DW3000_ERROR_OK;
 }
 
 dw3000_error_t dw3000_hal_configure_device(
-    dw3000_device_t*                  device,
-    const dw3000_hal_init_options_t*  options
+    dw3000_device_t*                 device,
+    const dw3000_hal_init_options_t* options
 ) {
-    dw3000_error_t           err;
-    dw3000_hal_init_options_t default_options;
+    dw3000_error_t                   err;
+    dw3000_hal_init_options_t        default_options;
     const dw3000_hal_init_options_t* actual_options = options;
-    uint32_t                 steps;
+    uint32_t                         steps;
 
     if (device == NULL) {
         return DW3000_ERROR_INVALID_ARG;
@@ -527,9 +511,7 @@ dw3000_error_t dw3000_hal_configure_device(
         dw3000_pmsc_config_t pmsc_config = device->config.pmsc;
 
         if ((steps & (uint32_t)DW3000_HAL_INIT_STEP_IDLE_PLL) != 0U) {
-            pmsc_config.seq_flags = (dw3000_pmsc_seq_ctrl_flags_t)(
-                pmsc_config.seq_flags & ~DW3000_PMSC_SEQ_AINIT2IDLE
-            );
+            pmsc_config.seq_flags = (dw3000_pmsc_seq_ctrl_flags_t)(pmsc_config.seq_flags & ~DW3000_PMSC_SEQ_AINIT2IDLE);
         }
 
         err = dw3000_hal_pmsc_configure(device, &pmsc_config);
@@ -620,19 +602,17 @@ dw3000_error_t dw3000_hal_configure_device(
         }
     }
 
-    device->state_flags = (dw3000_device_state_flags_t)(
-        device->state_flags | DW3000_DEVICE_STATE_INITIALIZED
-    );
+    device->state_flags = (dw3000_device_state_flags_t)(device->state_flags | DW3000_DEVICE_STATE_INITIALIZED);
 
     return DW3000_ERROR_OK;
 }
 
 dw3000_error_t dw3000_hal_initialize(
-    dw3000_device_t*                  device,
-    const dw3000_hal_bringup_t*       bringup,
-    const dw3000_hal_init_options_t*  options,
-    const dw3000_port_t*              port,
-    const dw3000_device_config_t*     config
+    dw3000_device_t*                 device,
+    const dw3000_hal_bringup_t*      bringup,
+    const dw3000_hal_init_options_t* options,
+    const dw3000_port_t*             port,
+    const dw3000_device_config_t*    config
 ) {
     dw3000_error_t         err;
     dw3000_device_config_t actual_config;
@@ -648,7 +628,7 @@ dw3000_error_t dw3000_hal_initialize(
         actual_config = *config;
     }
 
-    bringup_config = actual_config;
+    bringup_config               = actual_config;
     bringup_config.auto_init_pll = false;
 
     err = dw3000_hal_bringup(device, bringup, port, &bringup_config);
@@ -656,10 +636,8 @@ dw3000_error_t dw3000_hal_initialize(
         return err;
     }
 
-    device->config = actual_config;
-    device->state_flags = (dw3000_device_state_flags_t)(
-        device->state_flags & ~DW3000_DEVICE_STATE_INITIALIZED
-    );
+    device->config      = actual_config;
+    device->state_flags = (dw3000_device_state_flags_t)(device->state_flags & ~DW3000_DEVICE_STATE_INITIALIZED);
 
     return dw3000_hal_configure_device(device, options);
 }

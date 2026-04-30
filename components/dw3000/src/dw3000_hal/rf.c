@@ -7,15 +7,15 @@
 
 #define DW3000_HAL_RF_TX_TEST_MASK  0x0FU
 #define DW3000_HAL_RF_SAR_TEST_MASK ((uint8_t)DW3000_RF_SAR_TEST_RDEN)
-#define DW3000_HAL_RF_LDO_CTRL_MASK \
-    ((uint32_t)(DW3000_RF_LDO_VDDMS1 | \
-                DW3000_RF_LDO_VDDMS2 | \
-                DW3000_RF_LDO_VDDMS3 | \
-                DW3000_RF_LDO_VDDPLL | \
-                DW3000_RF_LDO_VDDTX1 | \
-                DW3000_RF_LDO_VDDTX2 | \
-                DW3000_RF_LDO_VDDIF2 | \
-                DW3000_RF_LDO_VDDHVTX | \
+#define DW3000_HAL_RF_LDO_CTRL_MASK         \
+    ((uint32_t)(DW3000_RF_LDO_VDDMS1 |      \
+                DW3000_RF_LDO_VDDMS2 |      \
+                DW3000_RF_LDO_VDDMS3 |      \
+                DW3000_RF_LDO_VDDPLL |      \
+                DW3000_RF_LDO_VDDTX1 |      \
+                DW3000_RF_LDO_VDDTX2 |      \
+                DW3000_RF_LDO_VDDIF2 |      \
+                DW3000_RF_LDO_VDDHVTX |     \
                 DW3000_RF_LDO_VDDTX1_VREF | \
                 DW3000_RF_LDO_VDDTX2_VREF | \
                 DW3000_RF_LDO_VDDHVTX_VREF))
@@ -123,8 +123,8 @@ dw3000_error_t dw3000_hal_rf_write_ctrl_mask(
 }
 
 dw3000_error_t dw3000_hal_rf_force_tx_path(
-    dw3000_device_t*      device,
-    dw3000_phy_channel_t  channel
+    dw3000_device_t*     device,
+    dw3000_phy_channel_t channel
 ) {
     dw3000_error_t err;
     uint32_t       value;
@@ -138,7 +138,7 @@ dw3000_error_t dw3000_hal_rf_force_tx_path(
     }
 
     value = dw3000_hal_rf_force_tx_value(channel);
-    err = dw3000_hal_rf_write_enable(device, value);
+    err   = dw3000_hal_rf_write_enable(device, value);
     if (err != DW3000_ERROR_OK) {
         return err;
     }
@@ -158,8 +158,8 @@ dw3000_error_t dw3000_hal_rf_clear_forced_path(dw3000_device_t* device) {
 }
 
 dw3000_error_t dw3000_hal_rf_read_switch(
-    dw3000_device_t*     device,
-    dw3000_rf_switch_t*  value
+    dw3000_device_t*    device,
+    dw3000_rf_switch_t* value
 ) {
     if ((device == NULL) || (value == NULL)) {
         return DW3000_ERROR_INVALID_ARG;
@@ -169,8 +169,8 @@ dw3000_error_t dw3000_hal_rf_read_switch(
 }
 
 dw3000_error_t dw3000_hal_rf_write_switch(
-    dw3000_device_t*    device,
-    dw3000_rf_switch_t  value
+    dw3000_device_t*   device,
+    dw3000_rf_switch_t value
 ) {
     if (device == NULL) {
         return DW3000_ERROR_INVALID_ARG;
@@ -184,8 +184,8 @@ dw3000_error_t dw3000_hal_rf_write_switch(
 }
 
 dw3000_error_t dw3000_hal_rf_read_tx_ctrl_1(
-    dw3000_device_t*        device,
-    dw3000_rf_tx_ctrl_1_t*  value
+    dw3000_device_t*       device,
+    dw3000_rf_tx_ctrl_1_t* value
 ) {
     if ((device == NULL) || (value == NULL)) {
         return DW3000_ERROR_INVALID_ARG;
@@ -195,8 +195,8 @@ dw3000_error_t dw3000_hal_rf_read_tx_ctrl_1(
 }
 
 dw3000_error_t dw3000_hal_rf_write_tx_ctrl_1(
-    dw3000_device_t*        device,
-    dw3000_rf_tx_ctrl_1_t   value
+    dw3000_device_t*      device,
+    dw3000_rf_tx_ctrl_1_t value
 ) {
     if (device == NULL) {
         return DW3000_ERROR_INVALID_ARG;
@@ -210,8 +210,8 @@ dw3000_error_t dw3000_hal_rf_write_tx_ctrl_1(
 }
 
 dw3000_error_t dw3000_hal_rf_read_tx_ctrl_2(
-    dw3000_device_t*        device,
-    dw3000_rf_tx_ctrl_2_t*  value
+    dw3000_device_t*       device,
+    dw3000_rf_tx_ctrl_2_t* value
 ) {
     if ((device == NULL) || (value == NULL)) {
         return DW3000_ERROR_INVALID_ARG;
@@ -221,8 +221,8 @@ dw3000_error_t dw3000_hal_rf_read_tx_ctrl_2(
 }
 
 dw3000_error_t dw3000_hal_rf_write_tx_ctrl_2(
-    dw3000_device_t*        device,
-    dw3000_rf_tx_ctrl_2_t   value
+    dw3000_device_t*      device,
+    dw3000_rf_tx_ctrl_2_t value
 ) {
     if (device == NULL) {
         return DW3000_ERROR_INVALID_ARG;
@@ -236,8 +236,8 @@ dw3000_error_t dw3000_hal_rf_write_tx_ctrl_2(
 }
 
 dw3000_error_t dw3000_hal_rf_configure_tx_channel(
-    dw3000_device_t*      device,
-    dw3000_phy_channel_t  channel
+    dw3000_device_t*     device,
+    dw3000_phy_channel_t channel
 ) {
     dw3000_error_t err;
 
@@ -264,8 +264,8 @@ dw3000_error_t dw3000_hal_rf_configure_tx_channel(
 }
 
 dw3000_error_t dw3000_hal_rf_read_tx_test(
-    dw3000_device_t*      device,
-    dw3000_rf_tx_test_t*  value
+    dw3000_device_t*     device,
+    dw3000_rf_tx_test_t* value
 ) {
     if ((device == NULL) || (value == NULL)) {
         return DW3000_ERROR_INVALID_ARG;
@@ -275,8 +275,8 @@ dw3000_error_t dw3000_hal_rf_read_tx_test(
 }
 
 dw3000_error_t dw3000_hal_rf_write_tx_test(
-    dw3000_device_t*     device,
-    dw3000_rf_tx_test_t  value
+    dw3000_device_t*    device,
+    dw3000_rf_tx_test_t value
 ) {
     if (device == NULL) {
         return DW3000_ERROR_INVALID_ARG;
@@ -294,8 +294,8 @@ dw3000_error_t dw3000_hal_rf_write_tx_test(
 }
 
 dw3000_error_t dw3000_hal_rf_read_sar_test(
-    dw3000_device_t*       device,
-    dw3000_rf_sar_test_t*  value
+    dw3000_device_t*      device,
+    dw3000_rf_sar_test_t* value
 ) {
     if ((device == NULL) || (value == NULL)) {
         return DW3000_ERROR_INVALID_ARG;
@@ -305,8 +305,8 @@ dw3000_error_t dw3000_hal_rf_read_sar_test(
 }
 
 dw3000_error_t dw3000_hal_rf_write_sar_test(
-    dw3000_device_t*      device,
-    dw3000_rf_sar_test_t  value
+    dw3000_device_t*     device,
+    dw3000_rf_sar_test_t value
 ) {
     if (device == NULL) {
         return DW3000_ERROR_INVALID_ARG;
@@ -333,8 +333,8 @@ dw3000_error_t dw3000_hal_rf_set_sar_read_enable(
 }
 
 dw3000_error_t dw3000_hal_rf_read_ldo_tune(
-    dw3000_device_t*       device,
-    dw3000_rf_ldo_tune_t*  value
+    dw3000_device_t*      device,
+    dw3000_rf_ldo_tune_t* value
 ) {
     if ((device == NULL) || (value == NULL)) {
         return DW3000_ERROR_INVALID_ARG;
@@ -344,8 +344,8 @@ dw3000_error_t dw3000_hal_rf_read_ldo_tune(
 }
 
 dw3000_error_t dw3000_hal_rf_write_ldo_tune(
-    dw3000_device_t*             device,
-    const dw3000_rf_ldo_tune_t*  value
+    dw3000_device_t*            device,
+    const dw3000_rf_ldo_tune_t* value
 ) {
     if ((device == NULL) || (value == NULL)) {
         return DW3000_ERROR_INVALID_ARG;
@@ -362,7 +362,7 @@ dw3000_error_t dw3000_hal_rf_read_ldo_ctrl(
     dw3000_device_t*      device,
     dw3000_rf_ldo_ctrl_t* value
 ) {
-    uint32_t raw;
+    uint32_t       raw;
     dw3000_error_t err;
 
     if ((device == NULL) || (value == NULL)) {
@@ -398,8 +398,8 @@ dw3000_error_t dw3000_hal_rf_write_ldo_ctrl(
 }
 
 dw3000_error_t dw3000_hal_rf_read_ldo_rload(
-    dw3000_device_t*        device,
-    dw3000_rf_ldo_rload_t*  value
+    dw3000_device_t*       device,
+    dw3000_rf_ldo_rload_t* value
 ) {
     if ((device == NULL) || (value == NULL)) {
         return DW3000_ERROR_INVALID_ARG;
@@ -409,8 +409,8 @@ dw3000_error_t dw3000_hal_rf_read_ldo_rload(
 }
 
 dw3000_error_t dw3000_hal_rf_write_ldo_rload(
-    dw3000_device_t*       device,
-    dw3000_rf_ldo_rload_t  value
+    dw3000_device_t*      device,
+    dw3000_rf_ldo_rload_t value
 ) {
     if (device == NULL) {
         return DW3000_ERROR_INVALID_ARG;

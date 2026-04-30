@@ -7,10 +7,10 @@
 
 #define DW3000_HAL_TX_CAL_SAR_READING_LEN 3U
 #define DW3000_HAL_TX_CAL_PGC_TMEAS_SHIFT 2U
-#define DW3000_HAL_TX_CAL_PGC_CTRL_MASK   \
-    ((uint16_t)DW3000_TX_CAL_PGC_START |  \
+#define DW3000_HAL_TX_CAL_PGC_CTRL_MASK  \
+    ((uint16_t)DW3000_TX_CAL_PGC_START | \
      (uint16_t)DW3000_TX_CAL_PGC_AUTOCAL_EN)
-#define DW3000_HAL_TX_CAL_PGC_TMEAS_MASK  \
+#define DW3000_HAL_TX_CAL_PGC_TMEAS_MASK \
     ((uint16_t)DW3000_TX_CAL_PGC_TMEAS_MAX << DW3000_HAL_TX_CAL_PGC_TMEAS_SHIFT)
 
 static bool dw3000_hal_tx_cal_is_idle(const dw3000_device_t* device) {
@@ -58,10 +58,10 @@ dw3000_error_t dw3000_hal_tx_cal_validate_config(
 }
 
 dw3000_error_t dw3000_hal_tx_cal_read_sar_status(
-    dw3000_device_t*                device,
-    dw3000_tx_cal_sar_status_t*     status
+    dw3000_device_t*            device,
+    dw3000_tx_cal_sar_status_t* status
 ) {
-    uint8_t raw;
+    uint8_t        raw;
     dw3000_error_t err;
 
     if ((device == NULL) || (status == NULL)) {
@@ -73,15 +73,13 @@ dw3000_error_t dw3000_hal_tx_cal_read_sar_status(
         return err;
     }
 
-    *status = (dw3000_tx_cal_sar_status_t)(
-        raw & (uint8_t)DW3000_TX_CAL_SAR_DONE
-    );
+    *status = (dw3000_tx_cal_sar_status_t)(raw & (uint8_t)DW3000_TX_CAL_SAR_DONE);
     return DW3000_ERROR_OK;
 }
 
 dw3000_error_t dw3000_hal_tx_cal_write_sar_ctrl(
-    dw3000_device_t*             device,
-    dw3000_tx_cal_sar_ctrl_t     ctrl
+    dw3000_device_t*         device,
+    dw3000_tx_cal_sar_ctrl_t ctrl
 ) {
     if (device == NULL) {
         return DW3000_ERROR_INVALID_ARG;
@@ -103,8 +101,8 @@ dw3000_error_t dw3000_hal_tx_cal_start_sar(dw3000_device_t* device) {
 }
 
 dw3000_error_t dw3000_hal_tx_cal_read_sar(
-    dw3000_device_t*              device,
-    dw3000_tx_cal_sar_reading_t*  reading
+    dw3000_device_t*             device,
+    dw3000_tx_cal_sar_reading_t* reading
 ) {
     dw3000_error_t err;
     uint8_t        raw[DW3000_HAL_TX_CAL_SAR_READING_LEN];
@@ -124,8 +122,8 @@ dw3000_error_t dw3000_hal_tx_cal_read_sar(
 }
 
 dw3000_error_t dw3000_hal_tx_cal_read_sar_wake(
-    dw3000_device_t*            device,
-    dw3000_tx_cal_sar_wake_t*   reading
+    dw3000_device_t*          device,
+    dw3000_tx_cal_sar_wake_t* reading
 ) {
     dw3000_error_t err;
     uint16_t       raw;
@@ -145,9 +143,9 @@ dw3000_error_t dw3000_hal_tx_cal_read_sar_wake(
 }
 
 dw3000_error_t dw3000_hal_tx_cal_read_pgc_ctrl(
-    dw3000_device_t*             device,
-    dw3000_tx_cal_pgc_ctrl_t*    ctrl,
-    uint8_t*                     tmeas
+    dw3000_device_t*          device,
+    dw3000_tx_cal_pgc_ctrl_t* ctrl,
+    uint8_t*                  tmeas
 ) {
     dw3000_error_t err;
     uint16_t       raw;
@@ -163,19 +161,17 @@ dw3000_error_t dw3000_hal_tx_cal_read_pgc_ctrl(
 
     *ctrl = (dw3000_tx_cal_pgc_ctrl_t)(raw & DW3000_HAL_TX_CAL_PGC_CTRL_MASK);
     if (tmeas != NULL) {
-        *tmeas = (uint8_t)(
-            (raw & DW3000_HAL_TX_CAL_PGC_TMEAS_MASK) >>
-            DW3000_HAL_TX_CAL_PGC_TMEAS_SHIFT
-        );
+        *tmeas = (uint8_t)((raw & DW3000_HAL_TX_CAL_PGC_TMEAS_MASK) >>
+                           DW3000_HAL_TX_CAL_PGC_TMEAS_SHIFT);
     }
 
     return DW3000_ERROR_OK;
 }
 
 dw3000_error_t dw3000_hal_tx_cal_write_pgc_ctrl(
-    dw3000_device_t*            device,
-    dw3000_tx_cal_pgc_ctrl_t    ctrl,
-    uint8_t                     tmeas
+    dw3000_device_t*         device,
+    dw3000_tx_cal_pgc_ctrl_t ctrl,
+    uint8_t                  tmeas
 ) {
     uint16_t raw;
 
@@ -225,8 +221,8 @@ dw3000_error_t dw3000_hal_tx_cal_start_pgc_autocal(
 }
 
 dw3000_error_t dw3000_hal_tx_cal_read_pgc_status(
-    dw3000_device_t*             device,
-    dw3000_tx_cal_pgc_status_t*  status
+    dw3000_device_t*            device,
+    dw3000_tx_cal_pgc_status_t* status
 ) {
     dw3000_error_t err;
     uint16_t       raw;
@@ -241,9 +237,7 @@ dw3000_error_t dw3000_hal_tx_cal_read_pgc_status(
     }
 
     status->delay = (uint16_t)(raw & DW3000_TX_CAL_PGC_DELAY_MASK);
-    status->flags = (dw3000_tx_cal_pgc_status_flags_t)(
-        raw & (uint16_t)DW3000_TX_CAL_PGC_AUTOCAL_DONE
-    );
+    status->flags = (dw3000_tx_cal_pgc_status_flags_t)(raw & (uint16_t)DW3000_TX_CAL_PGC_AUTOCAL_DONE);
     return DW3000_ERROR_OK;
 }
 
@@ -326,8 +320,8 @@ dw3000_error_t dw3000_hal_tx_cal_wait_pgc_autocal_done(
 }
 
 dw3000_error_t dw3000_hal_tx_cal_read_pg_test(
-    dw3000_device_t*          device,
-    dw3000_tx_cal_pg_test_t*  value
+    dw3000_device_t*         device,
+    dw3000_tx_cal_pg_test_t* value
 ) {
     if ((device == NULL) || (value == NULL)) {
         return DW3000_ERROR_INVALID_ARG;
@@ -337,8 +331,8 @@ dw3000_error_t dw3000_hal_tx_cal_read_pg_test(
 }
 
 dw3000_error_t dw3000_hal_tx_cal_write_pg_test(
-    dw3000_device_t*         device,
-    dw3000_tx_cal_pg_test_t  value
+    dw3000_device_t*        device,
+    dw3000_tx_cal_pg_test_t value
 ) {
     if (device == NULL) {
         return DW3000_ERROR_INVALID_ARG;
@@ -356,8 +350,8 @@ dw3000_error_t dw3000_hal_tx_cal_write_pg_test(
 }
 
 dw3000_error_t dw3000_hal_tx_cal_read_pg_target(
-    dw3000_device_t*            device,
-    dw3000_tx_cal_pg_target_t*  target
+    dw3000_device_t*           device,
+    dw3000_tx_cal_pg_target_t* target
 ) {
     dw3000_error_t err;
     uint16_t       raw;
@@ -376,8 +370,8 @@ dw3000_error_t dw3000_hal_tx_cal_read_pg_target(
 }
 
 dw3000_error_t dw3000_hal_tx_cal_write_pg_target(
-    dw3000_device_t*           device,
-    dw3000_tx_cal_pg_target_t  target
+    dw3000_device_t*          device,
+    dw3000_tx_cal_pg_target_t target
 ) {
     if (device == NULL) {
         return DW3000_ERROR_INVALID_ARG;
@@ -395,8 +389,8 @@ dw3000_error_t dw3000_hal_tx_cal_write_pg_target(
 }
 
 dw3000_error_t dw3000_hal_tx_cal_configure(
-    dw3000_device_t*               device,
-    const dw3000_tx_cal_config_t*  config
+    dw3000_device_t*              device,
+    const dw3000_tx_cal_config_t* config
 ) {
     dw3000_error_t err;
 

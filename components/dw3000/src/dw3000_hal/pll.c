@@ -57,8 +57,8 @@ dw3000_error_t dw3000_hal_pll_validate_config(
 }
 
 dw3000_error_t dw3000_hal_pll_read_cfg(
-    dw3000_device_t*   device,
-    dw3000_pll_cfg_t*  cfg
+    dw3000_device_t*  device,
+    dw3000_pll_cfg_t* cfg
 ) {
     if ((device == NULL) || (cfg == NULL)) {
         return DW3000_ERROR_INVALID_ARG;
@@ -68,8 +68,8 @@ dw3000_error_t dw3000_hal_pll_read_cfg(
 }
 
 dw3000_error_t dw3000_hal_pll_write_cfg(
-    dw3000_device_t*  device,
-    dw3000_pll_cfg_t  cfg
+    dw3000_device_t* device,
+    dw3000_pll_cfg_t cfg
 ) {
     if (device == NULL) {
         return DW3000_ERROR_INVALID_ARG;
@@ -87,8 +87,8 @@ dw3000_error_t dw3000_hal_pll_write_cfg(
 }
 
 dw3000_error_t dw3000_hal_pll_configure_channel(
-    dw3000_device_t*      device,
-    dw3000_phy_channel_t  channel
+    dw3000_device_t*     device,
+    dw3000_phy_channel_t channel
 ) {
     if (device == NULL) {
         return DW3000_ERROR_INVALID_ARG;
@@ -105,8 +105,8 @@ dw3000_error_t dw3000_hal_pll_configure_channel(
 }
 
 dw3000_error_t dw3000_hal_pll_read_coarse_code(
-    dw3000_device_t*             device,
-    dw3000_pll_coarse_code_t*    code
+    dw3000_device_t*          device,
+    dw3000_pll_coarse_code_t* code
 ) {
     if ((device == NULL) || (code == NULL)) {
         return DW3000_ERROR_INVALID_ARG;
@@ -116,8 +116,8 @@ dw3000_error_t dw3000_hal_pll_read_coarse_code(
 }
 
 dw3000_error_t dw3000_hal_pll_write_coarse_code(
-    dw3000_device_t*            device,
-    dw3000_pll_coarse_code_t    code
+    dw3000_device_t*         device,
+    dw3000_pll_coarse_code_t code
 ) {
     if (device == NULL) {
         return DW3000_ERROR_INVALID_ARG;
@@ -135,8 +135,8 @@ dw3000_error_t dw3000_hal_pll_write_coarse_code(
 }
 
 dw3000_error_t dw3000_hal_pll_read_calibration(
-    dw3000_device_t*         device,
-    dw3000_pll_cal_flags_t*  flags
+    dw3000_device_t*        device,
+    dw3000_pll_cal_flags_t* flags
 ) {
     dw3000_error_t err;
     uint16_t       raw;
@@ -155,8 +155,8 @@ dw3000_error_t dw3000_hal_pll_read_calibration(
 }
 
 dw3000_error_t dw3000_hal_pll_write_calibration(
-    dw3000_device_t*        device,
-    dw3000_pll_cal_flags_t  flags
+    dw3000_device_t*       device,
+    dw3000_pll_cal_flags_t flags
 ) {
     dw3000_error_t err;
     uint16_t       raw;
@@ -185,8 +185,8 @@ dw3000_error_t dw3000_hal_pll_write_calibration(
 }
 
 dw3000_error_t dw3000_hal_pll_start_calibration(
-    dw3000_device_t*        device,
-    dw3000_pll_cal_flags_t  flags
+    dw3000_device_t*       device,
+    dw3000_pll_cal_flags_t flags
 ) {
     if (((uint16_t)flags & ~DW3000_PLL_CAL_FLAGS_MASK) != 0U) {
         return DW3000_ERROR_INVALID_ARG;
@@ -199,8 +199,8 @@ dw3000_error_t dw3000_hal_pll_start_calibration(
 }
 
 dw3000_error_t dw3000_hal_pll_read_xtal_trim(
-    dw3000_device_t*             device,
-    dw3000_calib_xtal_trim_t*    trim
+    dw3000_device_t*          device,
+    dw3000_calib_xtal_trim_t* trim
 ) {
     dw3000_error_t err;
     uint8_t        raw;
@@ -219,8 +219,8 @@ dw3000_error_t dw3000_hal_pll_read_xtal_trim(
 }
 
 dw3000_error_t dw3000_hal_pll_write_xtal_trim(
-    dw3000_device_t*            device,
-    dw3000_calib_xtal_trim_t    trim
+    dw3000_device_t*         device,
+    dw3000_calib_xtal_trim_t trim
 ) {
     dw3000_error_t err;
     uint8_t        raw;
@@ -249,8 +249,8 @@ dw3000_error_t dw3000_hal_pll_write_xtal_trim(
 }
 
 dw3000_error_t dw3000_hal_pll_read_config(
-    dw3000_device_t*       device,
-    dw3000_pll_config_t*   config
+    dw3000_device_t*     device,
+    dw3000_pll_config_t* config
 ) {
     dw3000_error_t err;
 
@@ -272,8 +272,8 @@ dw3000_error_t dw3000_hal_pll_read_config(
 }
 
 dw3000_error_t dw3000_hal_pll_configure(
-    dw3000_device_t*             device,
-    const dw3000_pll_config_t*   config
+    dw3000_device_t*           device,
+    const dw3000_pll_config_t* config
 ) {
     dw3000_error_t err;
 

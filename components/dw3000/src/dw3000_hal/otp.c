@@ -9,14 +9,14 @@
 #define DW3000_HAL_OTP_READY_POLL_DELAY_US 100U
 
 #define DW3000_HAL_OTP_CFG_MANUAL_ACCESS_MASK \
-    ((uint16_t)DW3000_OTP_CFG_MAN | \
-     (uint16_t)DW3000_OTP_CFG_READ | \
-     (uint16_t)DW3000_OTP_CFG_WRITE | \
+    ((uint16_t)DW3000_OTP_CFG_MAN |           \
+     (uint16_t)DW3000_OTP_CFG_READ |          \
+     (uint16_t)DW3000_OTP_CFG_WRITE |         \
      (uint16_t)DW3000_OTP_CFG_WRITE_MR)
 
-#define DW3000_HAL_OTP_KICK_MASK \
-    ((uint16_t)DW3000_OTP_CFG_DGC_KICK | \
-     (uint16_t)DW3000_OTP_CFG_LDO_KICK | \
+#define DW3000_HAL_OTP_KICK_MASK          \
+    ((uint16_t)DW3000_OTP_CFG_DGC_KICK |  \
+     (uint16_t)DW3000_OTP_CFG_LDO_KICK |  \
      (uint16_t)DW3000_OTP_CFG_BIAS_KICK | \
      (uint16_t)DW3000_OTP_CFG_OPS_KICK)
 
@@ -91,11 +91,9 @@ static uint16_t dw3000_hal_otp_build_kick_cfg(
     }
 
     if (((uint16_t)kicks & (uint16_t)DW3000_OTP_CFG_OPS_KICK) != 0U) {
-        value = (uint16_t)(
-            value |
-            (((uint16_t)ops_sel << DW3000_OTP_OPS_SEL_SHIFT) &
-             (uint16_t)DW3000_OTP_OPS_SEL_MASK)
-        );
+        value = (uint16_t)(value |
+                           (((uint16_t)ops_sel << DW3000_OTP_OPS_SEL_SHIFT) &
+                            (uint16_t)DW3000_OTP_OPS_SEL_MASK));
     }
 
     return value;
@@ -147,10 +145,10 @@ dw3000_otp_ops_sel_t dw3000_hal_otp_ops_sel_for_preamble(
 }
 
 dw3000_error_t dw3000_hal_otp_read_config(
-    dw3000_device_t*          device,
-    dw3000_otp_cfg_flags_t*   flags,
-    dw3000_otp_ops_sel_t*     ops_sel,
-    dw3000_phy_channel_t*     dgc_channel
+    dw3000_device_t*        device,
+    dw3000_otp_cfg_flags_t* flags,
+    dw3000_otp_ops_sel_t*   ops_sel,
+    dw3000_phy_channel_t*   dgc_channel
 ) {
     dw3000_error_t err;
     uint16_t       raw;
@@ -165,22 +163,16 @@ dw3000_error_t dw3000_hal_otp_read_config(
         return err;
     }
 
-    *flags = (dw3000_otp_cfg_flags_t)(
-        raw & (DW3000_HAL_OTP_CFG_MANUAL_ACCESS_MASK | DW3000_HAL_OTP_KICK_MASK)
-    );
-    *ops_sel = (dw3000_otp_ops_sel_t)(
-        (raw & (uint16_t)DW3000_OTP_OPS_SEL_MASK) >> DW3000_OTP_OPS_SEL_SHIFT
-    );
-    *dgc_channel = ((raw & (uint16_t)DW3000_OTP_CFG_DGC_SEL) != 0U) ?
-        DW3000_PHY_CHANNEL_9 :
-        DW3000_PHY_CHANNEL_5;
+    *flags       = (dw3000_otp_cfg_flags_t)(raw & (DW3000_HAL_OTP_CFG_MANUAL_ACCESS_MASK | DW3000_HAL_OTP_KICK_MASK));
+    *ops_sel     = (dw3000_otp_ops_sel_t)((raw & (uint16_t)DW3000_OTP_OPS_SEL_MASK) >> DW3000_OTP_OPS_SEL_SHIFT);
+    *dgc_channel = ((raw & (uint16_t)DW3000_OTP_CFG_DGC_SEL) != 0U) ? DW3000_PHY_CHANNEL_9 : DW3000_PHY_CHANNEL_5;
 
     return DW3000_ERROR_OK;
 }
 
 dw3000_error_t dw3000_hal_otp_read_status(
-    dw3000_device_t*      device,
-    dw3000_otp_status_t*  status
+    dw3000_device_t*     device,
+    dw3000_otp_status_t* status
 ) {
     dw3000_error_t err;
     uint8_t        raw;
@@ -200,9 +192,9 @@ dw3000_error_t dw3000_hal_otp_read_status(
 }
 
 dw3000_error_t dw3000_hal_otp_read_word(
-    dw3000_device_t*    device,
-    dw3000_otp_addr_t   addr,
-    dw3000_otp_word_t*  word
+    dw3000_device_t*   device,
+    dw3000_otp_addr_t  addr,
+    dw3000_otp_word_t* word
 ) {
     dw3000_error_t err;
     dw3000_error_t clear_err;
@@ -248,10 +240,10 @@ dw3000_error_t dw3000_hal_otp_read_word(
 }
 
 dw3000_error_t dw3000_hal_otp_read_words(
-    dw3000_device_t*    device,
-    dw3000_otp_addr_t   start_addr,
-    dw3000_otp_word_t*  words,
-    size_t              word_count
+    dw3000_device_t*   device,
+    dw3000_otp_addr_t  start_addr,
+    dw3000_otp_word_t* words,
+    size_t             word_count
 ) {
     if ((device == NULL) || ((word_count != 0U) && (words == NULL))) {
         return DW3000_ERROR_INVALID_ARG;
@@ -282,8 +274,8 @@ dw3000_error_t dw3000_hal_otp_read_words(
 }
 
 dw3000_error_t dw3000_hal_otp_read_special_register(
-    dw3000_device_t*    device,
-    dw3000_otp_word_t*  word
+    dw3000_device_t*   device,
+    dw3000_otp_word_t* word
 ) {
     if ((device == NULL) || (word == NULL)) {
         return DW3000_ERROR_INVALID_ARG;
@@ -293,10 +285,10 @@ dw3000_error_t dw3000_hal_otp_read_special_register(
 }
 
 dw3000_error_t dw3000_hal_otp_kick(
-    dw3000_device_t*         device,
-    dw3000_otp_cfg_flags_t   kicks,
-    dw3000_phy_channel_t     dgc_channel,
-    dw3000_otp_ops_sel_t     ops_sel
+    dw3000_device_t*       device,
+    dw3000_otp_cfg_flags_t kicks,
+    dw3000_phy_channel_t   dgc_channel,
+    dw3000_otp_ops_sel_t   ops_sel
 ) {
     uint16_t kick_bits = (uint16_t)kicks;
     uint16_t value;
@@ -313,7 +305,7 @@ dw3000_error_t dw3000_hal_otp_kick(
         return DW3000_ERROR_INVALID_ARG;
     }
 
-    if ((kick_bits == 0U)) {
+    if (kick_bits == 0U) {
         return DW3000_ERROR_OK;
     }
 
@@ -336,8 +328,8 @@ dw3000_error_t dw3000_hal_otp_kick(
 }
 
 dw3000_error_t dw3000_hal_otp_kick_dgc(
-    dw3000_device_t*      device,
-    dw3000_phy_channel_t  channel
+    dw3000_device_t*     device,
+    dw3000_phy_channel_t channel
 ) {
     return dw3000_hal_otp_kick(
         device,
@@ -366,8 +358,8 @@ dw3000_error_t dw3000_hal_otp_kick_bias(dw3000_device_t* device) {
 }
 
 dw3000_error_t dw3000_hal_otp_kick_ops(
-    dw3000_device_t*      device,
-    dw3000_otp_ops_sel_t  ops_sel
+    dw3000_device_t*     device,
+    dw3000_otp_ops_sel_t ops_sel
 ) {
     return dw3000_hal_otp_kick(
         device,
@@ -378,18 +370,16 @@ dw3000_error_t dw3000_hal_otp_kick_ops(
 }
 
 dw3000_error_t dw3000_hal_otp_kick_factory_calibration(
-    dw3000_device_t*      device,
-    dw3000_phy_channel_t  channel,
-    dw3000_otp_ops_sel_t  ops_sel
+    dw3000_device_t*     device,
+    dw3000_phy_channel_t channel,
+    dw3000_otp_ops_sel_t ops_sel
 ) {
     return dw3000_hal_otp_kick(
         device,
-        (dw3000_otp_cfg_flags_t)(
-            DW3000_OTP_CFG_DGC_KICK |
-            DW3000_OTP_CFG_LDO_KICK |
-            DW3000_OTP_CFG_BIAS_KICK |
-            DW3000_OTP_CFG_OPS_KICK
-        ),
+        (dw3000_otp_cfg_flags_t)(DW3000_OTP_CFG_DGC_KICK |
+                                 DW3000_OTP_CFG_LDO_KICK |
+                                 DW3000_OTP_CFG_BIAS_KICK |
+                                 DW3000_OTP_CFG_OPS_KICK),
         channel,
         ops_sel
     );
@@ -467,16 +457,16 @@ dw3000_error_t dw3000_hal_otp_wait_program_done(
 }
 
 dw3000_error_t dw3000_hal_otp_program_word(
-    dw3000_device_t*                            device,
-    dw3000_otp_addr_t                           addr,
-    dw3000_otp_word_t                           word,
-    const dw3000_hal_otp_program_options_t*     options
+    dw3000_device_t*                        device,
+    dw3000_otp_addr_t                       addr,
+    dw3000_otp_word_t                       word,
+    const dw3000_hal_otp_program_options_t* options
 ) {
-    dw3000_error_t                  err;
-    dw3000_error_t                  clear_err;
+    dw3000_error_t                   err;
+    dw3000_error_t                   clear_err;
     dw3000_hal_otp_program_options_t default_options;
-    dw3000_otp_status_t             status;
-    dw3000_otp_word_t               current;
+    dw3000_otp_status_t              status;
+    dw3000_otp_word_t                current;
 
     if (device == NULL) {
         return DW3000_ERROR_INVALID_ARG;

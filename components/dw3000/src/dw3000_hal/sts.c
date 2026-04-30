@@ -196,7 +196,7 @@ bool dw3000_hal_sts_acc_qual_is_sufficient(
 bool dw3000_hal_sts_timestamp_is_reliable(
     uint8_t                     cps_len,
     const dw3000_cia_path_ts_t* timestamp,
-    dw3000_sts_acc_qual_t      acc_qual
+    dw3000_sts_acc_qual_t       acc_qual
 ) {
     if (timestamp == NULL) {
         return false;

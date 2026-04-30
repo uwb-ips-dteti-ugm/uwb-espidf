@@ -10,19 +10,19 @@
 
 #define DW3000_HAL_AES_READY_POLL_DELAY_US 100U
 
-#define DW3000_HAL_AES_CFG_MODE_MASK       0x0001U
-#define DW3000_HAL_AES_CFG_KEY_SIZE_SHIFT  1U
-#define DW3000_HAL_AES_CFG_KEY_SIZE_MASK   0x0006U
-#define DW3000_HAL_AES_CFG_KEY_ADDR_SHIFT  3U
-#define DW3000_HAL_AES_CFG_KEY_ADDR_MASK   0x0038U
-#define DW3000_HAL_AES_CFG_KEY_LOAD_MASK   ((uint16_t)DW3000_AES_CFG_KEY_LOAD)
-#define DW3000_HAL_AES_CFG_KEY_SRC_SHIFT   7U
-#define DW3000_HAL_AES_CFG_KEY_SRC_MASK    0x0080U
-#define DW3000_HAL_AES_CFG_TAG_SIZE_SHIFT  8U
-#define DW3000_HAL_AES_CFG_TAG_SIZE_MASK   0x0700U
-#define DW3000_HAL_AES_CFG_CORE_SHIFT      11U
-#define DW3000_HAL_AES_CFG_CORE_MASK       0x0800U
-#define DW3000_HAL_AES_CFG_KEY_OTP_MASK    ((uint16_t)DW3000_AES_CFG_KEY_OTP)
+#define DW3000_HAL_AES_CFG_MODE_MASK      0x0001U
+#define DW3000_HAL_AES_CFG_KEY_SIZE_SHIFT 1U
+#define DW3000_HAL_AES_CFG_KEY_SIZE_MASK  0x0006U
+#define DW3000_HAL_AES_CFG_KEY_ADDR_SHIFT 3U
+#define DW3000_HAL_AES_CFG_KEY_ADDR_MASK  0x0038U
+#define DW3000_HAL_AES_CFG_KEY_LOAD_MASK  ((uint16_t)DW3000_AES_CFG_KEY_LOAD)
+#define DW3000_HAL_AES_CFG_KEY_SRC_SHIFT  7U
+#define DW3000_HAL_AES_CFG_KEY_SRC_MASK   0x0080U
+#define DW3000_HAL_AES_CFG_TAG_SIZE_SHIFT 8U
+#define DW3000_HAL_AES_CFG_TAG_SIZE_MASK  0x0700U
+#define DW3000_HAL_AES_CFG_CORE_SHIFT     11U
+#define DW3000_HAL_AES_CFG_CORE_MASK      0x0800U
+#define DW3000_HAL_AES_CFG_KEY_OTP_MASK   ((uint16_t)DW3000_AES_CFG_KEY_OTP)
 #define DW3000_HAL_AES_CFG_FLAGS_MASK \
     (DW3000_HAL_AES_CFG_KEY_LOAD_MASK | DW3000_HAL_AES_CFG_KEY_OTP_MASK)
 
@@ -37,11 +37,11 @@
 #define DW3000_HAL_AES_DMA_PYLD_SIZE_SHIFT 7U
 #define DW3000_HAL_AES_KEY_WORD_SIZE       4U
 
-#define DW3000_HAL_AES_STATUS_MASK \
-    ((uint32_t)DW3000_AES_STS_AES_DONE | \
-     (uint32_t)DW3000_AES_STS_AUTH_ERR | \
+#define DW3000_HAL_AES_STATUS_MASK        \
+    ((uint32_t)DW3000_AES_STS_AES_DONE |  \
+     (uint32_t)DW3000_AES_STS_AUTH_ERR |  \
      (uint32_t)DW3000_AES_STS_TRANS_ERR | \
-     (uint32_t)DW3000_AES_STS_MEM_CONF | \
+     (uint32_t)DW3000_AES_STS_MEM_CONF |  \
      (uint32_t)DW3000_AES_STS_RAM_EMPTY | \
      (uint32_t)DW3000_AES_STS_RAM_FULL)
 
@@ -145,30 +145,20 @@ static uint16_t dw3000_hal_aes_encode_cfg(
 }
 
 static void dw3000_hal_aes_decode_cfg(
-    uint16_t               raw,
-    dw3000_aes_config_t*   config
+    uint16_t             raw,
+    dw3000_aes_config_t* config
 ) {
-    config->mode = (dw3000_aes_mode_t)(raw & DW3000_HAL_AES_CFG_MODE_MASK);
-    config->key_size = (dw3000_aes_key_size_t)(
-        (raw & DW3000_HAL_AES_CFG_KEY_SIZE_MASK) >>
-        DW3000_HAL_AES_CFG_KEY_SIZE_SHIFT
-    );
-    config->key_addr = (uint8_t)(
-        (raw & DW3000_HAL_AES_CFG_KEY_ADDR_MASK) >>
-        DW3000_HAL_AES_CFG_KEY_ADDR_SHIFT
-    );
-    config->flags = (dw3000_aes_cfg_flags_t)(raw & DW3000_HAL_AES_CFG_FLAGS_MASK);
-    config->key_src = (dw3000_aes_key_src_t)(
-        (raw & DW3000_HAL_AES_CFG_KEY_SRC_MASK) >>
-        DW3000_HAL_AES_CFG_KEY_SRC_SHIFT
-    );
-    config->tag_size = (dw3000_aes_tag_size_t)(
-        (raw & DW3000_HAL_AES_CFG_TAG_SIZE_MASK) >>
-        DW3000_HAL_AES_CFG_TAG_SIZE_SHIFT
-    );
-    config->core = (dw3000_aes_core_t)(
-        (raw & DW3000_HAL_AES_CFG_CORE_MASK) >> DW3000_HAL_AES_CFG_CORE_SHIFT
-    );
+    config->mode     = (dw3000_aes_mode_t)(raw & DW3000_HAL_AES_CFG_MODE_MASK);
+    config->key_size = (dw3000_aes_key_size_t)((raw & DW3000_HAL_AES_CFG_KEY_SIZE_MASK) >>
+                                               DW3000_HAL_AES_CFG_KEY_SIZE_SHIFT);
+    config->key_addr = (uint8_t)((raw & DW3000_HAL_AES_CFG_KEY_ADDR_MASK) >>
+                                 DW3000_HAL_AES_CFG_KEY_ADDR_SHIFT);
+    config->flags    = (dw3000_aes_cfg_flags_t)(raw & DW3000_HAL_AES_CFG_FLAGS_MASK);
+    config->key_src  = (dw3000_aes_key_src_t)((raw & DW3000_HAL_AES_CFG_KEY_SRC_MASK) >>
+                                             DW3000_HAL_AES_CFG_KEY_SRC_SHIFT);
+    config->tag_size = (dw3000_aes_tag_size_t)((raw & DW3000_HAL_AES_CFG_TAG_SIZE_MASK) >>
+                                               DW3000_HAL_AES_CFG_TAG_SIZE_SHIFT);
+    config->core     = (dw3000_aes_core_t)((raw & DW3000_HAL_AES_CFG_CORE_MASK) >> DW3000_HAL_AES_CFG_CORE_SHIFT);
 }
 
 static void dw3000_hal_aes_pack_dma(
@@ -176,17 +166,12 @@ static void dw3000_hal_aes_pack_dma(
     uint8_t                     raw[8]
 ) {
     uint32_t low = ((uint32_t)dma->src_port & DW3000_HAL_AES_DMA_PORT_MASK) |
-                   (((uint32_t)dma->src_addr & DW3000_HAL_AES_DMA_ADDR_MASK) <<
-                    DW3000_HAL_AES_DMA_SRC_ADDR_SHIFT) |
-                   (((uint32_t)dma->dst_port & DW3000_HAL_AES_DMA_PORT_MASK) <<
-                    DW3000_HAL_AES_DMA_DST_PORT_SHIFT) |
-                   (((uint32_t)dma->dst_addr & DW3000_HAL_AES_DMA_ADDR_MASK) <<
-                    DW3000_HAL_AES_DMA_DST_ADDR_SHIFT) |
-                   (((uint32_t)dma->endianness & 0x1UL) <<
-                    DW3000_HAL_AES_DMA_END_SHIFT);
+                   (((uint32_t)dma->src_addr & DW3000_HAL_AES_DMA_ADDR_MASK) << DW3000_HAL_AES_DMA_SRC_ADDR_SHIFT) |
+                   (((uint32_t)dma->dst_port & DW3000_HAL_AES_DMA_PORT_MASK) << DW3000_HAL_AES_DMA_DST_PORT_SHIFT) |
+                   (((uint32_t)dma->dst_addr & DW3000_HAL_AES_DMA_ADDR_MASK) << DW3000_HAL_AES_DMA_DST_ADDR_SHIFT) |
+                   (((uint32_t)dma->endianness & 0x1UL) << DW3000_HAL_AES_DMA_END_SHIFT);
     uint32_t high = ((uint32_t)dma->hdr_size & DW3000_HAL_AES_DMA_HDR_SIZE_MASK) |
-                    (((uint32_t)dma->pyld_size & DW3000_HAL_AES_DMA_PYLD_SIZE_MASK) <<
-                     DW3000_HAL_AES_DMA_PYLD_SIZE_SHIFT);
+                    (((uint32_t)dma->pyld_size & DW3000_HAL_AES_DMA_PYLD_SIZE_MASK) << DW3000_HAL_AES_DMA_PYLD_SIZE_SHIFT);
 
     raw[0] = (uint8_t)(low & 0xFFU);
     raw[1] = (uint8_t)((low >> 8U) & 0xFFU);
@@ -199,8 +184,8 @@ static void dw3000_hal_aes_pack_dma(
 }
 
 static void dw3000_hal_aes_unpack_dma(
-    const uint8_t           raw[8],
-    dw3000_aes_dma_cfg_t*   dma
+    const uint8_t         raw[8],
+    dw3000_aes_dma_cfg_t* dma
 ) {
     uint32_t low = (uint32_t)raw[0] |
                    ((uint32_t)raw[1] << 8U) |
@@ -211,27 +196,17 @@ static void dw3000_hal_aes_unpack_dma(
                     ((uint32_t)raw[6] << 16U) |
                     ((uint32_t)raw[7] << 24U);
 
-    dma->src_port = (dw3000_aes_port_t)(low & DW3000_HAL_AES_DMA_PORT_MASK);
-    dma->src_addr = (uint16_t)(
-        (low >> DW3000_HAL_AES_DMA_SRC_ADDR_SHIFT) &
-        DW3000_HAL_AES_DMA_ADDR_MASK
-    );
-    dma->dst_port = (dw3000_aes_port_t)(
-        (low >> DW3000_HAL_AES_DMA_DST_PORT_SHIFT) &
-        DW3000_HAL_AES_DMA_PORT_MASK
-    );
-    dma->dst_addr = (uint16_t)(
-        (low >> DW3000_HAL_AES_DMA_DST_ADDR_SHIFT) &
-        DW3000_HAL_AES_DMA_ADDR_MASK
-    );
-    dma->endianness = (dw3000_aes_endianness_t)(
-        (low >> DW3000_HAL_AES_DMA_END_SHIFT) & 0x1UL
-    );
-    dma->hdr_size = (uint8_t)(high & DW3000_HAL_AES_DMA_HDR_SIZE_MASK);
-    dma->pyld_size = (uint16_t)(
-        (high >> DW3000_HAL_AES_DMA_PYLD_SIZE_SHIFT) &
-        DW3000_HAL_AES_DMA_PYLD_SIZE_MASK
-    );
+    dma->src_port   = (dw3000_aes_port_t)(low & DW3000_HAL_AES_DMA_PORT_MASK);
+    dma->src_addr   = (uint16_t)((low >> DW3000_HAL_AES_DMA_SRC_ADDR_SHIFT) &
+                               DW3000_HAL_AES_DMA_ADDR_MASK);
+    dma->dst_port   = (dw3000_aes_port_t)((low >> DW3000_HAL_AES_DMA_DST_PORT_SHIFT) &
+                                        DW3000_HAL_AES_DMA_PORT_MASK);
+    dma->dst_addr   = (uint16_t)((low >> DW3000_HAL_AES_DMA_DST_ADDR_SHIFT) &
+                               DW3000_HAL_AES_DMA_ADDR_MASK);
+    dma->endianness = (dw3000_aes_endianness_t)((low >> DW3000_HAL_AES_DMA_END_SHIFT) & 0x1UL);
+    dma->hdr_size   = (uint8_t)(high & DW3000_HAL_AES_DMA_HDR_SIZE_MASK);
+    dma->pyld_size  = (uint16_t)((high >> DW3000_HAL_AES_DMA_PYLD_SIZE_SHIFT) &
+                                DW3000_HAL_AES_DMA_PYLD_SIZE_MASK);
 }
 
 static dw3000_error_t dw3000_hal_aes_validate_ram_range(
@@ -264,8 +239,8 @@ static void dw3000_hal_aes_key_to_key_ram(
 }
 
 static void dw3000_hal_aes_key_from_key_ram(
-    const uint8_t           raw[DW3000_AES_KEY_RAM_SLOT_SIZE],
-    dw3000_aes_key_t*       key
+    const uint8_t     raw[DW3000_AES_KEY_RAM_SLOT_SIZE],
+    dw3000_aes_key_t* key
 ) {
     for (uint8_t word = 0U; word < 4U; ++word) {
         memcpy(
@@ -347,7 +322,7 @@ dw3000_error_t dw3000_hal_aes_validate_transfer(
         return DW3000_ERROR_INVALID_ARG;
     }
 
-    tag_size = dw3000_hal_aes_tag_size_bytes(config->tag_size);
+    tag_size   = dw3000_hal_aes_tag_size_bytes(config->tag_size);
     total_size = (size_t)config->dma.hdr_size +
                  (size_t)config->dma.pyld_size +
                  tag_size;
@@ -415,8 +390,8 @@ dw3000_error_t dw3000_hal_aes_validate_cfg(
 }
 
 dw3000_error_t dw3000_hal_aes_read_cfg(
-    dw3000_device_t*      device,
-    dw3000_aes_config_t*  config
+    dw3000_device_t*     device,
+    dw3000_aes_config_t* config
 ) {
     dw3000_error_t err;
     uint16_t       raw;
@@ -456,8 +431,8 @@ dw3000_error_t dw3000_hal_aes_read_cfg(
 }
 
 dw3000_error_t dw3000_hal_aes_write_cfg(
-    dw3000_device_t*            device,
-    const dw3000_aes_config_t*  config
+    dw3000_device_t*           device,
+    const dw3000_aes_config_t* config
 ) {
     if ((device == NULL) || (config == NULL)) {
         return DW3000_ERROR_INVALID_ARG;
@@ -475,8 +450,8 @@ dw3000_error_t dw3000_hal_aes_write_cfg(
 }
 
 dw3000_error_t dw3000_hal_aes_read_dma_cfg(
-    dw3000_device_t*         device,
-    dw3000_aes_dma_cfg_t*    dma
+    dw3000_device_t*      device,
+    dw3000_aes_dma_cfg_t* dma
 ) {
     dw3000_error_t err;
     uint8_t        raw[8];
@@ -495,8 +470,8 @@ dw3000_error_t dw3000_hal_aes_read_dma_cfg(
 }
 
 dw3000_error_t dw3000_hal_aes_write_dma_cfg(
-    dw3000_device_t*             device,
-    const dw3000_aes_dma_cfg_t*  dma
+    dw3000_device_t*            device,
+    const dw3000_aes_dma_cfg_t* dma
 ) {
     dw3000_error_t err;
     uint8_t        raw[8];
@@ -519,8 +494,8 @@ dw3000_error_t dw3000_hal_aes_write_dma_cfg(
 }
 
 dw3000_error_t dw3000_hal_aes_read_iv(
-    dw3000_device_t*  device,
-    dw3000_aes_iv_t*  iv
+    dw3000_device_t* device,
+    dw3000_aes_iv_t* iv
 ) {
     if ((device == NULL) || (iv == NULL)) {
         return DW3000_ERROR_INVALID_ARG;
@@ -545,9 +520,9 @@ dw3000_error_t dw3000_hal_aes_write_iv(
 }
 
 dw3000_error_t dw3000_hal_aes_build_ccm_iv(
-    const uint8_t*      nonce13,
-    uint16_t            payload_size,
-    dw3000_aes_iv_t*    iv
+    const uint8_t*   nonce13,
+    uint16_t         payload_size,
+    dw3000_aes_iv_t* iv
 ) {
     if ((nonce13 == NULL) || (iv == NULL)) {
         return DW3000_ERROR_INVALID_ARG;
@@ -574,11 +549,11 @@ dw3000_error_t dw3000_hal_aes_build_ccm_iv(
 }
 
 dw3000_error_t dw3000_hal_aes_write_ccm_nonce(
-    dw3000_device_t*    device,
-    const uint8_t*      nonce13,
-    uint16_t            payload_size
+    dw3000_device_t* device,
+    const uint8_t*   nonce13,
+    uint16_t         payload_size
 ) {
-    dw3000_error_t err;
+    dw3000_error_t  err;
     dw3000_aes_iv_t iv;
 
     err = dw3000_hal_aes_build_ccm_iv(nonce13, payload_size, &iv);
@@ -590,8 +565,8 @@ dw3000_error_t dw3000_hal_aes_write_ccm_nonce(
 }
 
 dw3000_error_t dw3000_hal_aes_write_gcm_iv_96(
-    dw3000_device_t*    device,
-    const uint8_t*      iv96
+    dw3000_device_t* device,
+    const uint8_t*   iv96
 ) {
     dw3000_aes_iv_t iv = {0};
 
@@ -604,8 +579,8 @@ dw3000_error_t dw3000_hal_aes_write_gcm_iv_96(
 }
 
 dw3000_error_t dw3000_hal_aes_read_key(
-    dw3000_device_t*   device,
-    dw3000_aes_key_t*  key
+    dw3000_device_t*  device,
+    dw3000_aes_key_t* key
 ) {
     if ((device == NULL) || (key == NULL)) {
         return DW3000_ERROR_INVALID_ARG;
@@ -630,12 +605,12 @@ dw3000_error_t dw3000_hal_aes_write_key(
 }
 
 dw3000_error_t dw3000_hal_aes_read_key_ram(
-    dw3000_device_t*    device,
-    uint16_t            offset,
-    void*               data,
-    size_t              data_len
+    dw3000_device_t* device,
+    uint16_t         offset,
+    void*            data,
+    size_t           data_len
 ) {
-    dw3000_error_t  err;
+    dw3000_error_t    err;
     dw3000_reg_desc_t reg = DW3000_REG_AES_KEY_RAM;
 
     if ((device == NULL) || ((data_len != 0U) && (data == NULL))) {
@@ -658,12 +633,12 @@ dw3000_error_t dw3000_hal_aes_read_key_ram(
 }
 
 dw3000_error_t dw3000_hal_aes_write_key_ram(
-    dw3000_device_t*    device,
-    uint16_t            offset,
-    const void*         data,
-    size_t              data_len
+    dw3000_device_t* device,
+    uint16_t         offset,
+    const void*      data,
+    size_t           data_len
 ) {
-    dw3000_error_t  err;
+    dw3000_error_t    err;
     dw3000_reg_desc_t reg = DW3000_REG_AES_KEY_RAM;
 
     if ((device == NULL) || ((data_len != 0U) && (data == NULL))) {
@@ -690,9 +665,9 @@ dw3000_error_t dw3000_hal_aes_write_key_ram(
 }
 
 dw3000_error_t dw3000_hal_aes_read_key_ram_slot(
-    dw3000_device_t*   device,
-    uint8_t            slot,
-    dw3000_aes_key_t*  key
+    dw3000_device_t*  device,
+    uint8_t           slot,
+    dw3000_aes_key_t* key
 ) {
     dw3000_error_t err;
     uint8_t        raw[DW3000_AES_KEY_RAM_SLOT_SIZE];
@@ -736,12 +711,12 @@ dw3000_error_t dw3000_hal_aes_write_key_ram_slot(
 }
 
 dw3000_error_t dw3000_hal_aes_read_scratch(
-    dw3000_device_t*    device,
-    uint16_t            offset,
-    void*               data,
-    size_t              data_len
+    dw3000_device_t* device,
+    uint16_t         offset,
+    void*            data,
+    size_t           data_len
 ) {
-    dw3000_error_t  err;
+    dw3000_error_t    err;
     dw3000_reg_desc_t reg = DW3000_REG_SCRATCH_RAM;
 
     if ((device == NULL) || ((data_len != 0U) && (data == NULL))) {
@@ -759,12 +734,12 @@ dw3000_error_t dw3000_hal_aes_read_scratch(
 }
 
 dw3000_error_t dw3000_hal_aes_write_scratch(
-    dw3000_device_t*    device,
-    uint16_t            offset,
-    const void*         data,
-    size_t              data_len
+    dw3000_device_t* device,
+    uint16_t         offset,
+    const void*      data,
+    size_t           data_len
 ) {
-    dw3000_error_t  err;
+    dw3000_error_t    err;
     dw3000_reg_desc_t reg = DW3000_REG_SCRATCH_RAM;
 
     if ((device == NULL) || ((data_len != 0U) && (data == NULL))) {
@@ -786,8 +761,8 @@ dw3000_error_t dw3000_hal_aes_write_scratch(
 }
 
 dw3000_error_t dw3000_hal_aes_read_status(
-    dw3000_device_t*      device,
-    dw3000_aes_status_t*  status
+    dw3000_device_t*     device,
+    dw3000_aes_status_t* status
 ) {
     dw3000_error_t err;
     uint32_t       raw;
@@ -806,8 +781,8 @@ dw3000_error_t dw3000_hal_aes_read_status(
 }
 
 dw3000_error_t dw3000_hal_aes_clear_status(
-    dw3000_device_t*     device,
-    dw3000_aes_status_t  status
+    dw3000_device_t*    device,
+    dw3000_aes_status_t status
 ) {
     uint32_t bits = (uint32_t)status & DW3000_HAL_AES_STATUS_MASK;
 
@@ -884,11 +859,11 @@ dw3000_error_t dw3000_hal_aes_start(dw3000_device_t* device) {
 }
 
 dw3000_error_t dw3000_hal_aes_wait_done(
-    dw3000_device_t*      device,
-    uint32_t              timeout_us,
-    dw3000_aes_status_t*  final_status
+    dw3000_device_t*     device,
+    uint32_t             timeout_us,
+    dw3000_aes_status_t* final_status
 ) {
-    dw3000_error_t     err;
+    dw3000_error_t      err;
     dw3000_aes_status_t status;
 
     if (device == NULL) {
@@ -972,8 +947,8 @@ dw3000_error_t dw3000_hal_aes_wait_done(
 }
 
 dw3000_error_t dw3000_hal_aes_configure(
-    dw3000_device_t*            device,
-    const dw3000_aes_config_t*  config
+    dw3000_device_t*           device,
+    const dw3000_aes_config_t* config
 ) {
     dw3000_error_t      err;
     dw3000_aes_config_t actual;
@@ -1008,10 +983,8 @@ dw3000_error_t dw3000_hal_aes_configure(
         return err;
     }
 
-    cfg_to_write = actual;
-    cfg_to_write.flags = (dw3000_aes_cfg_flags_t)(
-        cfg_to_write.flags | DW3000_AES_CFG_KEY_LOAD
-    );
+    cfg_to_write       = actual;
+    cfg_to_write.flags = (dw3000_aes_cfg_flags_t)(cfg_to_write.flags | DW3000_AES_CFG_KEY_LOAD);
 
     err = dw3000_hal_aes_write_cfg(device, &cfg_to_write);
     if (err != DW3000_ERROR_OK) {
@@ -1027,10 +1000,10 @@ dw3000_error_t dw3000_hal_aes_configure_current(dw3000_device_t* device) {
 }
 
 dw3000_error_t dw3000_hal_aes_run(
-    dw3000_device_t*            device,
-    const dw3000_aes_config_t*  config,
-    uint32_t                    timeout_us,
-    dw3000_aes_status_t*        final_status
+    dw3000_device_t*           device,
+    const dw3000_aes_config_t* config,
+    uint32_t                   timeout_us,
+    dw3000_aes_status_t*       final_status
 ) {
     dw3000_error_t err;
 

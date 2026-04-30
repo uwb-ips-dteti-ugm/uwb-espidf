@@ -11,7 +11,7 @@
 #define DW3000_HAL_ACC_CHUNK_BYTES \
     (1U + (DW3000_HAL_ACC_CHUNK_SAMPLES * DW3000_ACC_SAMPLE_SIZE))
 
-#define DW3000_HAL_ACC_CLOCK_FLAGS \
+#define DW3000_HAL_ACC_CLOCK_FLAGS          \
     ((uint32_t)DW3000_PMSC_CLK_ACC_CLK_EN | \
      (uint32_t)DW3000_PMSC_CLK_ACC_MCLK_EN)
 
@@ -38,9 +38,7 @@ static dw3000_error_t dw3000_hal_acc_set_clock_flags(
         return err;
     }
 
-    device->config.pmsc.clk_ctrl.flags = (dw3000_pmsc_clk_flags_t)(
-        device->config.pmsc.clk_ctrl.flags | (dw3000_pmsc_clk_flags_t)flags
-    );
+    device->config.pmsc.clk_ctrl.flags = (dw3000_pmsc_clk_flags_t)(device->config.pmsc.clk_ctrl.flags | (dw3000_pmsc_clk_flags_t)flags);
     return DW3000_ERROR_OK;
 }
 
@@ -58,9 +56,7 @@ static dw3000_error_t dw3000_hal_acc_clear_clock_flags(
         return err;
     }
 
-    device->config.pmsc.clk_ctrl.flags = (dw3000_pmsc_clk_flags_t)(
-        device->config.pmsc.clk_ctrl.flags & ~(dw3000_pmsc_clk_flags_t)flags
-    );
+    device->config.pmsc.clk_ctrl.flags = (dw3000_pmsc_clk_flags_t)(device->config.pmsc.clk_ctrl.flags & ~(dw3000_pmsc_clk_flags_t)flags);
     return DW3000_ERROR_OK;
 }
 
@@ -212,8 +208,8 @@ dw3000_error_t dw3000_hal_acc_read_raw_samples(
     dw3000_error_t finish_err;
     uint32_t       added_clock_flags = 0U;
     uint8_t        raw[DW3000_HAL_ACC_CHUNK_BYTES];
-    uint8_t*       out = (uint8_t*)data;
-    size_t         remaining = sample_count;
+    uint8_t*       out          = (uint8_t*)data;
+    size_t         remaining    = sample_count;
     uint16_t       sample_index = start_sample;
 
     if ((device == NULL) || ((sample_count != 0U) && (data == NULL))) {
@@ -263,16 +259,16 @@ dw3000_error_t dw3000_hal_acc_read_raw_samples(
 }
 
 dw3000_error_t dw3000_hal_acc_read_samples(
-    dw3000_device_t*      device,
-    uint16_t              start_sample,
-    dw3000_acc_sample_t*  samples,
-    size_t                sample_count
+    dw3000_device_t*     device,
+    uint16_t             start_sample,
+    dw3000_acc_sample_t* samples,
+    size_t               sample_count
 ) {
     dw3000_error_t err = DW3000_ERROR_OK;
     dw3000_error_t finish_err;
     uint32_t       added_clock_flags = 0U;
     uint8_t        raw[DW3000_HAL_ACC_CHUNK_BYTES];
-    size_t         remaining = sample_count;
+    size_t         remaining    = sample_count;
     uint16_t       sample_index = start_sample;
 
     if ((device == NULL) || ((sample_count != 0U) && (samples == NULL))) {
@@ -323,18 +319,18 @@ dw3000_error_t dw3000_hal_acc_read_samples(
 }
 
 dw3000_error_t dw3000_hal_acc_read_sample(
-    dw3000_device_t*      device,
-    uint16_t              sample_index,
-    dw3000_acc_sample_t*  sample
+    dw3000_device_t*     device,
+    uint16_t             sample_index,
+    dw3000_acc_sample_t* sample
 ) {
     return dw3000_hal_acc_read_samples(device, sample_index, sample, 1U);
 }
 
 dw3000_error_t dw3000_hal_acc_read_cir(
-    dw3000_device_t*      device,
-    dw3000_acc_cir_t      cir,
-    dw3000_acc_sample_t*  samples,
-    size_t                sample_count
+    dw3000_device_t*     device,
+    dw3000_acc_cir_t     cir,
+    dw3000_acc_sample_t* samples,
+    size_t               sample_count
 ) {
     dw3000_error_t err;
     uint16_t       start_sample;
@@ -353,9 +349,9 @@ dw3000_error_t dw3000_hal_acc_read_cir(
 }
 
 dw3000_error_t dw3000_hal_acc_read_ipatov_cir(
-    dw3000_device_t*      device,
-    dw3000_acc_sample_t*  samples,
-    size_t                sample_count
+    dw3000_device_t*     device,
+    dw3000_acc_sample_t* samples,
+    size_t               sample_count
 ) {
     return dw3000_hal_acc_read_cir(
         device,
@@ -366,10 +362,10 @@ dw3000_error_t dw3000_hal_acc_read_ipatov_cir(
 }
 
 dw3000_error_t dw3000_hal_acc_read_sts_cir(
-    dw3000_device_t*      device,
-    uint8_t               sts_segment,
-    dw3000_acc_sample_t*  samples,
-    size_t                sample_count
+    dw3000_device_t*     device,
+    uint8_t              sts_segment,
+    dw3000_acc_sample_t* samples,
+    size_t               sample_count
 ) {
     if (sts_segment > 1U) {
         return DW3000_ERROR_INVALID_ARG;
@@ -396,16 +392,14 @@ dw3000_error_t dw3000_hal_acc_check_cia_done(dw3000_device_t* device) {
         return err;
     }
 
-    return ((status & DW3000_TXRX_EVENT_CIADONE) != 0U) ?
-        DW3000_ERROR_OK :
-        DW3000_ERROR_INVALID_STATE;
+    return ((status & DW3000_TXRX_EVENT_CIADONE) != 0U) ? DW3000_ERROR_OK : DW3000_ERROR_INVALID_STATE;
 }
 
 dw3000_error_t dw3000_hal_acc_read_samples_checked(
-    dw3000_device_t*      device,
-    uint16_t              start_sample,
-    dw3000_acc_sample_t*  samples,
-    size_t                sample_count
+    dw3000_device_t*     device,
+    uint16_t             start_sample,
+    dw3000_acc_sample_t* samples,
+    size_t               sample_count
 ) {
     dw3000_error_t err = dw3000_hal_acc_check_cia_done(device);
     if (err != DW3000_ERROR_OK) {

@@ -8,65 +8,64 @@
 
 #define DW3000_HAL_CIA_CONF_RX_ANTD_MASK 0x0000FFFFUL
 #define DW3000_HAL_CIA_CONF_FLAGS_MASK   ((uint32_t)DW3000_CIA_CONF_MINDIAG)
-#define DW3000_HAL_CIA_CONF_MASK         (DW3000_HAL_CIA_CONF_RX_ANTD_MASK | \
-                                          DW3000_HAL_CIA_CONF_FLAGS_MASK)
+#define DW3000_HAL_CIA_CONF_MASK         (DW3000_HAL_CIA_CONF_RX_ANTD_MASK | DW3000_HAL_CIA_CONF_FLAGS_MASK)
 
 #define DW3000_HAL_CIA_FP_CONF_FP_AGREED_TH_SHIFT 8U
-#define DW3000_HAL_CIA_FP_CONF_FP_AGREED_TH_MASK  \
+#define DW3000_HAL_CIA_FP_CONF_FP_AGREED_TH_MASK \
     (0x7UL << DW3000_HAL_CIA_FP_CONF_FP_AGREED_TH_SHIFT)
 #define DW3000_HAL_CIA_FP_CONF_CAL_TEMP_SHIFT 11U
-#define DW3000_HAL_CIA_FP_CONF_CAL_TEMP_MASK  \
+#define DW3000_HAL_CIA_FP_CONF_CAL_TEMP_MASK \
     (0xFFUL << DW3000_HAL_CIA_FP_CONF_CAL_TEMP_SHIFT)
-#define DW3000_HAL_CIA_FP_CONF_MASK \
+#define DW3000_HAL_CIA_FP_CONF_MASK             \
     (DW3000_HAL_CIA_FP_CONF_FP_AGREED_TH_MASK | \
      DW3000_HAL_CIA_FP_CONF_CAL_TEMP_MASK)
 
-#define DW3000_HAL_CIA_IP_CONF_NTM_MASK        0x0000001FUL
-#define DW3000_HAL_CIA_IP_CONF_PMULT_SHIFT     5U
-#define DW3000_HAL_CIA_IP_CONF_PMULT_MASK      \
+#define DW3000_HAL_CIA_IP_CONF_NTM_MASK    0x0000001FUL
+#define DW3000_HAL_CIA_IP_CONF_PMULT_SHIFT 5U
+#define DW3000_HAL_CIA_IP_CONF_PMULT_MASK \
     (0x3UL << DW3000_HAL_CIA_IP_CONF_PMULT_SHIFT)
-#define DW3000_HAL_CIA_IP_CONF_RTM_SHIFT       16U
-#define DW3000_HAL_CIA_IP_CONF_RTM_MASK        \
+#define DW3000_HAL_CIA_IP_CONF_RTM_SHIFT 16U
+#define DW3000_HAL_CIA_IP_CONF_RTM_MASK \
     (0x1FUL << DW3000_HAL_CIA_IP_CONF_RTM_SHIFT)
-#define DW3000_HAL_CIA_IP_CONF_MASK \
-    (DW3000_HAL_CIA_IP_CONF_NTM_MASK | \
+#define DW3000_HAL_CIA_IP_CONF_MASK      \
+    (DW3000_HAL_CIA_IP_CONF_NTM_MASK |   \
      DW3000_HAL_CIA_IP_CONF_PMULT_MASK | \
      DW3000_HAL_CIA_IP_CONF_RTM_MASK)
 
-#define DW3000_HAL_CIA_STS_CONF_0_NTM_MASK     0x0000001FUL
-#define DW3000_HAL_CIA_STS_CONF_0_PMULT_SHIFT  5U
-#define DW3000_HAL_CIA_STS_CONF_0_PMULT_MASK   \
+#define DW3000_HAL_CIA_STS_CONF_0_NTM_MASK    0x0000001FUL
+#define DW3000_HAL_CIA_STS_CONF_0_PMULT_SHIFT 5U
+#define DW3000_HAL_CIA_STS_CONF_0_PMULT_MASK \
     (0x3UL << DW3000_HAL_CIA_STS_CONF_0_PMULT_SHIFT)
-#define DW3000_HAL_CIA_STS_CONF_0_MNTH_SHIFT   16U
-#define DW3000_HAL_CIA_STS_CONF_0_MNTH_MASK    \
+#define DW3000_HAL_CIA_STS_CONF_0_MNTH_SHIFT 16U
+#define DW3000_HAL_CIA_STS_CONF_0_MNTH_MASK \
     (0x7FUL << DW3000_HAL_CIA_STS_CONF_0_MNTH_SHIFT)
-#define DW3000_HAL_CIA_STS_CONF_0_MASK \
-    (DW3000_HAL_CIA_STS_CONF_0_NTM_MASK | \
+#define DW3000_HAL_CIA_STS_CONF_0_MASK      \
+    (DW3000_HAL_CIA_STS_CONF_0_NTM_MASK |   \
      DW3000_HAL_CIA_STS_CONF_0_PMULT_MASK | \
      DW3000_HAL_CIA_STS_CONF_0_MNTH_MASK)
 
-#define DW3000_HAL_CIA_STS_CONF_1_CQ_EN_MASK   (1UL << 29U)
+#define DW3000_HAL_CIA_STS_CONF_1_CQ_EN_MASK (1UL << 29U)
 
-#define DW3000_HAL_CIA_ADJUST_MASK             0x3FFFU
+#define DW3000_HAL_CIA_ADJUST_MASK 0x3FFFU
 
-#define DW3000_HAL_CIA_TOA_MASK                UINT64_C(0xFFFFFFFFFF)
-#define DW3000_HAL_CIA_POA_SHIFT               8U
-#define DW3000_HAL_CIA_POA_BITS                14U
-#define DW3000_HAL_CIA_IP_TOAST_SHIFT          24U
-#define DW3000_HAL_CIA_IP_TOAST_MASK           0x00FFU
-#define DW3000_HAL_CIA_STS_TOAST_SHIFT         23U
-#define DW3000_HAL_CIA_STS_TOAST_MASK          0x01FFU
+#define DW3000_HAL_CIA_TOA_MASK        UINT64_C(0xFFFFFFFFFF)
+#define DW3000_HAL_CIA_POA_SHIFT       8U
+#define DW3000_HAL_CIA_POA_BITS        14U
+#define DW3000_HAL_CIA_IP_TOAST_SHIFT  24U
+#define DW3000_HAL_CIA_IP_TOAST_MASK   0x00FFU
+#define DW3000_HAL_CIA_STS_TOAST_SHIFT 23U
+#define DW3000_HAL_CIA_STS_TOAST_MASK  0x01FFU
 
-#define DW3000_HAL_CIA_TDOA_BITS               41U
-#define DW3000_HAL_CIA_PDOA_BITS               14U
-#define DW3000_HAL_CIA_PDOA_FP_TH_MD_MASK      (1U << 14U)
+#define DW3000_HAL_CIA_TDOA_BITS          41U
+#define DW3000_HAL_CIA_PDOA_BITS          14U
+#define DW3000_HAL_CIA_PDOA_FP_TH_MD_MASK (1U << 14U)
 
-#define DW3000_HAL_CIA_COE_PPM_MASK            0x1FFFUL
-#define DW3000_HAL_CIA_COE_PPM_BITS            13U
+#define DW3000_HAL_CIA_COE_PPM_MASK 0x1FFFUL
+#define DW3000_HAL_CIA_COE_PPM_BITS 13U
 
-#define DW3000_HAL_CIA_DIAG_PEAK_AMPL_MASK     0x001FFFFFUL
-#define DW3000_HAL_CIA_DIAG_PEAK_INDEX_SHIFT   21U
-#define DW3000_HAL_CIA_DIAG_FP_AMPL_MASK       0x003FFFFFUL
+#define DW3000_HAL_CIA_DIAG_PEAK_AMPL_MASK   0x001FFFFFUL
+#define DW3000_HAL_CIA_DIAG_PEAK_INDEX_SHIFT 21U
+#define DW3000_HAL_CIA_DIAG_FP_AMPL_MASK     0x003FFFFFUL
 
 typedef struct {
     dw3000_reg_desc_t reg;
@@ -204,10 +203,8 @@ static uint32_t dw3000_hal_cia_build_conf(
 static uint32_t dw3000_hal_cia_build_fp_conf(
     const dw3000_cia_fp_conf_t* fp_conf
 ) {
-    return ((uint32_t)fp_conf->fp_agreed_th <<
-            DW3000_HAL_CIA_FP_CONF_FP_AGREED_TH_SHIFT) |
-           ((uint32_t)fp_conf->tc_rcfg <<
-            DW3000_HAL_CIA_FP_CONF_CAL_TEMP_SHIFT);
+    return ((uint32_t)fp_conf->fp_agreed_th << DW3000_HAL_CIA_FP_CONF_FP_AGREED_TH_SHIFT) |
+           ((uint32_t)fp_conf->tc_rcfg << DW3000_HAL_CIA_FP_CONF_CAL_TEMP_SHIFT);
 }
 
 static uint32_t dw3000_hal_cia_build_ip_conf(
@@ -233,17 +230,17 @@ static uint32_t dw3000_hal_cia_build_sts_conf_1(
 }
 
 static void dw3000_hal_cia_decode_conf(
-    uint32_t                     raw,
-    dw3000_cia_antenna_delay_t*  rx_antd,
-    dw3000_cia_conf_flags_t*     flags
+    uint32_t                    raw,
+    dw3000_cia_antenna_delay_t* rx_antd,
+    dw3000_cia_conf_flags_t*    flags
 ) {
     *rx_antd = (dw3000_cia_antenna_delay_t)(raw & DW3000_HAL_CIA_CONF_RX_ANTD_MASK);
     *flags   = (dw3000_cia_conf_flags_t)(raw & DW3000_HAL_CIA_CONF_FLAGS_MASK);
 }
 
 static void dw3000_hal_cia_decode_fp_conf(
-    uint32_t                raw,
-    dw3000_cia_fp_conf_t*   fp_conf
+    uint32_t              raw,
+    dw3000_cia_fp_conf_t* fp_conf
 ) {
     fp_conf->fp_agreed_th =
         (uint8_t)((raw & DW3000_HAL_CIA_FP_CONF_FP_AGREED_TH_MASK) >>
@@ -254,35 +251,35 @@ static void dw3000_hal_cia_decode_fp_conf(
 }
 
 static void dw3000_hal_cia_decode_ip_conf(
-    uint32_t                raw,
-    dw3000_cia_ip_conf_t*   ip_conf
+    uint32_t              raw,
+    dw3000_cia_ip_conf_t* ip_conf
 ) {
     ip_conf->ntm   = (uint8_t)(raw & DW3000_HAL_CIA_IP_CONF_NTM_MASK);
     ip_conf->pmult = (uint8_t)((raw & DW3000_HAL_CIA_IP_CONF_PMULT_MASK) >>
                                DW3000_HAL_CIA_IP_CONF_PMULT_SHIFT);
     ip_conf->rtm   = (uint8_t)((raw & DW3000_HAL_CIA_IP_CONF_RTM_MASK) >>
-                               DW3000_HAL_CIA_IP_CONF_RTM_SHIFT);
+                             DW3000_HAL_CIA_IP_CONF_RTM_SHIFT);
 }
 
 static void dw3000_hal_cia_decode_sts_conf(
-    uint32_t                 raw0,
-    uint32_t                 raw1,
-    dw3000_cia_sts_conf_t*   sts_conf
+    uint32_t               raw0,
+    uint32_t               raw1,
+    dw3000_cia_sts_conf_t* sts_conf
 ) {
     sts_conf->ntm   = (uint8_t)(raw0 & DW3000_HAL_CIA_STS_CONF_0_NTM_MASK);
     sts_conf->pmult = (uint8_t)((raw0 & DW3000_HAL_CIA_STS_CONF_0_PMULT_MASK) >>
                                 DW3000_HAL_CIA_STS_CONF_0_PMULT_SHIFT);
     sts_conf->rtm   = 0U;
     sts_conf->mnth  = (uint16_t)((raw0 & DW3000_HAL_CIA_STS_CONF_0_MNTH_MASK) >>
-                                 DW3000_HAL_CIA_STS_CONF_0_MNTH_SHIFT);
+                                DW3000_HAL_CIA_STS_CONF_0_MNTH_SHIFT);
     sts_conf->cq_en = (raw1 & DW3000_HAL_CIA_STS_CONF_1_CQ_EN_MASK) != 0U;
 }
 
 static void dw3000_hal_cia_decode_path_timestamp(
-    const uint8_t            raw[8],
-    uint8_t                  toast_shift,
-    uint16_t                 toast_mask,
-    dw3000_cia_path_ts_t*    timestamp
+    const uint8_t         raw[8],
+    uint8_t               toast_shift,
+    uint16_t              toast_mask,
+    dw3000_cia_path_ts_t* timestamp
 ) {
     uint32_t upper = (uint32_t)raw[4] |
                      ((uint32_t)raw[5] << 8U) |
@@ -325,8 +322,8 @@ static dw3000_error_t dw3000_hal_cia_path_timestamp_regs(
 }
 
 static dw3000_error_t dw3000_hal_cia_path_diag_regs(
-    dw3000_hal_cia_path_t             path,
-    dw3000_hal_cia_path_diag_regs_t*  regs
+    dw3000_hal_cia_path_t            path,
+    dw3000_hal_cia_path_diag_regs_t* regs
 ) {
     switch (path) {
         case DW3000_HAL_CIA_PATH_IP:
@@ -374,8 +371,8 @@ static dw3000_error_t dw3000_hal_cia_path_diag_regs(
 }
 
 static dw3000_error_t dw3000_hal_cia_check_path_supported(
-    const dw3000_device_t*    device,
-    dw3000_hal_cia_path_t     path
+    const dw3000_device_t* device,
+    dw3000_hal_cia_path_t  path
 ) {
     if ((path == DW3000_HAL_CIA_PATH_STS1) && !dw3000_hal_cia_has_pdoa(device)) {
         return DW3000_ERROR_NOT_SUPPORTED;
@@ -417,8 +414,8 @@ dw3000_error_t dw3000_hal_cia_validate_config(
 }
 
 dw3000_error_t dw3000_hal_cia_read_config(
-    dw3000_device_t*      device,
-    dw3000_cia_config_t*  config
+    dw3000_device_t*     device,
+    dw3000_cia_config_t* config
 ) {
     dw3000_error_t err;
 
@@ -455,9 +452,9 @@ dw3000_error_t dw3000_hal_cia_read_config(
 }
 
 dw3000_error_t dw3000_hal_cia_read_conf(
-    dw3000_device_t*             device,
-    dw3000_cia_antenna_delay_t*  rx_antd,
-    dw3000_cia_conf_flags_t*     flags
+    dw3000_device_t*            device,
+    dw3000_cia_antenna_delay_t* rx_antd,
+    dw3000_cia_conf_flags_t*    flags
 ) {
     dw3000_error_t err;
     uint32_t       raw;
@@ -476,9 +473,9 @@ dw3000_error_t dw3000_hal_cia_read_conf(
 }
 
 dw3000_error_t dw3000_hal_cia_configure_conf(
-    dw3000_device_t*            device,
-    dw3000_cia_antenna_delay_t  rx_antd,
-    dw3000_cia_conf_flags_t     flags
+    dw3000_device_t*           device,
+    dw3000_cia_antenna_delay_t rx_antd,
+    dw3000_cia_conf_flags_t    flags
 ) {
     dw3000_error_t err;
 
@@ -522,8 +519,8 @@ dw3000_error_t dw3000_hal_cia_read_tx_antenna_delay(
 }
 
 dw3000_error_t dw3000_hal_cia_set_rx_antenna_delay(
-    dw3000_device_t*            device,
-    dw3000_cia_antenna_delay_t  delay
+    dw3000_device_t*           device,
+    dw3000_cia_antenna_delay_t delay
 ) {
     dw3000_error_t err;
 
@@ -550,8 +547,8 @@ dw3000_error_t dw3000_hal_cia_set_rx_antenna_delay(
 }
 
 dw3000_error_t dw3000_hal_cia_set_tx_antenna_delay(
-    dw3000_device_t*            device,
-    dw3000_cia_antenna_delay_t  delay
+    dw3000_device_t*           device,
+    dw3000_cia_antenna_delay_t delay
 ) {
     dw3000_error_t err;
 
@@ -805,13 +802,13 @@ dw3000_error_t dw3000_hal_cia_configure_adjust(
 }
 
 dw3000_error_t dw3000_hal_cia_read_path_timestamp(
-    dw3000_device_t*       device,
-    dw3000_hal_cia_path_t  path,
-    dw3000_cia_path_ts_t*  timestamp
+    dw3000_device_t*      device,
+    dw3000_hal_cia_path_t path,
+    dw3000_cia_path_ts_t* timestamp
 ) {
-    dw3000_error_t                 err;
-    dw3000_hal_cia_path_ts_regs_t  regs;
-    uint8_t                        raw[8];
+    dw3000_error_t                err;
+    dw3000_hal_cia_path_ts_regs_t regs;
+    uint8_t                       raw[8];
 
     if ((device == NULL) || (timestamp == NULL)) {
         return DW3000_ERROR_INVALID_ARG;
@@ -920,7 +917,7 @@ dw3000_error_t dw3000_hal_cia_read_pdoa(
         return err;
     }
 
-    pdoa->value = (int16_t)dw3000_hal_cia_sign_extend(raw, DW3000_HAL_CIA_PDOA_BITS);
+    pdoa->value    = (int16_t)dw3000_hal_cia_sign_extend(raw, DW3000_HAL_CIA_PDOA_BITS);
     pdoa->fp_th_md = (raw & DW3000_HAL_CIA_PDOA_FP_TH_MD_MASK) != 0U;
 
     return DW3000_ERROR_OK;
@@ -962,15 +959,15 @@ dw3000_error_t dw3000_hal_cia_read_path_diag(
     dw3000_hal_cia_path_t   path,
     dw3000_cia_path_diag_t* diag
 ) {
-    dw3000_error_t                 err;
+    dw3000_error_t                  err;
     dw3000_hal_cia_path_diag_regs_t regs;
-    uint32_t                       peak;
-    uint32_t                       power;
-    uint32_t                       fp1;
-    uint32_t                       fp2;
-    uint32_t                       fp3;
-    uint32_t                       fp_index;
-    uint32_t                       pacc;
+    uint32_t                        peak;
+    uint32_t                        power;
+    uint32_t                        fp1;
+    uint32_t                        fp2;
+    uint32_t                        fp3;
+    uint32_t                        fp_index;
+    uint32_t                        pacc;
 
     if ((device == NULL) || (diag == NULL)) {
         return DW3000_ERROR_INVALID_ARG;
@@ -1028,7 +1025,7 @@ dw3000_error_t dw3000_hal_cia_read_path_diag(
     diag->fp_ampl3       = fp3 & DW3000_HAL_CIA_DIAG_FP_AMPL_MASK;
     diag->peak_amplitude = peak & DW3000_HAL_CIA_DIAG_PEAK_AMPL_MASK;
     diag->peak_index     = (uint16_t)((peak >> DW3000_HAL_CIA_DIAG_PEAK_INDEX_SHIFT) &
-                                      regs.peak_index_mask);
+                                  regs.peak_index_mask);
     diag->pacc_nosat     = (uint16_t)(pacc & regs.pacc_mask);
 
     return DW3000_ERROR_OK;
