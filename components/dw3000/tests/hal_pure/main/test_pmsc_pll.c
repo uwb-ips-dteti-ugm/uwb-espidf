@@ -123,7 +123,7 @@ static void test_pll_channel_mapping_and_config_validation(void) {
     );
     TEST_ASSERT_EQUAL_HEX16(
         0U,
-        dw3000_hal_pll_cfg_for_channel((dw3000_phy_channel_t)0U)
+        dw3000_hal_pll_cfg_for_channel((dw3000_phy_channel_t)2U)
     );
 
     TEST_ASSERT_EQUAL(
