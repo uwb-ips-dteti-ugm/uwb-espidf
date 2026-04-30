@@ -39,16 +39,15 @@ The higher-level convenience API is tracked separately in `Dev_Status_API.md`.
 | `hal_gpio_irq`              | Hardware pass       | Active IRQ GPIO validation using AES_DONE as a deterministic interrupt source.                                  |
 | `hal_rx_basic`              | Hardware pass       | MakerFabs-compatible radio profile, RX_CAL, RX arm, RXFCG/error polling, RX_FINFO, RX buffer read, RX timestamp, local/MakerFabs frame validation, 6 MHz SPI, and configurable external PA/LNA control. |
 | `hal_tx_basic`              | Hardware pass       | MakerFabs-compatible radio profile/TX power, TX buffer/frame control, immediate TX start, TXFRS polling, TX timestamp, repeated known-frame transmission, 6 MHz SPI, and configurable external PA/LNA control. |
-| `hal_acc_cir_basic`         | Build pass          | RX frame proof plus CIADONE validation, CIA IP diagnostics, and Ipatov CIR window read/summary from ACC_MEM; needs hardware pass log. |
+| `hal_acc_cir_basic`         | Hardware pass       | RX frame proof plus CIADONE validation, CIA IP diagnostics, and Ipatov CIR window read/summary from ACC_MEM. |
 
 ## Remaining
 
 | Area                         | Needed next                                   | Why it matters                                                                 |
 | ---------------------------- | --------------------------------------------- | ------------------------------------------------------------------------------ |
-| ACC/CIR hardware proof       | Run `hal_acc_cir_basic` with `hal_tx_basic` on the second board and confirm the pass log. | Proves accumulator reads after CIADONE on an actual receive path.               |
 | Repeatable host/unit tests   | Add focused mocks under a future test folder. | Hardware tests prove the board; host tests catch regressions without hardware.  |
 
 ## Current Priority
 
-1. Run `hal_acc_cir_basic` plus `hal_tx_basic` on two boards and confirm the CIR pass log.
-2. Add focused host/unit tests for HAL register packing and status sequencing.
+1. Add focused host/unit tests for HAL register packing and status sequencing.
+2. Add higher-level API examples that wrap the proven HAL RX/TX paths.
