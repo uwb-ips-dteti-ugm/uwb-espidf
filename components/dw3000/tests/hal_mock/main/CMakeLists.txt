@@ -1,0 +1,10 @@
+idf_component_register(
+    SRCS
+        "mock_dw3000_port.c"
+        "test_status_mock.c"
+    INCLUDE_DIRS
+        "."
+    REQUIRES
+        dw3000
+        unity
+)
