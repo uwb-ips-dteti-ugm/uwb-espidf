@@ -1,5 +1,6 @@
 CompileFlags:
   CompilationDatabase: build
+  Compiler: /home/dhonan-wsl/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20260121/xtensa-esp-elf/bin/xtensa-esp32-elf-gcc
   Add: [
     # C++ Standard Library Headers
     -isystem, /home/dhonan-wsl/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20260121/xtensa-esp-elf/xtensa-esp-elf/include/c++/14.2.0,
@@ -10,8 +11,14 @@ CompileFlags:
     -isystem, /home/dhonan-wsl/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20260121/xtensa-esp-elf/lib/gcc/xtensa-esp-elf/14.2.0/include,
     -isystem, /home/dhonan-wsl/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20260121/xtensa-esp-elf/lib/gcc/xtensa-esp-elf/14.2.0/include-fixed,
     
-    # Target Architecture Macro
-    -D__XTENSA__=1
+    # Target Architecture and Type Macros
+    # This avoids error from esp_websocket_client.h
+    -D__XTENSA__=1,
+    "-D__SIZE_TYPE__=unsigned int",
+    -D__PTRDIFF_TYPE__=int,
+    -D__INTPTR_TYPE__=int,
+    "-D__UINTPTR_TYPE__=unsigned int",
+    -Wno-builtin-macro-redefined
   ]
   Remove: [
     -mlongcalls,
