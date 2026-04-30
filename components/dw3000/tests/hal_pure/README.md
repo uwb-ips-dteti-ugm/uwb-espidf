@@ -16,10 +16,11 @@ The current examples validate `dw3000_hal_phy_sfd_timeout()` and the related
 PHY helper functions, STS SYS_CFG validation and timestamp-quality helpers,
 GPIO mask/mode/IRQ configuration validation, plus FCMD/TX/RX command
 classification, TX frame validation, RX event masks, and AES validation
-helpers. The expected Unity output contains ten passing tests:
+helpers, and MAC validation helpers. The expected Unity output contains twelve
+passing tests:
 
 ```text
-10 Tests 0 Failures 0 Ignored
+12 Tests 0 Failures 0 Ignored
 OK
 ```
 

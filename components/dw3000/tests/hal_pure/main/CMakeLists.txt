@@ -3,6 +3,7 @@ idf_component_register(
         "test_aes.c"
         "test_fcmd.c"
         "test_gpio.c"
+        "test_mac.c"
         "test_phy.c"
         "test_sts.c"
         "test_txrx.c"
