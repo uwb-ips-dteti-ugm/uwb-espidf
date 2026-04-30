@@ -18,10 +18,10 @@ GPIO mask/mode/IRQ configuration validation, plus FCMD/TX/RX command
 classification, TX frame validation, RX event masks, and AES validation
 helpers, MAC validation helpers, PMSC/PLL validation helpers, and AON/OTP
 helpers, plus core defaults and device-ID support. The expected Unity output
-contains twenty passing tests:
+contains twenty-three passing tests:
 
 ```text
-20 Tests 0 Failures 0 Ignored
+23 Tests 0 Failures 0 Ignored
 OK
 ```
 

@@ -2,6 +2,7 @@ idf_component_register(
     SRCS
         "test_aes.c"
         "test_aon_otp.c"
+        "test_calib_sync.c"
         "test_core.c"
         "test_fcmd.c"
         "test_gpio.c"

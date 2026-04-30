@@ -14,6 +14,7 @@ void dw3000_hal_pure_run_mac_tests(void);
 void dw3000_hal_pure_run_pmsc_pll_tests(void);
 void dw3000_hal_pure_run_aon_otp_tests(void);
 void dw3000_hal_pure_run_core_tests(void);
+void dw3000_hal_pure_run_calib_sync_tests(void);
 
 static void test_phy_sfd_timeout_formula_and_validation(void) {
     dw3000_device_config_t config;
@@ -59,5 +60,6 @@ void app_main(void) {
     dw3000_hal_pure_run_pmsc_pll_tests();
     dw3000_hal_pure_run_aon_otp_tests();
     dw3000_hal_pure_run_core_tests();
+    dw3000_hal_pure_run_calib_sync_tests();
     (void)UNITY_END();
 }
