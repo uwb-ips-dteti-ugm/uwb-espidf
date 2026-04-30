@@ -15,6 +15,7 @@
 #include "dw3000_hal/phy.h"
 #include "dw3000_hal/pmsc.h"
 #include "dw3000_hal/status.h"
+#include "dw3000_hal/tx.h"
 #include "dw3000_register.h"
 #include "esp_err.h"
 #include "esp_log.h"
@@ -22,6 +23,7 @@
 #include "freertos/task.h"
 
 #define DW3000_SS_TWR_TX_FCTRL_PHY_MASK 0x0000F400UL
+#define DW3000_SS_TWR_TX_PREPARE_RETRIES 2U
 
 static const uint8_t DW3000_SS_TWR_MAGIC[] = {
     'D', 'W', '3', 'T', 'W', 'R',
@@ -702,6 +704,72 @@ bool dw3000_ss_twr_read_rx_frame(
     );
 
     return true;
+}
+
+bool dw3000_ss_twr_prepare_tx_frame(
+    dw3000_ss_twr_app_t*             app,
+    const uint8_t*                   frame_data,
+    size_t                           frame_len,
+    const dw3000_txrx_tx_frame_t*    frame
+) {
+    uint8_t tx_data[DW3000_SS_TWR_FRAME_MAX_LEN + DW3000_SS_TWR_AUTO_FCS_LEN] = { 0 };
+    uint8_t readback[DW3000_SS_TWR_FRAME_MAX_LEN + DW3000_SS_TWR_AUTO_FCS_LEN];
+    size_t  tx_len;
+
+    if ((app == NULL) || (frame_data == NULL) || (frame == NULL)) {
+        return false;
+    }
+
+    tx_len = frame->tx_flen;
+    if ((frame_len > DW3000_SS_TWR_FRAME_MAX_LEN) ||
+        (tx_len < frame_len) ||
+        (tx_len > sizeof(tx_data)) ||
+        ((tx_len - frame_len) > DW3000_SS_TWR_AUTO_FCS_LEN)) {
+        ESP_LOGE(
+            app->tag,
+            "invalid TX frame len=%u tx_flen=%u",
+            (unsigned)frame_len,
+            (unsigned)tx_len
+        );
+        return false;
+    }
+
+    memcpy(tx_data, frame_data, frame_len);
+
+    for (uint32_t attempt = 0U;
+         attempt <= DW3000_SS_TWR_TX_PREPARE_RETRIES;
+         ++attempt) {
+        dw3000_reg_desc_t tx_buffer = DW3000_REG_TX_BUFFER;
+        dw3000_error_t    err;
+
+        err = dw3000_hal_tx_prepare_frame(&app->device, tx_data, tx_len, frame);
+        if (err != DW3000_ERROR_OK) {
+            return DW3000_SS_TWR_CHECK_DW3000(app->tag, err);
+        }
+
+        tx_buffer.offset = frame->tx_b_offset;
+        tx_buffer.length = DW3000_HAL_TX_BUFFER_SIZE - (size_t)frame->tx_b_offset;
+        err = dw3000_reg_read(&app->device, tx_buffer, readback, tx_len);
+        if (err != DW3000_ERROR_OK) {
+            return DW3000_SS_TWR_CHECK_DW3000(app->tag, err);
+        }
+
+        if (memcmp(readback, tx_data, tx_len) == 0) {
+            return true;
+        }
+
+        ESP_LOGW(
+            app->tag,
+            "TX buffer verify failed attempt=%" PRIu32 " len=%u tx_flen=%u",
+            attempt + 1U,
+            (unsigned)frame_len,
+            (unsigned)tx_len
+        );
+        ESP_LOG_BUFFER_HEX(app->tag, readback, tx_len);
+    }
+
+    ESP_LOGE(app->tag, "TX buffer did not match requested frame");
+    return false;
 }
 
 size_t dw3000_ss_twr_build_poll_frame(

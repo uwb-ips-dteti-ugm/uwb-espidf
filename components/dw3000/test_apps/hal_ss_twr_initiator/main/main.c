@@ -77,12 +77,12 @@ static bool send_poll(
     dw3000_ss_twr_delay_us(&app->device, DW3000_HAL_SS_TWR_INITIATOR_RADIO_SETTLE_US);
 
     if (!DW3000_SS_TWR_CHECK_DW3000(TAG, dw3000_hal_status_clear_all(&app->device)) ||
-        !DW3000_SS_TWR_CHECK_DW3000(TAG, dw3000_hal_tx_prepare_frame(
-            &app->device,
+        !dw3000_ss_twr_prepare_tx_frame(
+            app,
             frame_data,
             frame_len,
             &frame
-        )) ||
+        ) ||
         !DW3000_SS_TWR_CHECK_DW3000(TAG, dw3000_hal_tx_start_immediate(&app->device))) {
         return false;
     }

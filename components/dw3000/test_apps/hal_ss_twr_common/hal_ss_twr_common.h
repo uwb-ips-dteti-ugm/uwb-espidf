@@ -130,6 +130,13 @@ bool dw3000_ss_twr_read_rx_frame(
     dw3000_txrx_event_t       events
 );
 
+bool dw3000_ss_twr_prepare_tx_frame(
+    dw3000_ss_twr_app_t*             app,
+    const uint8_t*                   frame_data,
+    size_t                           frame_len,
+    const dw3000_txrx_tx_frame_t*    frame
+);
+
 size_t dw3000_ss_twr_build_poll_frame(
     uint8_t  seq,
     uint16_t pan_id,

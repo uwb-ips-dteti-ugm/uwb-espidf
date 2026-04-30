@@ -189,7 +189,7 @@ static bool send_response(
     (void)dw3000_reg_read_u32(&app->device, DW3000_REG_SYS_TIME, &sys_time);
 
     if (!DW3000_SS_TWR_CHECK_DW3000(TAG, dw3000_hal_tx_set_delayed_time(&app->device, delayed_time)) ||
-        !DW3000_SS_TWR_CHECK_DW3000(TAG, dw3000_hal_tx_prepare_frame(&app->device, frame_data, frame_len, &frame)) ||
+        !dw3000_ss_twr_prepare_tx_frame(app, frame_data, frame_len, &frame) ||
         !DW3000_SS_TWR_CHECK_DW3000(TAG, dw3000_hal_tx_start_delayed(&app->device))) {
         return false;
     }
