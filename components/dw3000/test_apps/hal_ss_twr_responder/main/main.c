@@ -8,6 +8,7 @@
 #include "dw3000_hal/rx.h"
 #include "dw3000_hal/status.h"
 #include "dw3000_hal/tx.h"
+#include "dw3000_register.h"
 #include "esp_log.h"
 #include "hal_ss_twr_common.h"
 
@@ -106,36 +107,15 @@ static bool send_response(
     const dw3000_ss_twr_frame_info_t* poll_info,
     dw3000_txrx_timestamp_t           poll_rx_ts
 ) {
-    uint8_t                 frame_data[DW3000_SS_TWR_FRAME_MAX_LEN];
-    dw3000_txrx_timestamp_t target_ts =
-        dw3000_ss_twr_timestamp_add_us(
-            poll_rx_ts,
-            DW3000_HAL_SS_TWR_RESPONDER_REPLY_DELAY_US
-        );
-    dw3000_txrx_delayed_time_t delayed_time =
-        dw3000_ss_twr_delayed_time_from_timestamp(target_ts);
-    dw3000_txrx_timestamp_t scheduled_resp_tx_ts =
-        dw3000_ss_twr_tx_timestamp_from_delayed_time(
-            delayed_time,
-            DW3000_HAL_SS_TWR_RESPONDER_TX_ANTENNA_DELAY
-        );
-    size_t frame_len = dw3000_ss_twr_build_response_frame(
-        poll_info->seq,
-        DW3000_HAL_SS_TWR_RESPONDER_PAN_ID,
-        DW3000_HAL_SS_TWR_RESPONDER_SHORT_ADDR,
-        DW3000_HAL_SS_TWR_RESPONDER_INITIATOR_ADDR,
-        poll_rx_ts,
-        scheduled_resp_tx_ts,
-        frame_data
-    );
-    dw3000_txrx_tx_frame_t frame = {
-        .tx_flen     = (uint16_t)(frame_len + DW3000_SS_TWR_AUTO_FCS_LEN),
-        .ranging     = true,
-        .tx_b_offset = 0U,
-        .fine_plen   = 0U,
-    };
-    dw3000_txrx_event_t     events       = 0U;
-    dw3000_txrx_timestamp_t actual_tx_ts = 0U;
+    uint8_t                   frame_data[DW3000_SS_TWR_FRAME_MAX_LEN];
+    uint32_t                  sys_time_hi32;
+    uint32_t                  reply_delay_dtu_hi32;
+    dw3000_txrx_delayed_time_t delayed_time;
+    dw3000_txrx_timestamp_t   scheduled_resp_tx_ts;
+    size_t                    frame_len;
+    dw3000_txrx_tx_frame_t    frame;
+    dw3000_txrx_event_t       events       = 0U;
+    dw3000_txrx_timestamp_t   actual_tx_ts = 0U;
 
     if (!DW3000_SS_TWR_CHECK_DW3000(TAG, dw3000_hal_fcmd_txrxoff(&app->device))) {
         return false;
@@ -144,7 +124,43 @@ static bool send_response(
     dw3000_ss_twr_delay_us(&app->device, DW3000_HAL_SS_TWR_RESPONDER_RADIO_SETTLE_US);
 
     if (!DW3000_SS_TWR_CHECK_DW3000(TAG, dw3000_hal_status_clear_all(&app->device)) ||
-        !DW3000_SS_TWR_CHECK_DW3000(TAG, dw3000_hal_tx_set_delayed_time(&app->device, delayed_time)) ||
+        !DW3000_SS_TWR_CHECK_DW3000(TAG, dw3000_reg_read_u32(
+            &app->device,
+            DW3000_REG_SYS_TIME,
+            &sys_time_hi32
+        ))) {
+        return false;
+    }
+
+    reply_delay_dtu_hi32 = (uint32_t)(
+        ((uint64_t)DW3000_HAL_SS_TWR_RESPONDER_REPLY_DELAY_US *
+         DW3000_SS_TWR_DTU_PER_US) >> 8U
+    );
+    delayed_time = (dw3000_txrx_delayed_time_t)(
+        (sys_time_hi32 + reply_delay_dtu_hi32) &
+        DW3000_SS_TWR_DELAYED_TIME_MASK
+    );
+    scheduled_resp_tx_ts = dw3000_ss_twr_tx_timestamp_from_delayed_time(
+        delayed_time,
+        DW3000_HAL_SS_TWR_RESPONDER_TX_ANTENNA_DELAY
+    );
+    frame_len = dw3000_ss_twr_build_response_frame(
+        poll_info->seq,
+        DW3000_HAL_SS_TWR_RESPONDER_PAN_ID,
+        DW3000_HAL_SS_TWR_RESPONDER_SHORT_ADDR,
+        DW3000_HAL_SS_TWR_RESPONDER_INITIATOR_ADDR,
+        poll_rx_ts,
+        scheduled_resp_tx_ts,
+        frame_data
+    );
+    frame = (dw3000_txrx_tx_frame_t){
+        .tx_flen     = (uint16_t)(frame_len + DW3000_SS_TWR_AUTO_FCS_LEN),
+        .ranging     = true,
+        .tx_b_offset = 0U,
+        .fine_plen   = 0U,
+    };
+
+    if (!DW3000_SS_TWR_CHECK_DW3000(TAG, dw3000_hal_tx_set_delayed_time(&app->device, delayed_time)) ||
         !DW3000_SS_TWR_CHECK_DW3000(TAG, dw3000_hal_tx_prepare_frame(&app->device, frame_data, frame_len, &frame)) ||
         !DW3000_SS_TWR_CHECK_DW3000(TAG, dw3000_hal_tx_start_delayed(&app->device))) {
         return false;
@@ -158,7 +174,16 @@ static bool send_response(
             DW3000_HAL_SS_TWR_RESPONDER_POLL_DELAY_US,
             &events
         )) {
-        ESP_LOGE(TAG, "response TX failed SYS_STATUS=0x%012" PRIX64, (uint64_t)events);
+        ESP_LOGE(
+            TAG,
+            "response TX failed SYS_STATUS=0x%012" PRIX64
+            " sys_time=0x%08" PRIX32 " delayed=0x%08" PRIX32
+            " scheduled_tx=0x%010" PRIX64,
+            (uint64_t)events,
+            sys_time_hi32,
+            delayed_time,
+            (uint64_t)scheduled_resp_tx_ts
+        );
         return false;
     }
 
@@ -167,10 +192,12 @@ static bool send_response(
     ESP_LOGI(
         TAG,
         "resp tx seq=%u poll_rx=0x%010" PRIX64
-        " delayed=0x%08" PRIX32 " scheduled_tx=0x%010" PRIX64
+        " sys_time=0x%08" PRIX32 " delayed=0x%08" PRIX32
+        " scheduled_tx=0x%010" PRIX64
         " actual_tx=0x%010" PRIX64 " SYS_STATUS=0x%012" PRIX64,
         (unsigned)poll_info->seq,
         (uint64_t)poll_rx_ts,
+        sys_time_hi32,
         delayed_time,
         (uint64_t)scheduled_resp_tx_ts,
         (uint64_t)actual_tx_ts,
