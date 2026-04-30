@@ -154,6 +154,16 @@ static dw3000_error_t dw3000_mock_spi_write(
         return error;
     }
 
+    if ((header_len == 1U) &&
+        (data_len == 0U) &&
+        ((header[0] & 0x81U) == 0x81U) &&
+        ((header[0] & 0x40U) == 0U)) {
+        mock->fast_command_count++;
+        mock->last_fast_command_header = header[0];
+        mock->last_fast_command        = (uint8_t)((header[0] & 0x3EU) >> 1U);
+        return DW3000_ERROR_OK;
+    }
+
     if (!dw3000_mock_decode_header(header, header_len, &is_write, &file_id, &offset) ||
         !is_write ||
         (data_len > DW3000_MOCK_PORT_MAX_REG_LEN)) {
@@ -315,6 +325,30 @@ dw3000_error_t dw3000_mock_port_get_u48(
     }
 
     *value = dw3000_mock_read_le(slot->data, 6U);
+    return DW3000_ERROR_OK;
+}
+
+dw3000_error_t dw3000_mock_port_get_reg_data(
+    const dw3000_mock_port_t* mock,
+    dw3000_reg_desc_t         reg,
+    void*                     data,
+    size_t                    data_len
+) {
+    const dw3000_mock_reg_t* slot;
+
+    if ((mock == NULL) || ((data_len != 0U) && (data == NULL))) {
+        return DW3000_ERROR_INVALID_ARG;
+    }
+
+    slot = dw3000_mock_find_const_reg(mock, reg.file_id, reg.offset);
+    if ((slot == NULL) || (data_len > slot->len)) {
+        return DW3000_ERROR_INVALID_STATE;
+    }
+
+    if (data_len != 0U) {
+        memcpy(data, slot->data, data_len);
+    }
+
     return DW3000_ERROR_OK;
 }
 

@@ -14,11 +14,12 @@ idf.py build flash monitor
 ```
 
 The initial tests validate `SYS_STATUS` / `SYS_ENABLE` read, clear, enable,
-disable, cached event handling, and IO error propagation. The expected Unity
-output contains two passing tests:
+disable, cached event handling, IO error propagation, TX frame preparation,
+TX timestamp reads, and TX fast-command sequencing. The expected Unity output
+contains four passing tests:
 
 ```text
-2 Tests 0 Failures 0 Ignored
+4 Tests 0 Failures 0 Ignored
 OK
 ```
 

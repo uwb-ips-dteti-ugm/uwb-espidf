@@ -42,6 +42,10 @@ typedef struct {
     uint8_t  last_write_data[DW3000_MOCK_PORT_MAX_REG_LEN];
     size_t   last_write_len;
 
+    size_t  fast_command_count;
+    uint8_t last_fast_command_header;
+    uint8_t last_fast_command;
+
     dw3000_error_t next_read_error;
     dw3000_error_t next_write_error;
 } dw3000_mock_port_t;
@@ -69,6 +73,13 @@ dw3000_error_t dw3000_mock_port_get_u48(
     const dw3000_mock_port_t* mock,
     dw3000_reg_desc_t         reg,
     uint64_t*                 value
+);
+
+dw3000_error_t dw3000_mock_port_get_reg_data(
+    const dw3000_mock_port_t* mock,
+    dw3000_reg_desc_t         reg,
+    void*                     data,
+    size_t                    data_len
 );
 
 uint64_t dw3000_mock_port_last_write_u48(const dw3000_mock_port_t* mock);

@@ -41,15 +41,15 @@ The higher-level convenience API is tracked separately in `Dev_Status_API.md`.
 | `hal_tx_basic`              | Hardware pass       | MakerFabs-compatible radio profile/TX power, TX buffer/frame control, immediate TX start, TXFRS polling, TX timestamp, repeated known-frame transmission, 6 MHz SPI, and configurable external PA/LNA control. |
 | `hal_acc_cir_basic`         | Hardware pass       | RX frame proof plus CIADONE validation, CIA IP diagnostics, and Ipatov CIR window read/summary from ACC_MEM. |
 | `tests/hal_pure`            | Build pass          | ESP-IDF Unity app for hardware-free HAL helper tests; validates PHY SFD timeout math, STS SYS_CFG/timestamp quality helpers, GPIO validation, FCMD/TX/RX command classification, TX frame bounds, RX event masks, AES/MAC validation helpers, PMSC/PLL validation helpers, AON/OTP helpers, core defaults/device-ID support, calibration/sync helpers, CIA/ACC helpers, and RF helper validation. |
-| `tests/hal_mock`            | Build pass          | ESP-IDF Unity app with fake `dw3000_port_t` register backend; initially validates SYS_STATUS/SYS_ENABLE read, W1C clear, enable/disable cache handling, and IO error propagation. |
+| `tests/hal_mock`            | Build pass          | ESP-IDF Unity app with fake `dw3000_port_t` register backend; validates SYS_STATUS/SYS_ENABLE read, W1C clear, enable/disable cache handling, IO error propagation, TX frame preparation, timestamp reads, and TX fast-command sequencing. |
 
 ## Remaining
 
 | Area                         | Needed next                                   | Why it matters                                                                 |
 | ---------------------------- | --------------------------------------------- | ------------------------------------------------------------------------------ |
-| Mocked sequence coverage     | Expand `tests/hal_mock` across TX/RX/init flows. | Hardware tests prove the board; mocked tests catch register sequencing regressions without hardware. |
+| Mocked sequence coverage     | Expand `tests/hal_mock` across RX/init flows. | Hardware tests prove the board; mocked tests catch register sequencing regressions without hardware. |
 
 ## Current Priority
 
-1. Expand `tests/hal_mock` to cover TX/RX register sequencing.
+1. Expand `tests/hal_mock` to cover RX register sequencing.
 2. Add higher-level API examples that wrap the proven HAL RX/TX paths.

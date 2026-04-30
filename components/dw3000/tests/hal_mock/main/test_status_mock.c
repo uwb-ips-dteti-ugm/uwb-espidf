@@ -8,6 +8,8 @@
 #include "mock_dw3000_port.h"
 #include "unity.h"
 
+void dw3000_hal_mock_run_tx_tests(void);
+
 static void assert_event_equal(
     dw3000_txrx_event_t expected,
     dw3000_txrx_event_t actual
@@ -166,5 +168,6 @@ void app_main(void) {
     UNITY_BEGIN();
     RUN_TEST(test_status_read_clear_and_cached_enable_updates);
     RUN_TEST(test_status_uncached_enable_and_io_error_propagation);
+    dw3000_hal_mock_run_tx_tests();
     (void)UNITY_END();
 }

@@ -2,6 +2,7 @@ idf_component_register(
     SRCS
         "mock_dw3000_port.c"
         "test_status_mock.c"
+        "test_tx_mock.c"
     INCLUDE_DIRS
         "."
     REQUIRES
