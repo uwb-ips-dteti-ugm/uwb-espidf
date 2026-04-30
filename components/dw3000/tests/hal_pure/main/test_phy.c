@@ -6,6 +6,7 @@
 #include "unity.h"
 
 void dw3000_hal_pure_run_sts_tests(void);
+void dw3000_hal_pure_run_gpio_tests(void);
 
 static void test_phy_sfd_timeout_formula_and_validation(void) {
     dw3000_device_config_t config;
@@ -43,5 +44,6 @@ void app_main(void) {
     UNITY_BEGIN();
     RUN_TEST(test_phy_sfd_timeout_formula_and_validation);
     dw3000_hal_pure_run_sts_tests();
+    dw3000_hal_pure_run_gpio_tests();
     (void)UNITY_END();
 }

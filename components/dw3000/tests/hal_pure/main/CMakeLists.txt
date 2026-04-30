@@ -1,5 +1,6 @@
 idf_component_register(
     SRCS
+        "test_gpio.c"
         "test_phy.c"
         "test_sts.c"
     INCLUDE_DIRS
