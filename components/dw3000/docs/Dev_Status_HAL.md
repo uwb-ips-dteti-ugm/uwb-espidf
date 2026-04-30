@@ -40,6 +40,8 @@ The higher-level convenience API is tracked separately in `Dev_Status_API.md`.
 | `hal_rx_basic`              | Hardware pass       | MakerFabs-compatible radio profile, RX_CAL, RX arm, RXFCG/error polling, RX_FINFO, RX buffer read, RX timestamp, local/MakerFabs frame validation, 6 MHz SPI, and configurable external PA/LNA control. |
 | `hal_tx_basic`              | Hardware pass       | MakerFabs-compatible radio profile/TX power, TX buffer/frame control, immediate TX start, TXFRS polling, TX timestamp, repeated known-frame transmission, 6 MHz SPI, and configurable external PA/LNA control. |
 | `hal_acc_cir_basic`         | Hardware pass       | RX frame proof plus CIADONE validation, CIA IP diagnostics, and Ipatov CIR window read/summary from ACC_MEM. |
+| `hal_ss_twr_responder`      | Build pass          | Two-node SS-TWR responder: MakerFabs-compatible profile, RX_CAL, poll RX timestamp read, delayed response scheduling, response TX timestamp reporting, and shared SS-TWR frame helpers. |
+| `hal_ss_twr_initiator`      | Build pass          | Two-node SS-TWR initiator: poll TX timestamp read, response RX timestamp read, responder timestamp parsing, SS-TWR ToF calculation, and rough distance logging. |
 | `tests/hal_pure`            | Build pass          | ESP-IDF Unity app for hardware-free HAL helper tests; validates PHY SFD timeout math, STS SYS_CFG/timestamp quality helpers, GPIO validation, FCMD/TX/RX command classification, TX frame bounds, RX event masks, AES/MAC validation helpers, PMSC/PLL validation helpers, AON/OTP helpers, core defaults/device-ID support, calibration/sync helpers, CIA/ACC helpers, and RF helper validation. |
 | `tests/hal_mock`            | Build pass          | ESP-IDF Unity app with fake `dw3000_port_t` register backend; validates SYS_STATUS/SYS_ENABLE read, W1C clear, enable/disable cache handling, IO error propagation, TX frame preparation, timestamp reads, and TX fast-command sequencing. |
 
@@ -47,9 +49,11 @@ The higher-level convenience API is tracked separately in `Dev_Status_API.md`.
 
 | Area                         | Needed next                                   | Why it matters                                                                 |
 | ---------------------------- | --------------------------------------------- | ------------------------------------------------------------------------------ |
+| SS-TWR hardware proof        | Run `hal_ss_twr_responder` and `hal_ss_twr_initiator` on two DWM3000 nodes. | Confirms delayed TX, timestamp exchange, and ToF math work on real boards. |
 | Mocked sequence coverage     | Expand `tests/hal_mock` across RX/init flows. | Hardware tests prove the board; mocked tests catch register sequencing regressions without hardware. |
 
 ## Current Priority
 
-1. Expand `tests/hal_mock` to cover RX register sequencing.
-2. Add higher-level API examples that wrap the proven HAL RX/TX paths.
+1. Run the SS-TWR responder/initiator pair on two boards and promote both rows to hardware pass after logs are clean.
+2. Expand `tests/hal_mock` to cover RX register sequencing when hardware smoke coverage is stable.
+3. Add higher-level API examples that wrap the proven HAL RX/TX/TWR paths.

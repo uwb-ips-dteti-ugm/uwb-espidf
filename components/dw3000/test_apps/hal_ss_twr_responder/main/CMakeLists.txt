@@ -1,0 +1,12 @@
+idf_component_register(
+    SRCS
+        "main.c"
+        "../../hal_ss_twr_common/hal_ss_twr_common.c"
+    INCLUDE_DIRS
+        "."
+        "../../hal_ss_twr_common"
+    REQUIRES
+        dw3000
+        esp_driver_gpio
+        esp_driver_spi
+)
