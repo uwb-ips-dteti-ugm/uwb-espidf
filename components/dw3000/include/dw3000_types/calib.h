@@ -82,6 +82,7 @@ typedef enum {
     DW3000_CALIB_OTP_LOT_ID   = 0x07U,
     DW3000_CALIB_OTP_VBAT     = 0x08U, /* factory VBAT  reading */
     DW3000_CALIB_OTP_VTEMP    = 0x09U, /* factory VTEMP reading */
+    DW3000_CALIB_OTP_XTAL     = 0x1EU, /* factory XTAL trim     */
     DW3000_CALIB_OTP_REVISION = 0x1FU,
 } dw3000_calib_otp_cell_t;
 

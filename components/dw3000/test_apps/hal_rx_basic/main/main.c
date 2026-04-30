@@ -8,6 +8,7 @@
 #include "driver/spi_master.h"
 #include "dw3000_error.h"
 #include "dw3000_espidf.h"
+#include "dw3000_hal/calib.h"
 #include "dw3000_hal/core.h"
 #include "dw3000_hal/fcmd.h"
 #include "dw3000_hal/gpio.h"
@@ -32,6 +33,7 @@
 static const char* TAG = "dw3000_hal_rx_basic";
 
 static const uint8_t DW3000_HAL_RX_BASIC_PAYLOAD_MAGIC[] = "DW3000-HAL-TX";
+static const uint8_t DW3000_HAL_RX_BASIC_MAKERFABS_MAGIC[] = "DECAWAVE";
 
 typedef struct {
     spi_device_handle_t spi;
@@ -98,9 +100,25 @@ static bool dw3000_hal_rx_basic_frame_matches(
 ) {
     size_t payload_offset = DW3000_HAL_RX_BASIC_FRAME_HEADER_LEN;
     size_t magic_len      = sizeof(DW3000_HAL_RX_BASIC_PAYLOAD_MAGIC) - 1U;
+    size_t makerfabs_magic_len =
+        sizeof(DW3000_HAL_RX_BASIC_MAKERFABS_MAGIC) - 1U;
     uint16_t pan_id;
     uint16_t dst_addr;
     uint16_t src_addr;
+
+    if ((frame_len >= (2U + makerfabs_magic_len)) &&
+        (frame[0] == 0xC5U) &&
+        (memcmp(
+            &frame[2],
+            DW3000_HAL_RX_BASIC_MAKERFABS_MAGIC,
+            makerfabs_magic_len
+        ) == 0)) {
+        if (seq_out != NULL) {
+            *seq_out = frame[1];
+        }
+        ESP_LOGI(TAG, "matched Makerfabs blink frame seq=%u", (unsigned)frame[1]);
+        return true;
+    }
 
     if (frame_len < (payload_offset + magic_len + 1U)) {
         ESP_LOGW(TAG, "short frame len=%u", (unsigned)frame_len);
@@ -408,6 +426,7 @@ static bool dw3000_hal_rx_basic_log_radio_config(
 ) {
     uint32_t sys_cfg;
     uint32_t tx_fctrl;
+    uint32_t dtune3;
     uint16_t chan_ctrl;
     uint16_t dtune0;
     uint16_t rx_sfd_toc;
@@ -434,6 +453,11 @@ static bool dw3000_hal_rx_basic_log_radio_config(
             DW3000_REG_DTUNE0,
             &dtune0
         )) ||
+        !DW3000_HAL_RX_BASIC_CHECK_DW3000(dw3000_reg_read_u32(
+            device,
+            DW3000_REG_DTUNE3,
+            &dtune3
+        )) ||
         !DW3000_HAL_RX_BASIC_CHECK_DW3000(dw3000_reg_read_u16(
             device,
             DW3000_REG_RX_SFD_TOC,
@@ -451,11 +475,13 @@ static bool dw3000_hal_rx_basic_log_radio_config(
         TAG,
         "radio SYS_CFG=0x%08" PRIX32 " TX_FCTRL=0x%08" PRIX32
         " CHAN_CTRL=0x%04" PRIX16 " DTUNE0=0x%04" PRIX16
-        " RX_SFD_TOC=%" PRIu16 " PRE_TOC=%" PRIu16,
+        " DTUNE3=0x%08" PRIX32 " RX_SFD_TOC=%" PRIu16
+        " PRE_TOC=%" PRIu16,
         sys_cfg,
         tx_fctrl,
         chan_ctrl,
         dtune0,
+        dtune3,
         rx_sfd_toc,
         pre_toc
     );
@@ -463,12 +489,15 @@ static bool dw3000_hal_rx_basic_log_radio_config(
     expected_tx_fctrl = dw3000_hal_rx_basic_expected_tx_fctrl_phy_bits(config);
     if (((tx_fctrl & DW3000_HAL_RX_BASIC_TX_FCTRL_PHY_MASK) !=
          expected_tx_fctrl) ||
+        (dtune3 != config->rx_tune.dtune3) ||
         (rx_sfd_toc != config->rx_tune.sfd_toc)) {
         ESP_LOGE(
             TAG,
             "radio readback mismatch expected TX_FCTRL[phy]=0x%04" PRIX32
-            " RX_SFD_TOC=%" PRIu16 "; SPI/register transport is unstable",
+            " DTUNE3=0x%08" PRIX32 " RX_SFD_TOC=%" PRIu16
+            "; SPI/register transport is unstable",
             expected_tx_fctrl,
+            config->rx_tune.dtune3,
             config->rx_tune.sfd_toc
         );
         return false;
@@ -481,11 +510,37 @@ static void dw3000_hal_rx_basic_apply_radio_profile(
     dw3000_device_config_t* config
 ) {
     config->phy.preamble_length = DW3000_PHY_PREAMBLE_LEN_128;
+    config->phy.sfd_type        = DW3000_PHY_SFD_TYPE_DECAWAVE_8;
     config->phy.pac_size        = DW3000_PHY_PAC_SIZE_8;
     config->rx_tune.sfd_toc     = dw3000_hal_phy_sfd_timeout(&config->phy);
+    config->rx_tune.dtune3      = DW3000_HAL_RX_BASIC_DTUNE3;
     config->sts.packet_cfg      = DW3000_STS_PACKET_CFG_SP0;
     config->sts.pdoa_mode       = DW3000_STS_PDOA_MODE_DISABLED;
     config->sts.sys_cfg_flags   = 0U;
+}
+
+static bool dw3000_hal_rx_basic_run_rx_calibration(dw3000_device_t* device) {
+    dw3000_calib_rx_cal_result_t result;
+
+    if (!DW3000_HAL_RX_BASIC_RUN_RX_CALIBRATION) {
+        return true;
+    }
+
+    if (!DW3000_HAL_RX_BASIC_CHECK_DW3000(dw3000_hal_calib_run_rx_calibration(
+            device,
+            DW3000_HAL_RX_BASIC_RX_CAL_TIMEOUT_US,
+            &result
+        ))) {
+        return false;
+    }
+
+    ESP_LOGI(
+        TAG,
+        "RX_CAL resi=0x%08" PRIX32 " resq=0x%08" PRIX32,
+        result.i,
+        result.q
+    );
+    return true;
 }
 
 static bool dw3000_hal_rx_basic_configure_radio_profile(
@@ -527,6 +582,10 @@ static bool dw3000_hal_rx_basic_configure_radio_profile(
         if (!DW3000_HAL_RX_BASIC_CHECK_DW3000(err)) {
             return false;
         }
+    }
+
+    if (!dw3000_hal_rx_basic_run_rx_calibration(device)) {
+        return false;
     }
 
     return dw3000_hal_rx_basic_log_radio_config(device, config);

@@ -570,7 +570,8 @@ Maximum timeout = 65535 × PAC size symbols (> 250 ms for the smallest PAC size)
 | Size      | 4 bytes   |
 | Access    | RW        |
 
-32-bit tuning register. Change from the default value `0xAF5F584C` to `0xAF5F35CC` for optimal receiver performance.
+32-bit tuning register. Use `0xAF5F584C` for normal data packets. Use
+`0xAF5F35CC` for no-data STS mode.
 
 ---
 

@@ -18,8 +18,8 @@ typedef uint16_t dw3000_rx_tune_sfd_toc_t;
    raises EVENT_RXPTO. Set to 0 to disable. */
 typedef uint16_t dw3000_rx_tune_pre_toc_t;
 
-/* DTUNE3 (0x06:0C) — RX cancellation-loop tuning. Channel-specific
-   constant from the user manual (typical: 0xAF5F35CC for ch5). */
+/* DTUNE3 (0x06:0C) — RX cancellation-loop tuning. Use 0xAF5F584C
+   for normal data packets and 0xAF5F35CC for no-data STS mode. */
 typedef uint32_t dw3000_rx_tune_dtune3_t;
 
 /* DTUNE_5 (0x06:14) — Decawave-tuned RX configuration word. */

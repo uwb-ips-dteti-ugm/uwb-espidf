@@ -7,6 +7,7 @@
 #include "dw3000_hal/cia.h"
 #include "dw3000_hal/otp.h"
 #include "dw3000_hal/pmsc.h"
+#include "dw3000_hal/rf.h"
 #include "dw3000_register.h"
 
 #define DW3000_HAL_CALIB_READY_POLL_DELAY_US 100U
@@ -32,6 +33,14 @@
 
 #define DW3000_HAL_CALIB_PLL_CAL_OWNED_MASK      \
     ((uint16_t)DW3000_PLL_CAL_USE_OLD | (uint16_t)DW3000_PLL_CAL_EN)
+#define DW3000_HAL_CALIB_XTAL_TRIM_FALLBACK 0x2EU
+#define DW3000_HAL_CALIB_RX_CAL_LDO_MASK \
+    ((dw3000_rf_ldo_ctrl_t)(DW3000_RF_LDO_VDDIF2 | \
+                            DW3000_RF_LDO_VDDMS3 | \
+                            DW3000_RF_LDO_VDDMS1))
+#define DW3000_HAL_REG_RX_CAL_BYTE_2 \
+    DW3000_REG_DESC(DW3000_REG_FILE_EXT_SYNC, 0x000EU, 1U)
+#define DW3000_HAL_CALIB_RX_CAL_READ_EN 0x01U
 
 static bool dw3000_hal_calib_is_idle(const dw3000_device_t* device) {
     return (device->state_flags & (DW3000_DEVICE_STATE_RX_ON |
@@ -59,6 +68,30 @@ static uint32_t dw3000_hal_calib_tx_power_raw(
            ((uint32_t)tx_power->phr << 8U) |
            ((uint32_t)tx_power->shr << 16U) |
            ((uint32_t)tx_power->sts << 24U);
+}
+
+static dw3000_error_t dw3000_hal_calib_read_otp_xtal_trim(
+    dw3000_device_t*             device,
+    dw3000_calib_xtal_trim_t*    trim
+) {
+    dw3000_error_t      err;
+    dw3000_otp_word_t   word;
+
+    if ((device == NULL) || (trim == NULL)) {
+        return DW3000_ERROR_INVALID_ARG;
+    }
+
+    err = dw3000_hal_otp_read_word(device, DW3000_CALIB_OTP_XTAL, &word);
+    if (err != DW3000_ERROR_OK) {
+        return err;
+    }
+
+    *trim = (dw3000_calib_xtal_trim_t)(word & DW3000_CALIB_XTAL_TRIM_MASK);
+    if (*trim == 0U) {
+        *trim = DW3000_HAL_CALIB_XTAL_TRIM_FALLBACK;
+    }
+
+    return DW3000_ERROR_OK;
 }
 
 static void dw3000_hal_calib_decode_tx_power(
@@ -614,7 +647,10 @@ dw3000_error_t dw3000_hal_calib_run_rx_calibration(
     uint32_t                          timeout_us,
     dw3000_calib_rx_cal_result_t*     result
 ) {
-    dw3000_error_t err;
+    dw3000_error_t     err;
+    dw3000_error_t     cleanup_err = DW3000_ERROR_OK;
+    dw3000_rf_ldo_ctrl_t saved_ldo_ctrl;
+    dw3000_rf_ldo_ctrl_t cal_ldo_ctrl;
 
     if ((device == NULL) || (result == NULL)) {
         return DW3000_ERROR_INVALID_ARG;
@@ -624,9 +660,22 @@ dw3000_error_t dw3000_hal_calib_run_rx_calibration(
         return DW3000_ERROR_BUSY;
     }
 
-    err = dw3000_reg_write_u8(device, DW3000_REG_RX_CAL_STS, DW3000_CALIB_RX_CAL_DONE);
+    err = dw3000_hal_rf_read_ldo_ctrl(device, &saved_ldo_ctrl);
     if (err != DW3000_ERROR_OK) {
         return err;
+    }
+
+    cal_ldo_ctrl = (dw3000_rf_ldo_ctrl_t)(
+        (uint32_t)saved_ldo_ctrl | (uint32_t)DW3000_HAL_CALIB_RX_CAL_LDO_MASK
+    );
+    err = dw3000_hal_rf_write_ldo_ctrl(device, cal_ldo_ctrl);
+    if (err != DW3000_ERROR_OK) {
+        return err;
+    }
+
+    err = dw3000_reg_write_u8(device, DW3000_REG_RX_CAL_STS, DW3000_CALIB_RX_CAL_DONE);
+    if (err != DW3000_ERROR_OK) {
+        goto cleanup;
     }
 
     err = dw3000_reg_write_u32(
@@ -638,25 +687,63 @@ dw3000_error_t dw3000_hal_calib_run_rx_calibration(
             DW3000_CALIB_RX_CAL_COMP_DLY_OPT
         )
     );
+    if (err == DW3000_ERROR_OK) {
+        err = dw3000_hal_calib_wait_rx_cal_done(device, timeout_us);
+    }
+    if (err == DW3000_ERROR_OK) {
+        err = dw3000_reg_write_u32(device, DW3000_REG_RX_CAL, 0U);
+    }
+    if (err == DW3000_ERROR_OK) {
+        err = dw3000_reg_write_u8(
+            device,
+            DW3000_REG_RX_CAL_STS,
+            DW3000_CALIB_RX_CAL_DONE
+        );
+    }
+    if (err == DW3000_ERROR_OK) {
+        err = dw3000_reg_write_u8(
+            device,
+            DW3000_HAL_REG_RX_CAL_BYTE_2,
+            DW3000_HAL_CALIB_RX_CAL_READ_EN
+        );
+    }
+    if (err == DW3000_ERROR_OK) {
+        err = dw3000_hal_calib_read_rx_cal_result(device, result);
+    }
+    if ((err == DW3000_ERROR_OK) &&
+        !dw3000_hal_calib_rx_cal_result_is_valid(result)) {
+        err = DW3000_ERROR_INVALID_STATE;
+    }
+
+cleanup:
+    cleanup_err = dw3000_reg_write_u32(device, DW3000_REG_RX_CAL, 0U);
+    {
+        dw3000_error_t clear_err = dw3000_reg_write_u8(
+            device,
+            DW3000_REG_RX_CAL_STS,
+            DW3000_CALIB_RX_CAL_DONE
+        );
+
+        if (cleanup_err == DW3000_ERROR_OK) {
+            cleanup_err = clear_err;
+        }
+    }
+    {
+        dw3000_error_t restore_err = dw3000_hal_rf_write_ldo_ctrl(
+            device,
+            saved_ldo_ctrl
+        );
+
+        if (cleanup_err == DW3000_ERROR_OK) {
+            cleanup_err = restore_err;
+        }
+    }
+
     if (err != DW3000_ERROR_OK) {
         return err;
     }
 
-    err = dw3000_hal_calib_wait_rx_cal_done(device, timeout_us);
-    if (err != DW3000_ERROR_OK) {
-        return err;
-    }
-
-    err = dw3000_hal_calib_read_rx_cal_result(device, result);
-    if (err != DW3000_ERROR_OK) {
-        return err;
-    }
-
-    if (!dw3000_hal_calib_rx_cal_result_is_valid(result)) {
-        return DW3000_ERROR_INVALID_STATE;
-    }
-
-    return DW3000_ERROR_OK;
+    return cleanup_err;
 }
 
 dw3000_error_t dw3000_hal_calib_read_pgc_status(
@@ -954,6 +1041,7 @@ dw3000_error_t dw3000_hal_calib_configure(
     const dw3000_calib_config_t*    config
 ) {
     dw3000_error_t err;
+    dw3000_calib_config_t actual;
 
     if (device == NULL) {
         return DW3000_ERROR_INVALID_ARG;
@@ -962,8 +1050,9 @@ dw3000_error_t dw3000_hal_calib_configure(
     if (config == NULL) {
         config = &device->config.calib;
     }
+    actual = *config;
 
-    err = dw3000_hal_calib_validate_config(config);
+    err = dw3000_hal_calib_validate_config(&actual);
     if (err != DW3000_ERROR_OK) {
         return err;
     }
@@ -973,21 +1062,28 @@ dw3000_error_t dw3000_hal_calib_configure(
         if (err != DW3000_ERROR_OK) {
             return err;
         }
+
+        if (actual.xtal_trim == 0U) {
+            err = dw3000_hal_calib_read_otp_xtal_trim(device, &actual.xtal_trim);
+            if (err != DW3000_ERROR_OK) {
+                return err;
+            }
+        }
     }
 
-    err = dw3000_hal_calib_set_tx_power(device, &config->tx_power);
+    err = dw3000_hal_calib_set_tx_power(device, &actual.tx_power);
     if (err != DW3000_ERROR_OK) {
         return err;
     }
 
-    if (config->xtal_trim != 0U) {
-        err = dw3000_hal_calib_set_xtal_trim(device, config->xtal_trim);
+    if (actual.xtal_trim != 0U) {
+        err = dw3000_hal_calib_set_xtal_trim(device, actual.xtal_trim);
         if (err != DW3000_ERROR_OK) {
             return err;
         }
     }
 
-    device->config.calib = *config;
+    device->config.calib = actual;
     return DW3000_ERROR_OK;
 }
 

@@ -191,7 +191,7 @@ void dw3000_hal_default_config(dw3000_device_config_t* config) {
 
     config->rx_tune.sfd_toc = 65U;
     config->rx_tune.pre_toc = 0U;
-    config->rx_tune.dtune3  = 0xAF5F35CCUL;
+    config->rx_tune.dtune3  = 0xAF5F584CUL;
     config->rx_tune.dgc_cfg = (dw3000_rx_tune_dgc_cfg_t)(
         DW3000_RX_TUNE_DGC_RX_TUNE_EN |
         (DW3000_HAL_DGC_THR_64_OPT << DW3000_HAL_DGC_THR_64_SHIFT)

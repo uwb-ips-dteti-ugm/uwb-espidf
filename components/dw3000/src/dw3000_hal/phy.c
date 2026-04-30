@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "dw3000_types/rf.h"
 #include "dw3000_register.h"
 
 #define DW3000_PHY_SYS_CFG_PHR_MODE_BIT  (1UL << 4U)
@@ -33,6 +34,7 @@
 #define DW3000_PHY_RF_TX_CTRL_2_CH9      0x1C010034UL
 #define DW3000_PHY_PLL_CFG_CH5           0x1F3CU
 #define DW3000_PHY_PLL_CFG_CH9           0x0F3CU
+#define DW3000_PHY_PLL_CAL_CFG_LD        0x0081U
 
 static bool dw3000_hal_phy_is_idle(const dw3000_device_t* device) {
     return (device->state_flags & (DW3000_DEVICE_STATE_RX_ON |
@@ -434,11 +436,34 @@ dw3000_error_t dw3000_hal_phy_configure(
         return err;
     }
 
+    err = dw3000_reg_write_u8(
+        device,
+        DW3000_REG_RF_TX_CTRL_1,
+        DW3000_RF_TX_CTRL_1_OPT
+    );
+    if (err != DW3000_ERROR_OK) {
+        return err;
+    }
+
+    err = dw3000_reg_write_u8(
+        device,
+        DW3000_REG_LDO_RLOAD,
+        DW3000_RF_LDO_RLOAD_OPT
+    );
+    if (err != DW3000_ERROR_OK) {
+        return err;
+    }
+
     err = dw3000_reg_write_u16(
         device,
         DW3000_REG_PLL_CFG,
         dw3000_hal_phy_pll_cfg(phy_config->channel)
     );
+    if (err != DW3000_ERROR_OK) {
+        return err;
+    }
+
+    err = dw3000_reg_write_u16(device, DW3000_REG_PLL_CAL, DW3000_PHY_PLL_CAL_CFG_LD);
     if (err != DW3000_ERROR_OK) {
         return err;
     }

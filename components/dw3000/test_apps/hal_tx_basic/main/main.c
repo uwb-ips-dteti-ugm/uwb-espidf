@@ -13,6 +13,7 @@
 #include "dw3000_hal/gpio.h"
 #include "dw3000_hal/mac.h"
 #include "dw3000_hal/phy.h"
+#include "dw3000_hal/pmsc.h"
 #include "dw3000_hal/status.h"
 #include "dw3000_hal/tx.h"
 #include "dw3000_register.h"
@@ -227,11 +228,21 @@ static void dw3000_hal_tx_basic_apply_radio_profile(
     dw3000_device_config_t* config
 ) {
     config->phy.preamble_length = DW3000_PHY_PREAMBLE_LEN_128;
+    config->phy.sfd_type        = DW3000_PHY_SFD_TYPE_DECAWAVE_8;
     config->phy.pac_size        = DW3000_PHY_PAC_SIZE_8;
     config->rx_tune.sfd_toc     = dw3000_hal_phy_sfd_timeout(&config->phy);
+    config->rx_tune.dtune3      = DW3000_HAL_TX_BASIC_DTUNE3;
     config->sts.packet_cfg      = DW3000_STS_PACKET_CFG_SP0;
     config->sts.pdoa_mode       = DW3000_STS_PDOA_MODE_DISABLED;
     config->sts.sys_cfg_flags   = 0U;
+    config->calib.tx_power.data = DW3000_HAL_TX_BASIC_TX_POWER_BYTE;
+    config->calib.tx_power.phr  = DW3000_HAL_TX_BASIC_TX_POWER_BYTE;
+    config->calib.tx_power.shr  = DW3000_HAL_TX_BASIC_TX_POWER_BYTE;
+    config->calib.tx_power.sts  = DW3000_HAL_TX_BASIC_TX_POWER_BYTE;
+
+    if (DW3000_HAL_TX_BASIC_ENABLE_EXTPA) {
+        config->pmsc.txfseq = DW3000_PMSC_TXFSEQ_FINE_DISABLED;
+    }
 }
 
 static uint32_t dw3000_hal_tx_basic_expected_tx_fctrl_phy_bits(
@@ -251,6 +262,8 @@ static bool dw3000_hal_tx_basic_log_radio_config(
     const dw3000_device_config_t* config
 ) {
     uint32_t tx_fctrl;
+    uint32_t dtune3;
+    uint16_t chan_ctrl;
     uint16_t rx_sfd_toc;
     uint32_t expected_tx_fctrl;
 
@@ -258,6 +271,16 @@ static bool dw3000_hal_tx_basic_log_radio_config(
             device,
             DW3000_REG_TX_FCTRL,
             &tx_fctrl
+        )) ||
+        !DW3000_HAL_TX_BASIC_CHECK_DW3000(dw3000_reg_read_u16(
+            device,
+            DW3000_REG_CHAN_CTRL,
+            &chan_ctrl
+        )) ||
+        !DW3000_HAL_TX_BASIC_CHECK_DW3000(dw3000_reg_read_u32(
+            device,
+            DW3000_REG_DTUNE3,
+            &dtune3
         )) ||
         !DW3000_HAL_TX_BASIC_CHECK_DW3000(dw3000_reg_read_u16(
             device,
@@ -269,20 +292,26 @@ static bool dw3000_hal_tx_basic_log_radio_config(
 
     ESP_LOGI(
         TAG,
-        "radio TX_FCTRL=0x%08" PRIX32 " RX_SFD_TOC=%" PRIu16,
+        "radio TX_FCTRL=0x%08" PRIX32 " CHAN_CTRL=0x%04" PRIX16
+        " DTUNE3=0x%08" PRIX32 " RX_SFD_TOC=%" PRIu16,
         tx_fctrl,
+        chan_ctrl,
+        dtune3,
         rx_sfd_toc
     );
 
     expected_tx_fctrl = dw3000_hal_tx_basic_expected_tx_fctrl_phy_bits(config);
     if (((tx_fctrl & DW3000_HAL_TX_BASIC_TX_FCTRL_PHY_MASK) !=
          expected_tx_fctrl) ||
+        (dtune3 != config->rx_tune.dtune3) ||
         (rx_sfd_toc != config->rx_tune.sfd_toc)) {
         ESP_LOGE(
             TAG,
             "radio readback mismatch expected TX_FCTRL[phy]=0x%04" PRIX32
-            " RX_SFD_TOC=%" PRIu16 "; SPI/register transport is unstable",
+            " DTUNE3=0x%08" PRIX32 " RX_SFD_TOC=%" PRIu16
+            "; SPI/register transport is unstable",
             expected_tx_fctrl,
+            config->rx_tune.dtune3,
             config->rx_tune.sfd_toc
         );
         return false;

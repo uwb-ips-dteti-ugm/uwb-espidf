@@ -11,7 +11,7 @@ The higher-level convenience API is tracked separately in `Dev_Status_API.md`.
 | Core bring-up                 | Usable foundation | Context init, hard reset, SPI-ready wait, device ID probe, capability detection, optional IDLE_PLL entry.                                                                                               |
 | Fast commands                 | Usable foundation | Fast command encoding and basic host-side state tracking.                                                                                                                                               |
 | Status/interrupts             | Usable foundation | SYS_STATUS read/clear and SYS_ENABLE masking/cache.                                                                                                                                                     |
-| PHY/RX tuning                 | Usable foundation | Channel, PRF, data rate, preamble/SFD/PHR, RF/PLL channel constants, RX tuning registers.                                                                                                               |
+| PHY/RX tuning                 | Usable foundation | Channel, PRF, data rate, preamble/SFD/PHR, RF/PLL channel constants, RX tuning registers, and MakerFabs-aligned Decawave-8/normal-data tuning.                                                          |
 | MAC helpers                   | Usable foundation | EUI/PANADR and frame-filter owned bits.                                                                                                                                                                 |
 | TX                            | Usable foundation | TX buffer/frame control, delayed/reference time, antenna delay, timestamp read, TX start commands.                                                                                                      |
 | RX                            | Usable foundation | RX SYS_CFG bits, frame wait timeout, RX buffer reads, RX metadata, sniff mode, RX start commands.                                                                                                       |
@@ -19,7 +19,7 @@ The higher-level convenience API is tracked separately in `Dev_Status_API.md`.
 | STS                           | Usable foundation | STS length/key/IV, STS SYS_CFG bits, ACC_QUAL checks, LOAD_IV/RST_LAST helpers.                                                                                                                         |
 | PMSC/power state              | Usable foundation | Clock control, sequencer flags, CPLOCK wait, IDLE_PLL entry, FORCE2INIT to IDLE_RC, SOFT_RST pulse, TXFSEQ, LED, BIAS_CTRL access.                                                                      |
 | OTP                           | Usable foundation | OTP word reads, SRDATA read, DGC/LDO/BIAS/OPS kick helpers, guarded word programming API.                                                                                                               |
-| Calibration                   | Usable foundation | TX power, XTAL trim, antenna-delay wrappers, SAR measurement/conversion, RX calibration, PGC helpers, PLL recalibration, OTP factory-kick helper.                                                       |
+| Calibration                   | Usable foundation | TX power, OTP-backed XTAL trim, antenna-delay wrappers, SAR measurement/conversion, LDO-wrapped RX calibration, PGC helpers, PLL recalibration, OTP factory-kick helper.                                |
 | AON sleep/wake                | Usable foundation | AON_DIG_CFG/AON_CFG helpers, direct AON RAM access, sleep counter programming, sleep/deepsleep entry, SPIRDY wake completion with OTP LDO/BIAS reload and optional RX/PLL post-wake hooks.              |
 | GPIO                          | Usable foundation | GPIO clocks, mode/function packing, direction, pulls, output state, raw reads, IRQ sense/mode/both-edge/debounce setup, IRQ latch clear, LED and external PA/LNA helpers.                               |
 | ACC/CIR                       | Usable foundation | Accumulator clock handling, dummy-octet discard, sample-indexed direct/indirect reads, raw and decoded 24-bit complex CIR samples, Ipatov/STS CIR spans, CIADONE check helper.                          |
@@ -37,18 +37,18 @@ The higher-level convenience API is tracked separately in `Dev_Status_API.md`.
 | `hal_default_init`          | Hardware pass       | Default HAL initialization and readbacks across status, MAC, STS, CIA, GPIO, AES, PMSC, and selected raw registers. |
 | `hal_aes_engine`            | Hardware pass       | AES key RAM, scratch RAM, AES-GCM encrypt/decrypt, AES status, and AES_DONE event generation.          |
 | `hal_gpio_irq`              | Hardware pass       | Active IRQ GPIO validation using AES_DONE as a deterministic interrupt source.                                  |
-| `hal_rx_basic`              | Build pass          | RX arm, RXFCG/error polling, RX_FINFO, RX buffer read, RX timestamp, frame-pattern validation, 6 MHz SPI, and configurable external PA/LNA control; needs two-node pass log. |
-| `hal_tx_basic`              | Hardware pass       | TX buffer/frame control, immediate TX start, TXFRS polling, TX timestamp, repeated known-frame transmission, 6 MHz SPI, and configurable external PA/LNA control. |
+| `hal_rx_basic`              | Build pass          | MakerFabs-compatible radio profile, RX_CAL, RX arm, RXFCG/error polling, RX_FINFO, RX buffer read, RX timestamp, local/MakerFabs frame validation, 6 MHz SPI, and configurable external PA/LNA control; needs two-node pass log. |
+| `hal_tx_basic`              | Hardware pass       | MakerFabs-compatible radio profile/TX power, TX buffer/frame control, immediate TX start, TXFRS polling, TX timestamp, repeated known-frame transmission, 6 MHz SPI, and configurable external PA/LNA control. |
 
 ## Remaining
 
 | Area                         | Needed next                                   | Why it matters                                                                 |
 | ---------------------------- | --------------------------------------------- | ------------------------------------------------------------------------------ |
-| RX hardware proof            | Reflash `hal_rx_basic` and `hal_tx_basic` with external PA/LNA control enabled, then confirm `hal_rx_basic` pass log. | Proves the over-the-air frame path, RX metadata/timestamp reads, and RX status clearing. |
+| RX hardware proof            | Reflash `hal_rx_basic` and `hal_tx_basic` with the MakerFabs-aligned profile and external PA/LNA control enabled, then confirm `hal_rx_basic` pass log. | Proves the over-the-air frame path, RX metadata/timestamp reads, and RX status clearing. |
 | ACC/CIR hardware proof       | Read accumulator/CIR data after a real received frame. | ACC/CIR reads are only meaningful after CIADONE on an actual receive path.      |
 | Repeatable host/unit tests   | Add focused mocks under a future test folder. | Hardware tests prove the board; host tests catch regressions without hardware.  |
 
 ## Current Priority
 
-1. Re-run `hal_rx_basic` plus `hal_tx_basic` on two boards after enabling GPIO4/5/6 external RF control.
+1. Re-run `hal_rx_basic` plus `hal_tx_basic` on two boards with the MakerFabs-aligned Decawave-8 profile and GPIO4/5/6 external RF control.
 2. Add ACC/CIR inspection after RX is proven.
