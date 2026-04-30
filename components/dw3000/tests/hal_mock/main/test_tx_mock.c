@@ -26,6 +26,17 @@ static uint16_t read_le16(const uint8_t raw[2]) {
     return (uint16_t)raw[0] | ((uint16_t)raw[1] << 8U);
 }
 
+static void assert_timestamp_equal(
+    dw3000_txrx_timestamp_t expected,
+    dw3000_txrx_timestamp_t actual
+) {
+    TEST_ASSERT_EQUAL_HEX32((uint32_t)expected, (uint32_t)actual);
+    TEST_ASSERT_EQUAL_HEX32(
+        (uint32_t)(expected >> 32U),
+        (uint32_t)(actual >> 32U)
+    );
+}
+
 static void define_tx_registers(dw3000_mock_port_t* mock) {
     const uint8_t tx_fctrl[4] = {0xEFU, 0xF7U, 0xFFU, 0xA5U};
     const uint8_t tx_fctrl_hi[2] = {0x5AU, 0x00U};
@@ -153,7 +164,7 @@ static void test_tx_fast_commands_timestamp_and_error_paths(void) {
         DW3000_ERROR_OK,
         dw3000_hal_tx_read_timestamp(&device, &timestamp)
     );
-    TEST_ASSERT_EQUAL_HEX64(UINT64_C(0x1122334455), timestamp);
+    assert_timestamp_equal(UINT64_C(0x1122334455), timestamp);
 
     TEST_ASSERT_EQUAL(
         DW3000_ERROR_OK,
