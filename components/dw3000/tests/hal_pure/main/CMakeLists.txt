@@ -1,0 +1,9 @@
+idf_component_register(
+    SRCS
+        "test_phy.c"
+    INCLUDE_DIRS
+        "."
+    REQUIRES
+        dw3000
+        unity
+)
