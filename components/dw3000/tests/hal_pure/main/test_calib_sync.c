@@ -105,6 +105,9 @@ static void test_sync_ostr_wait_and_config_validation(void) {
         DW3000_SYNC_OSTS_WAIT_RECOMMENDED
     ));
     TEST_ASSERT_TRUE(dw3000_hal_sync_osts_wait_is_valid(
+        (dw3000_sync_osts_wait_t)(DW3000_SYNC_OSTS_WAIT_MAX - 2U)
+    ));
+    TEST_ASSERT_FALSE(dw3000_hal_sync_osts_wait_is_valid(
         DW3000_SYNC_OSTS_WAIT_MAX
     ));
     TEST_ASSERT_FALSE(dw3000_hal_sync_osts_wait_is_valid(34U));
