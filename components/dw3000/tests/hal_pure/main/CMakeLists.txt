@@ -5,6 +5,7 @@ idf_component_register(
         "test_gpio.c"
         "test_mac.c"
         "test_phy.c"
+        "test_pmsc_pll.c"
         "test_sts.c"
         "test_txrx.c"
     INCLUDE_DIRS
