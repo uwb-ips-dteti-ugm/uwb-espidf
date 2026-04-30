@@ -1,5 +1,4 @@
 #include <stddef.h>
-#include <stdint.h>
 
 #include "dw3000_device.h"
 #include "dw3000_error.h"
@@ -9,46 +8,20 @@
 #include "unity.h"
 
 static void test_aes_size_helpers_and_status_errors(void) {
-    TEST_ASSERT_EQUAL_size_t(0U, dw3000_hal_aes_tag_size_bytes(
-        DW3000_AES_TAG_SIZE_NONE
-    ));
-    TEST_ASSERT_EQUAL_size_t(4U, dw3000_hal_aes_tag_size_bytes(
-        DW3000_AES_TAG_SIZE_4
-    ));
-    TEST_ASSERT_EQUAL_size_t(6U, dw3000_hal_aes_tag_size_bytes(
-        DW3000_AES_TAG_SIZE_6
-    ));
-    TEST_ASSERT_EQUAL_size_t(8U, dw3000_hal_aes_tag_size_bytes(
-        DW3000_AES_TAG_SIZE_8
-    ));
-    TEST_ASSERT_EQUAL_size_t(10U, dw3000_hal_aes_tag_size_bytes(
-        DW3000_AES_TAG_SIZE_10
-    ));
-    TEST_ASSERT_EQUAL_size_t(12U, dw3000_hal_aes_tag_size_bytes(
-        DW3000_AES_TAG_SIZE_12
-    ));
-    TEST_ASSERT_EQUAL_size_t(14U, dw3000_hal_aes_tag_size_bytes(
-        DW3000_AES_TAG_SIZE_14
-    ));
-    TEST_ASSERT_EQUAL_size_t(16U, dw3000_hal_aes_tag_size_bytes(
-        DW3000_AES_TAG_SIZE_16
-    ));
-    TEST_ASSERT_EQUAL_size_t(0U, dw3000_hal_aes_tag_size_bytes(
-        (dw3000_aes_tag_size_t)8U
-    ));
+    TEST_ASSERT_EQUAL_size_t(0U, dw3000_hal_aes_tag_size_bytes(DW3000_AES_TAG_SIZE_NONE));
+    TEST_ASSERT_EQUAL_size_t(4U, dw3000_hal_aes_tag_size_bytes(DW3000_AES_TAG_SIZE_4));
+    TEST_ASSERT_EQUAL_size_t(6U, dw3000_hal_aes_tag_size_bytes(DW3000_AES_TAG_SIZE_6));
+    TEST_ASSERT_EQUAL_size_t(8U, dw3000_hal_aes_tag_size_bytes(DW3000_AES_TAG_SIZE_8));
+    TEST_ASSERT_EQUAL_size_t(10U, dw3000_hal_aes_tag_size_bytes(DW3000_AES_TAG_SIZE_10));
+    TEST_ASSERT_EQUAL_size_t(12U, dw3000_hal_aes_tag_size_bytes(DW3000_AES_TAG_SIZE_12));
+    TEST_ASSERT_EQUAL_size_t(14U, dw3000_hal_aes_tag_size_bytes(DW3000_AES_TAG_SIZE_14));
+    TEST_ASSERT_EQUAL_size_t(16U, dw3000_hal_aes_tag_size_bytes(DW3000_AES_TAG_SIZE_16));
+    TEST_ASSERT_EQUAL_size_t(0U, dw3000_hal_aes_tag_size_bytes((dw3000_aes_tag_size_t)8U));
 
-    TEST_ASSERT_EQUAL_size_t(16U, dw3000_hal_aes_key_size_bytes(
-        DW3000_AES_KEY_SIZE_128
-    ));
-    TEST_ASSERT_EQUAL_size_t(24U, dw3000_hal_aes_key_size_bytes(
-        DW3000_AES_KEY_SIZE_192
-    ));
-    TEST_ASSERT_EQUAL_size_t(32U, dw3000_hal_aes_key_size_bytes(
-        DW3000_AES_KEY_SIZE_256
-    ));
-    TEST_ASSERT_EQUAL_size_t(0U, dw3000_hal_aes_key_size_bytes(
-        (dw3000_aes_key_size_t)3U
-    ));
+    TEST_ASSERT_EQUAL_size_t(16U, dw3000_hal_aes_key_size_bytes(DW3000_AES_KEY_SIZE_128));
+    TEST_ASSERT_EQUAL_size_t(24U, dw3000_hal_aes_key_size_bytes(DW3000_AES_KEY_SIZE_192));
+    TEST_ASSERT_EQUAL_size_t(32U, dw3000_hal_aes_key_size_bytes(DW3000_AES_KEY_SIZE_256));
+    TEST_ASSERT_EQUAL_size_t(0U, dw3000_hal_aes_key_size_bytes((dw3000_aes_key_size_t)3U));
 
     TEST_ASSERT_FALSE(dw3000_hal_aes_status_has_error(DW3000_AES_STS_AES_DONE));
     TEST_ASSERT_TRUE(dw3000_hal_aes_status_has_error(DW3000_AES_STS_AUTH_ERR));
@@ -74,7 +47,7 @@ static void test_aes_dma_validation_rejects_invalid_fields(void) {
         dw3000_hal_aes_validate_dma_cfg(&dma)
     );
 
-    dma = config.aes.dma;
+    dma          = config.aes.dma;
     dma.dst_port = DW3000_AES_PORT_STS_KEY;
     TEST_ASSERT_EQUAL(DW3000_ERROR_OK, dw3000_hal_aes_validate_dma_cfg(&dma));
 
@@ -84,35 +57,35 @@ static void test_aes_dma_validation_rejects_invalid_fields(void) {
         dw3000_hal_aes_validate_dma_cfg(&dma)
     );
 
-    dma = config.aes.dma;
+    dma            = config.aes.dma;
     dma.endianness = (dw3000_aes_endianness_t)2U;
     TEST_ASSERT_EQUAL(
         DW3000_ERROR_INVALID_ARG,
         dw3000_hal_aes_validate_dma_cfg(&dma)
     );
 
-    dma = config.aes.dma;
+    dma          = config.aes.dma;
     dma.src_addr = 0x0400U;
     TEST_ASSERT_EQUAL(
         DW3000_ERROR_INVALID_ARG,
         dw3000_hal_aes_validate_dma_cfg(&dma)
     );
 
-    dma = config.aes.dma;
+    dma          = config.aes.dma;
     dma.dst_addr = 0x0400U;
     TEST_ASSERT_EQUAL(
         DW3000_ERROR_INVALID_ARG,
         dw3000_hal_aes_validate_dma_cfg(&dma)
     );
 
-    dma = config.aes.dma;
+    dma          = config.aes.dma;
     dma.hdr_size = 0x80U;
     TEST_ASSERT_EQUAL(
         DW3000_ERROR_INVALID_ARG,
         dw3000_hal_aes_validate_dma_cfg(&dma)
     );
 
-    dma = config.aes.dma;
+    dma           = config.aes.dma;
     dma.pyld_size = 0x0400U;
     TEST_ASSERT_EQUAL(
         DW3000_ERROR_INVALID_ARG,

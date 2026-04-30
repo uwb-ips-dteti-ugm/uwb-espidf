@@ -22,18 +22,18 @@ static void test_cia_validation_accepts_limits_and_rejects_invalid_fields(void) 
         dw3000_hal_cia_validate_config(&config.cia)
     );
 
-    config.cia.conf_flags            = DW3000_CIA_CONF_MINDIAG;
-    config.cia.fp_conf.fp_agreed_th  = 0x7U;
-    config.cia.fp_conf.tc_rcfg       = 0xFFU;
-    config.cia.ip_conf.ntm           = 0x1FU;
-    config.cia.ip_conf.pmult         = 0x3U;
-    config.cia.ip_conf.rtm           = 0x1FU;
-    config.cia.sts_conf.ntm          = 0x1FU;
-    config.cia.sts_conf.pmult        = 0x3U;
-    config.cia.sts_conf.rtm          = 0U;
-    config.cia.sts_conf.mnth         = 0x7FU;
-    config.cia.sts_conf.cq_en        = true;
-    config.cia.adjust                = 0x3FFFU;
+    config.cia.conf_flags           = DW3000_CIA_CONF_MINDIAG;
+    config.cia.fp_conf.fp_agreed_th = 0x7U;
+    config.cia.fp_conf.tc_rcfg      = 0xFFU;
+    config.cia.ip_conf.ntm          = 0x1FU;
+    config.cia.ip_conf.pmult        = 0x3U;
+    config.cia.ip_conf.rtm          = 0x1FU;
+    config.cia.sts_conf.ntm         = 0x1FU;
+    config.cia.sts_conf.pmult       = 0x3U;
+    config.cia.sts_conf.rtm         = 0U;
+    config.cia.sts_conf.mnth        = 0x7FU;
+    config.cia.sts_conf.cq_en       = true;
+    config.cia.adjust               = 0x3FFFU;
 
     TEST_ASSERT_EQUAL(
         DW3000_ERROR_OK,
@@ -235,13 +235,17 @@ static void test_acc_sample_span_and_cir_spans(void) {
 }
 
 static void test_acc_i24_and_sample_decode(void) {
-    const uint8_t zero[3]     = {0x00U, 0x00U, 0x00U};
-    const uint8_t max_pos[3]  = {0xFFU, 0xFFU, 0x7FU};
-    const uint8_t min_neg[3]  = {0x00U, 0x00U, 0x80U};
-    const uint8_t minus_one[3] = {0xFFU, 0xFFU, 0xFFU};
+    const uint8_t zero[3]                            = {0x00U, 0x00U, 0x00U};
+    const uint8_t max_pos[3]                         = {0xFFU, 0xFFU, 0x7FU};
+    const uint8_t min_neg[3]                         = {0x00U, 0x00U, 0x80U};
+    const uint8_t minus_one[3]                       = {0xFFU, 0xFFU, 0xFFU};
     const uint8_t raw_sample[DW3000_ACC_SAMPLE_SIZE] = {
-        0x01U, 0x00U, 0x00U,
-        0xFEU, 0xFFU, 0xFFU,
+        0x01U,
+        0x00U,
+        0x00U,
+        0xFEU,
+        0xFFU,
+        0xFFU,
     };
     dw3000_acc_sample_t sample;
 

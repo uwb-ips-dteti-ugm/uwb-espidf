@@ -1,5 +1,4 @@
 #include <stdbool.h>
-#include <stdint.h>
 
 #include "dw3000_hal/fcmd.h"
 #include "dw3000_hal/rx.h"

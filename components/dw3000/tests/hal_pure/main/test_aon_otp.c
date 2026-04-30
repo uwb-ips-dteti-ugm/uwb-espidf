@@ -11,8 +11,8 @@
 #include "unity.h"
 
 static void test_aon_defaults_address_and_config_validation(void) {
-    dw3000_device_config_t          config;
-    dw3000_hal_aon_wake_options_t   options = {0};
+    dw3000_device_config_t        config;
+    dw3000_hal_aon_wake_options_t options = {0};
 
     dw3000_hal_default_config(&config);
     dw3000_hal_aon_default_wake_options(&options);
@@ -45,13 +45,11 @@ static void test_aon_defaults_address_and_config_validation(void) {
     );
     TEST_ASSERT_EQUAL(
         DW3000_ERROR_OK,
-        dw3000_hal_aon_validate_dig_cfg((dw3000_aon_dig_cfg_t)(
-            DW3000_AON_DIG_ONW_AON_DLD |
-            DW3000_AON_DIG_ONW_RUN_SAR |
-            DW3000_AON_DIG_ONW_GO2IDLE |
-            DW3000_AON_DIG_ONW_GO2RX |
-            DW3000_AON_DIG_ONW_PGFCAL
-        ))
+        dw3000_hal_aon_validate_dig_cfg((dw3000_aon_dig_cfg_t)(DW3000_AON_DIG_ONW_AON_DLD |
+                                                               DW3000_AON_DIG_ONW_RUN_SAR |
+                                                               DW3000_AON_DIG_ONW_GO2IDLE |
+                                                               DW3000_AON_DIG_ONW_GO2RX |
+                                                               DW3000_AON_DIG_ONW_PGFCAL))
     );
     TEST_ASSERT_EQUAL(
         DW3000_ERROR_INVALID_ARG,
@@ -59,14 +57,12 @@ static void test_aon_defaults_address_and_config_validation(void) {
     );
     TEST_ASSERT_EQUAL(
         DW3000_ERROR_OK,
-        dw3000_hal_aon_validate_cfg((dw3000_aon_cfg_flags_t)(
-            DW3000_AON_CFG_SLEEP_EN |
-            DW3000_AON_CFG_WAKE_CNT |
-            DW3000_AON_CFG_BROUT_EN |
-            DW3000_AON_CFG_WAKE_CSN |
-            DW3000_AON_CFG_WAKE_WUP |
-            DW3000_AON_CFG_PRES_SLEEP
-        ))
+        dw3000_hal_aon_validate_cfg((dw3000_aon_cfg_flags_t)(DW3000_AON_CFG_SLEEP_EN |
+                                                             DW3000_AON_CFG_WAKE_CNT |
+                                                             DW3000_AON_CFG_BROUT_EN |
+                                                             DW3000_AON_CFG_WAKE_CSN |
+                                                             DW3000_AON_CFG_WAKE_WUP |
+                                                             DW3000_AON_CFG_PRES_SLEEP))
     );
     TEST_ASSERT_EQUAL(
         DW3000_ERROR_INVALID_ARG,

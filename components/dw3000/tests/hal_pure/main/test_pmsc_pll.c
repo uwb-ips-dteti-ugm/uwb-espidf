@@ -1,5 +1,3 @@
-#include <stdint.h>
-
 #include "dw3000_device.h"
 #include "dw3000_error.h"
 #include "dw3000_hal/core.h"
@@ -21,20 +19,18 @@ static void test_pmsc_validation_rejects_invalid_clock_seq_led_and_bias(void) {
         dw3000_hal_pmsc_validate_config(&config.pmsc)
     );
 
-    clock = config.pmsc.clk_ctrl;
+    clock         = config.pmsc.clk_ctrl;
     clock.sys_clk = DW3000_PMSC_CLK_SRC_FAST_RC;
     clock.rx_clk  = DW3000_PMSC_CLK_SRC_FORCE_PLL_LOW;
     clock.tx_clk  = DW3000_PMSC_CLK_SRC_FORCE_PLL_HIGH;
-    clock.flags   = (dw3000_pmsc_clk_flags_t)(
-        DW3000_PMSC_CLK_ACC_CLK_EN |
-        DW3000_PMSC_CLK_CIA_CLK_EN |
-        DW3000_PMSC_CLK_SAR_CLK_EN |
-        DW3000_PMSC_CLK_ACC_MCLK_EN |
-        DW3000_PMSC_CLK_GPIO_CLK_EN |
-        DW3000_PMSC_CLK_GPIO_DCLK_EN |
-        DW3000_PMSC_CLK_GPIO_DRST_N |
-        DW3000_PMSC_CLK_LP_CLK_EN
-    );
+    clock.flags   = (dw3000_pmsc_clk_flags_t)(DW3000_PMSC_CLK_ACC_CLK_EN |
+                                            DW3000_PMSC_CLK_CIA_CLK_EN |
+                                            DW3000_PMSC_CLK_SAR_CLK_EN |
+                                            DW3000_PMSC_CLK_ACC_MCLK_EN |
+                                            DW3000_PMSC_CLK_GPIO_CLK_EN |
+                                            DW3000_PMSC_CLK_GPIO_DCLK_EN |
+                                            DW3000_PMSC_CLK_GPIO_DRST_N |
+                                            DW3000_PMSC_CLK_LP_CLK_EN);
     TEST_ASSERT_EQUAL(
         DW3000_ERROR_OK,
         dw3000_hal_pmsc_validate_clock_ctrl(&clock)
@@ -46,7 +42,7 @@ static void test_pmsc_validation_rejects_invalid_clock_seq_led_and_bias(void) {
         dw3000_hal_pmsc_validate_clock_ctrl(&clock)
     );
 
-    clock = config.pmsc.clk_ctrl;
+    clock       = config.pmsc.clk_ctrl;
     clock.flags = (dw3000_pmsc_clk_flags_t)(1UL << 31U);
     TEST_ASSERT_EQUAL(
         DW3000_ERROR_INVALID_ARG,
@@ -60,13 +56,11 @@ static void test_pmsc_validation_rejects_invalid_clock_seq_led_and_bias(void) {
 
     TEST_ASSERT_EQUAL(
         DW3000_ERROR_OK,
-        dw3000_hal_pmsc_validate_seq_flags((dw3000_pmsc_seq_ctrl_flags_t)(
-            DW3000_PMSC_SEQ_AINIT2IDLE |
-            DW3000_PMSC_SEQ_ATX2SLP |
-            DW3000_PMSC_SEQ_ARX2SLP |
-            DW3000_PMSC_SEQ_PLL_SYNC |
-            DW3000_PMSC_SEQ_CIARUNE
-        ))
+        dw3000_hal_pmsc_validate_seq_flags((dw3000_pmsc_seq_ctrl_flags_t)(DW3000_PMSC_SEQ_AINIT2IDLE |
+                                                                          DW3000_PMSC_SEQ_ATX2SLP |
+                                                                          DW3000_PMSC_SEQ_ARX2SLP |
+                                                                          DW3000_PMSC_SEQ_PLL_SYNC |
+                                                                          DW3000_PMSC_SEQ_CIARUNE))
     );
     TEST_ASSERT_EQUAL(
         DW3000_ERROR_INVALID_ARG,
@@ -107,10 +101,8 @@ static void test_pll_channel_mapping_and_config_validation(void) {
     dw3000_pll_config_t config = {
         .cfg         = DW3000_PLL_CFG_CH5,
         .coarse_code = DW3000_PLL_COARSE_CODE_MASK,
-        .cal_flags   = (dw3000_pll_cal_flags_t)(
-            DW3000_PLL_CAL_USE_OLD |
-            DW3000_PLL_CAL_EN
-        ),
+        .cal_flags   = (dw3000_pll_cal_flags_t)(DW3000_PLL_CAL_USE_OLD |
+                                              DW3000_PLL_CAL_EN),
     };
 
     TEST_ASSERT_EQUAL_HEX16(

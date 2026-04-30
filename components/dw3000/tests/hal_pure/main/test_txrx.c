@@ -44,7 +44,7 @@ static void test_tx_validate_frame_standard_extended_and_buffer_bounds(void) {
     );
 
     device.config.phy.phr_mode = DW3000_PHY_PHR_MODE_EXTENDED;
-    frame.tx_flen             = DW3000_HAL_TX_MAX_FRAME_EXTENDED;
+    frame.tx_flen              = DW3000_HAL_TX_MAX_FRAME_EXTENDED;
     TEST_ASSERT_EQUAL(
         DW3000_ERROR_OK,
         dw3000_hal_tx_validate_frame(&device, &frame)

@@ -1,5 +1,3 @@
-#include <stdint.h>
-
 #include "dw3000_device.h"
 #include "dw3000_error.h"
 #include "dw3000_hal/calib.h"
@@ -12,8 +10,8 @@
 #include "unity.h"
 
 static void test_calib_validation_and_rx_cal_result_helpers(void) {
-    dw3000_device_config_t        device_config;
-    dw3000_calib_rx_cal_result_t  result = {
+    dw3000_device_config_t       device_config;
+    dw3000_calib_rx_cal_result_t result = {
         .i = 1U,
         .q = 2U,
     };
@@ -31,9 +29,7 @@ static void test_calib_validation_and_rx_cal_result_helpers(void) {
         dw3000_hal_calib_validate_config(&device_config.calib)
     );
 
-    device_config.calib.xtal_trim = (dw3000_calib_xtal_trim_t)(
-        DW3000_CALIB_XTAL_TRIM_MASK + 1U
-    );
+    device_config.calib.xtal_trim = (dw3000_calib_xtal_trim_t)(DW3000_CALIB_XTAL_TRIM_MASK + 1U);
     TEST_ASSERT_EQUAL(
         DW3000_ERROR_INVALID_ARG,
         dw3000_hal_calib_validate_config(&device_config.calib)
@@ -62,10 +58,8 @@ static void test_calib_validation_and_rx_cal_result_helpers(void) {
 
 static void test_tx_cal_validation_rejects_invalid_pgc_fields(void) {
     dw3000_tx_cal_config_t config = {
-        .pgc_ctrl  = (dw3000_tx_cal_pgc_ctrl_t)(
-            DW3000_TX_CAL_PGC_START |
-            DW3000_TX_CAL_PGC_AUTOCAL_EN
-        ),
+        .pgc_ctrl  = (dw3000_tx_cal_pgc_ctrl_t)(DW3000_TX_CAL_PGC_START |
+                                               DW3000_TX_CAL_PGC_AUTOCAL_EN),
         .pg_target = DW3000_TX_CAL_PG_TARGET_MASK,
     };
 

@@ -44,24 +44,20 @@ static void test_mac_config_validation_rejects_invalid_flags(void) {
         dw3000_hal_mac_validate_config(&config.mac)
     );
 
-    config.mac.ff_flags = (dw3000_mac_ff_flags_t)(
-        DW3000_MAC_FF_ALLOW_DATA |
-        DW3000_MAC_FF_ALLOW_ACK |
-        DW3000_MAC_FF_IMPLICIT_BROADCAST |
-        DW3000_MAC_FF_SHORT_SRC_PEND_ACK |
-        DW3000_MAC_FF_LONG_SRC_PEND_ACK
-    );
+    config.mac.ff_flags      = (dw3000_mac_ff_flags_t)(DW3000_MAC_FF_ALLOW_DATA |
+                                                  DW3000_MAC_FF_ALLOW_ACK |
+                                                  DW3000_MAC_FF_IMPLICIT_BROADCAST |
+                                                  DW3000_MAC_FF_SHORT_SRC_PEND_ACK |
+                                                  DW3000_MAC_FF_LONG_SRC_PEND_ACK);
     config.mac.sys_cfg_flags = DW3000_MAC_SYS_CFG_FF_ENABLE;
     TEST_ASSERT_EQUAL(
         DW3000_ERROR_OK,
         dw3000_hal_mac_validate_config(&config.mac)
     );
 
-    config.mac.sys_cfg_flags = (dw3000_mac_sys_cfg_flags_t)(
-        DW3000_MAC_SYS_CFG_FF_ENABLE |
-        DW3000_MAC_SYS_CFG_AUTO_ACK |
-        DW3000_MAC_SYS_CFG_FAST_AAT
-    );
+    config.mac.sys_cfg_flags = (dw3000_mac_sys_cfg_flags_t)(DW3000_MAC_SYS_CFG_FF_ENABLE |
+                                                            DW3000_MAC_SYS_CFG_AUTO_ACK |
+                                                            DW3000_MAC_SYS_CFG_FAST_AAT);
     TEST_ASSERT_EQUAL(
         DW3000_ERROR_OK,
         dw3000_hal_mac_validate_config(&config.mac)

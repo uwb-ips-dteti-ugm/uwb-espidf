@@ -4,7 +4,6 @@
 #include "dw3000_device.h"
 #include "dw3000_error.h"
 #include "dw3000_hal/rf.h"
-#include "dw3000_types/device.h"
 #include "dw3000_types/phy.h"
 #include "dw3000_types/rf.h"
 #include "unity.h"
@@ -51,7 +50,7 @@ static void test_rf_channel_helpers_map_supported_channels(void) {
 }
 
 static void test_rf_validation_paths_fail_before_register_transport(void) {
-    dw3000_device_t       busy_device = {
+    dw3000_device_t busy_device = {
         .state_flags = DW3000_DEVICE_STATE_RX_ON,
     };
     uint32_t              rf_enable;
