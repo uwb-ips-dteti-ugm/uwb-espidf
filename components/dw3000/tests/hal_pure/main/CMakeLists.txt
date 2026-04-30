@@ -3,6 +3,7 @@ idf_component_register(
         "test_aes.c"
         "test_aon_otp.c"
         "test_calib_sync.c"
+        "test_cia_acc.c"
         "test_core.c"
         "test_fcmd.c"
         "test_gpio.c"

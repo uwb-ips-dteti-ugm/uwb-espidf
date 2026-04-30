@@ -17,11 +17,12 @@ PHY helper functions, STS SYS_CFG validation and timestamp-quality helpers,
 GPIO mask/mode/IRQ configuration validation, plus FCMD/TX/RX command
 classification, TX frame validation, RX event masks, and AES validation
 helpers, MAC validation helpers, PMSC/PLL validation helpers, and AON/OTP
-helpers, plus core defaults and device-ID support. The expected Unity output
-contains twenty-three passing tests:
+helpers, plus core defaults and device-ID support, calibration/sync helpers,
+and CIA/ACC helper validation. The expected Unity output contains twenty-six
+passing tests:
 
 ```text
-23 Tests 0 Failures 0 Ignored
+26 Tests 0 Failures 0 Ignored
 OK
 ```
 
