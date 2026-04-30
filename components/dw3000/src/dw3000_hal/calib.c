@@ -38,9 +38,14 @@
     ((dw3000_rf_ldo_ctrl_t)(DW3000_RF_LDO_VDDIF2 | \
                             DW3000_RF_LDO_VDDMS3 | \
                             DW3000_RF_LDO_VDDMS1))
+#define DW3000_HAL_REG_RX_CAL_BYTE_0 \
+    DW3000_REG_DESC(DW3000_REG_FILE_EXT_SYNC, 0x000CU, 1U)
 #define DW3000_HAL_REG_RX_CAL_BYTE_2 \
     DW3000_REG_DESC(DW3000_REG_FILE_EXT_SYNC, 0x000EU, 1U)
 #define DW3000_HAL_CALIB_RX_CAL_READ_EN 0x01U
+#define DW3000_HAL_CALIB_RX_CAL_READ_VALUE \
+    ((uint8_t)(DW3000_CALIB_RX_CAL_COMP_DLY_OPT | \
+               DW3000_HAL_CALIB_RX_CAL_READ_EN))
 
 static bool dw3000_hal_calib_is_idle(const dw3000_device_t* device) {
     return (device->state_flags & (DW3000_DEVICE_STATE_RX_ON |
@@ -651,6 +656,7 @@ dw3000_error_t dw3000_hal_calib_run_rx_calibration(
     dw3000_error_t     cleanup_err = DW3000_ERROR_OK;
     dw3000_rf_ldo_ctrl_t saved_ldo_ctrl;
     dw3000_rf_ldo_ctrl_t cal_ldo_ctrl;
+    uint8_t             rx_cal_start;
 
     if ((device == NULL) || (result == NULL)) {
         return DW3000_ERROR_INVALID_ARG;
@@ -683,15 +689,26 @@ dw3000_error_t dw3000_hal_calib_run_rx_calibration(
         DW3000_REG_RX_CAL,
         dw3000_hal_calib_rx_cal_value(
             DW3000_CALIB_RX_CAL_MODE_CALIBRATION,
-            DW3000_CALIB_RX_CAL_EN,
+            (dw3000_calib_rx_cal_flags_t)0U,
             DW3000_CALIB_RX_CAL_COMP_DLY_OPT
         )
     );
+    rx_cal_start = (uint8_t)(
+        (uint8_t)DW3000_CALIB_RX_CAL_MODE_CALIBRATION |
+        (uint8_t)DW3000_CALIB_RX_CAL_EN
+    );
+    if (err == DW3000_ERROR_OK) {
+        err = dw3000_reg_write_u8(
+            device,
+            DW3000_HAL_REG_RX_CAL_BYTE_0,
+            rx_cal_start
+        );
+    }
     if (err == DW3000_ERROR_OK) {
         err = dw3000_hal_calib_wait_rx_cal_done(device, timeout_us);
     }
     if (err == DW3000_ERROR_OK) {
-        err = dw3000_reg_write_u32(device, DW3000_REG_RX_CAL, 0U);
+        err = dw3000_reg_write_u8(device, DW3000_HAL_REG_RX_CAL_BYTE_0, 0U);
     }
     if (err == DW3000_ERROR_OK) {
         err = dw3000_reg_write_u8(
@@ -704,7 +721,7 @@ dw3000_error_t dw3000_hal_calib_run_rx_calibration(
         err = dw3000_reg_write_u8(
             device,
             DW3000_HAL_REG_RX_CAL_BYTE_2,
-            DW3000_HAL_CALIB_RX_CAL_READ_EN
+            DW3000_HAL_CALIB_RX_CAL_READ_VALUE
         );
     }
     if (err == DW3000_ERROR_OK) {
@@ -716,7 +733,7 @@ dw3000_error_t dw3000_hal_calib_run_rx_calibration(
     }
 
 cleanup:
-    cleanup_err = dw3000_reg_write_u32(device, DW3000_REG_RX_CAL, 0U);
+    cleanup_err = dw3000_reg_write_u8(device, DW3000_HAL_REG_RX_CAL_BYTE_0, 0U);
     {
         dw3000_error_t clear_err = dw3000_reg_write_u8(
             device,

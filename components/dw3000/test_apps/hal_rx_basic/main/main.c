@@ -520,17 +520,29 @@ static void dw3000_hal_rx_basic_apply_radio_profile(
 }
 
 static bool dw3000_hal_rx_basic_run_rx_calibration(dw3000_device_t* device) {
-    dw3000_calib_rx_cal_result_t result;
+    dw3000_error_t err;
+    dw3000_calib_rx_cal_result_t result = {
+        .i = DW3000_CALIB_RX_CAL_RESULT_FAIL,
+        .q = DW3000_CALIB_RX_CAL_RESULT_FAIL,
+    };
 
     if (!DW3000_HAL_RX_BASIC_RUN_RX_CALIBRATION) {
         return true;
     }
 
-    if (!DW3000_HAL_RX_BASIC_CHECK_DW3000(dw3000_hal_calib_run_rx_calibration(
-            device,
-            DW3000_HAL_RX_BASIC_RX_CAL_TIMEOUT_US,
-            &result
-        ))) {
+    err = dw3000_hal_calib_run_rx_calibration(
+        device,
+        DW3000_HAL_RX_BASIC_RX_CAL_TIMEOUT_US,
+        &result
+    );
+    if (err != DW3000_ERROR_OK) {
+        ESP_LOGE(
+            TAG,
+            "RX_CAL failed: %s resi=0x%08" PRIX32 " resq=0x%08" PRIX32,
+            dw3000_error_to_string(err),
+            result.i,
+            result.q
+        );
         return false;
     }
 

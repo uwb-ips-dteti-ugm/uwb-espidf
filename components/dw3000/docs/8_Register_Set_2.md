@@ -209,6 +209,11 @@ Register file 0x04 controls the DW3000 synchronisation hardware and RX calibrati
 | [19:16] | COMP_DLY | RX calibration tuning value. Set to `0x2` for optimal performance. Other values must not be used.                                      |
 | —       | —        | Other bits are reserved.                                                                                                               |
 
+For PGF/RX calibration, write `COMP_DLY=0x2` and `CAL_MODE=1`, set
+`CAL_EN` with a byte write, then after completion clear byte 0, clear
+`RX_CAL_STS`, and set RX_CAL byte 2 to `0x03` before reading
+`RX_CAL_RESI`/`RX_CAL_RESQ`.
+
 ---
 
 #### 8.2.5.3 RX_CAL_RESI — RX Calibration Result I
@@ -810,6 +815,22 @@ Configures the transmitter test modes (Continuous Wave).
 | Access    | RW        |
 
 32-bit configuration register. Used to enable LDO blocks when exercising certain test modes (e.g. Continuous Wave). See DW3000 APIs for details.
+
+Known sparse enable/reference bits:
+
+| Bit | Field          |
+| --- | -------------- |
+| 0   | VDDMS1_EN      |
+| 1   | VDDMS2_EN      |
+| 2   | VDDMS3_EN      |
+| 4   | VDDPLL_EN      |
+| 5   | VDDTX1_EN      |
+| 6   | VDDTX2_EN      |
+| 8   | VDDIF2_EN      |
+| 11  | VDDHVTX_EN     |
+| 21  | VDDTX1_VREF    |
+| 22  | VDDTX2_VREF    |
+| 27  | VDDHVTX_VREF   |
 
 ---
 

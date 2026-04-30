@@ -7,7 +7,18 @@
 
 #define DW3000_HAL_RF_TX_TEST_MASK  0x0FU
 #define DW3000_HAL_RF_SAR_TEST_MASK ((uint8_t)DW3000_RF_SAR_TEST_RDEN)
-#define DW3000_HAL_RF_LDO_CTRL_MASK 0x000003FFUL
+#define DW3000_HAL_RF_LDO_CTRL_MASK \
+    ((uint32_t)(DW3000_RF_LDO_VDDMS1 | \
+                DW3000_RF_LDO_VDDMS2 | \
+                DW3000_RF_LDO_VDDMS3 | \
+                DW3000_RF_LDO_VDDPLL | \
+                DW3000_RF_LDO_VDDTX1 | \
+                DW3000_RF_LDO_VDDTX2 | \
+                DW3000_RF_LDO_VDDIF2 | \
+                DW3000_RF_LDO_VDDHVTX | \
+                DW3000_RF_LDO_VDDTX1_VREF | \
+                DW3000_RF_LDO_VDDTX2_VREF | \
+                DW3000_RF_LDO_VDDHVTX_VREF))
 
 static bool dw3000_hal_rf_is_idle(const dw3000_device_t* device) {
     return (device->state_flags & (DW3000_DEVICE_STATE_RX_ON |

@@ -63,19 +63,20 @@ typedef struct {
     uint8_t bytes[8];
 } dw3000_rf_ldo_tune_t;
 
-/* LDO_CTRL (0x07:48) — per-LDO enable bitmap. Each bit gates one
-   on-chip regulator; normally driven by the PMSC sequencer. */
+/* LDO_CTRL (0x07:48) — sparse per-LDO enable/reference bitmap. Each
+   bit gates one on-chip regulator; normally driven by the PMSC sequencer. */
 typedef enum {
-    DW3000_RF_LDO_VDDIF1  = 1U << 0,
-    DW3000_RF_LDO_VDDMS1  = 1U << 1,
-    DW3000_RF_LDO_VDDMS2  = 1U << 2,
-    DW3000_RF_LDO_VDDMS3  = 1U << 3,
-    DW3000_RF_LDO_VDDIF2  = 1U << 4,
-    DW3000_RF_LDO_VDDPLL  = 1U << 5,
-    DW3000_RF_LDO_VDDLNA  = 1U << 6,
-    DW3000_RF_LDO_VDDPDIF = 1U << 7,
-    DW3000_RF_LDO_VDDPDIM = 1U << 8,
-    DW3000_RF_LDO_VDDLNA2 = 1U << 9,
+    DW3000_RF_LDO_VDDMS1       = 1UL << 0,
+    DW3000_RF_LDO_VDDMS2       = 1UL << 1,
+    DW3000_RF_LDO_VDDMS3       = 1UL << 2,
+    DW3000_RF_LDO_VDDPLL       = 1UL << 4,
+    DW3000_RF_LDO_VDDTX1       = 1UL << 5,
+    DW3000_RF_LDO_VDDTX2       = 1UL << 6,
+    DW3000_RF_LDO_VDDIF2       = 1UL << 8,
+    DW3000_RF_LDO_VDDHVTX      = 1UL << 11,
+    DW3000_RF_LDO_VDDTX1_VREF  = 1UL << 21,
+    DW3000_RF_LDO_VDDTX2_VREF  = 1UL << 22,
+    DW3000_RF_LDO_VDDHVTX_VREF = 1UL << 27,
 } dw3000_rf_ldo_ctrl_t;
 
 /* LDO_RLOAD (0x07:51) — LDO load-resistance trim, sourced from OTP. */
