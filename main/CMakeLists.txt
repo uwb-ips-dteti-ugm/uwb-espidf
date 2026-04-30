@@ -8,4 +8,5 @@ idf_component_register(
     PRIV_REQUIRES 
         spi_flash
         dw3000
+        unity
 )
