@@ -1,6 +1,7 @@
 idf_component_register(
     SRCS
         "test_phy.c"
+        "test_sts.c"
     INCLUDE_DIRS
         "."
     REQUIRES

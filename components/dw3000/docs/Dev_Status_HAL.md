@@ -40,7 +40,7 @@ The higher-level convenience API is tracked separately in `Dev_Status_API.md`.
 | `hal_rx_basic`              | Hardware pass       | MakerFabs-compatible radio profile, RX_CAL, RX arm, RXFCG/error polling, RX_FINFO, RX buffer read, RX timestamp, local/MakerFabs frame validation, 6 MHz SPI, and configurable external PA/LNA control. |
 | `hal_tx_basic`              | Hardware pass       | MakerFabs-compatible radio profile/TX power, TX buffer/frame control, immediate TX start, TXFRS polling, TX timestamp, repeated known-frame transmission, 6 MHz SPI, and configurable external PA/LNA control. |
 | `hal_acc_cir_basic`         | Hardware pass       | RX frame proof plus CIADONE validation, CIA IP diagnostics, and Ipatov CIR window read/summary from ACC_MEM. |
-| `tests/hal_pure`            | Build pass          | ESP-IDF Unity app for hardware-free HAL helper tests; first case validates PHY SFD timeout math and config rejection. |
+| `tests/hal_pure`            | Build pass          | ESP-IDF Unity app for hardware-free HAL helper tests; validates PHY SFD timeout math plus STS SYS_CFG and timestamp quality helpers. |
 
 ## Remaining
 

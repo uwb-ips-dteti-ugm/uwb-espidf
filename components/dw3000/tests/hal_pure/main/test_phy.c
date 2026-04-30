@@ -7,6 +7,8 @@
 #include "dw3000_types/phy.h"
 #include "unity.h"
 
+void dw3000_hal_pure_run_sts_tests(void);
+
 static void test_phy_sfd_timeout_formula_and_validation(void) {
     dw3000_device_config_t config;
 
@@ -50,5 +52,6 @@ static void test_phy_sfd_timeout_formula_and_validation(void) {
 void app_main(void) {
     UNITY_BEGIN();
     RUN_TEST(test_phy_sfd_timeout_formula_and_validation);
+    dw3000_hal_pure_run_sts_tests();
     (void)UNITY_END();
 }

@@ -12,11 +12,12 @@ idf.py set-target esp32
 idf.py build flash monitor
 ```
 
-The current example validates `dw3000_hal_phy_sfd_timeout()` and the related
-PHY helper functions. The expected Unity output contains one passing test:
+The current examples validate `dw3000_hal_phy_sfd_timeout()` and the related
+PHY helper functions, plus STS SYS_CFG validation and STS timestamp-quality
+helpers. The expected Unity output contains two passing tests:
 
 ```text
-1 Tests 0 Failures 0 Ignored
+2 Tests 0 Failures 0 Ignored
 OK
 ```
 
