@@ -68,6 +68,7 @@ static bool send_poll(
         .fine_plen   = 0U,
     };
     dw3000_txrx_event_t events = 0U;
+    dw3000_txrx_delayed_time_t poll_tx_rawst = 0U;
 
     if (!DW3000_SS_TWR_CHECK_DW3000(TAG, dw3000_hal_fcmd_txrxoff(&app->device))) {
         return false;
@@ -98,19 +99,24 @@ static bool send_poll(
         return false;
     }
 
-    if (!DW3000_SS_TWR_CHECK_DW3000(TAG, dw3000_hal_tx_read_timestamp(
+    if (!DW3000_SS_TWR_CHECK_DW3000(TAG, dw3000_hal_tx_read_raw_timestamp(
             &app->device,
-            poll_tx_ts
+            &poll_tx_rawst
         ))) {
         return false;
     }
+    *poll_tx_ts = dw3000_ss_twr_tx_timestamp_from_delayed_time(
+        poll_tx_rawst,
+        DW3000_HAL_SS_TWR_INITIATOR_TX_ANTENNA_DELAY
+    );
 
     ESP_LOGI(
         TAG,
-        "poll tx seq=%u len=%u tx_ts=0x%010" PRIX64
+        "poll tx seq=%u len=%u tx_rawst=0x%08" PRIX32 " tx_ts=0x%010" PRIX64
         " SYS_STATUS=0x%012" PRIX64,
         (unsigned)seq,
         (unsigned)frame_len,
+        poll_tx_rawst,
         (uint64_t)*poll_tx_ts,
         (uint64_t)events
     );
@@ -198,6 +204,7 @@ static bool receive_response(
     if ((distance_cm < -DW3000_HAL_SS_TWR_INITIATOR_MAX_ABS_DISTANCE_CM) ||
         (distance_cm > DW3000_HAL_SS_TWR_INITIATOR_MAX_ABS_DISTANCE_CM)) {
         ESP_LOGW(TAG, "distance estimate outside smoke-test bound");
+        ESP_LOG_BUFFER_HEX(TAG, frame, frame_len);
     }
 
     return true;

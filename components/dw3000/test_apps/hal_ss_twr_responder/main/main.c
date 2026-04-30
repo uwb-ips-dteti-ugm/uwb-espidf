@@ -100,12 +100,27 @@ static bool read_poll(
         return false;
     }
 
-    if (!dw3000_ss_twr_parse_frame(frame, frame_len, info) ||
-        (info->type != DW3000_SS_TWR_MSG_POLL) ||
+    if (!dw3000_ss_twr_parse_frame(frame, frame_len, info)) {
+        ESP_LOGW(TAG, "unparseable poll frame len=%u", (unsigned)frame_len);
+        ESP_LOG_BUFFER_HEX(TAG, frame, frame_len);
+        return false;
+    }
+
+    if ((info->type != DW3000_SS_TWR_MSG_POLL) ||
         (info->pan_id != DW3000_HAL_SS_TWR_RESPONDER_PAN_ID) ||
         (info->dst_addr != DW3000_HAL_SS_TWR_RESPONDER_SHORT_ADDR) ||
         (info->src_addr != DW3000_HAL_SS_TWR_RESPONDER_INITIATOR_ADDR)) {
-        ESP_LOGW(TAG, "unexpected poll frame len=%u", (unsigned)frame_len);
+        ESP_LOGW(
+            TAG,
+            "unexpected poll frame len=%u seq=%u type=0x%02X pan=0x%04X dst=0x%04X src=0x%04X",
+            (unsigned)frame_len,
+            (unsigned)info->seq,
+            (unsigned)info->type,
+            (unsigned)info->pan_id,
+            (unsigned)info->dst_addr,
+            (unsigned)info->src_addr
+        );
+        ESP_LOG_BUFFER_HEX(TAG, frame, frame_len);
         return false;
     }
 

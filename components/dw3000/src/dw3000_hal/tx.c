@@ -20,6 +20,8 @@
 #define DW3000_HAL_TX_OFFSET_ERRATA_LIMIT   127U
 #define DW3000_HAL_TX_OFFSET_ERRATA_ADJUST  128U
 #define DW3000_HAL_TX_OFFSET_FIELD_MASK     0x03FFU
+#define DW3000_HAL_TX_STAMP_OFFSET          0x0074U
+#define DW3000_HAL_TX_STAMP_LEN             5U
 
 static bool dw3000_hal_tx_is_idle(const dw3000_device_t* device) {
     return (device->state_flags & (DW3000_DEVICE_STATE_RX_ON |
@@ -96,6 +98,14 @@ static dw3000_error_t dw3000_hal_tx_apply_offset_errata(
     }
 
     return dw3000_reg_read_u8(device, DW3000_REG_SAR_CTRL, &dummy);
+}
+
+static dw3000_reg_desc_t dw3000_hal_tx_stamp_byte_reg(size_t index) {
+    return DW3000_REG_DESC(
+        DW3000_REG_FILE_GENERAL_CFG_0,
+        (uint16_t)(DW3000_HAL_TX_STAMP_OFFSET + index),
+        1U
+    );
 }
 
 dw3000_error_t dw3000_hal_tx_validate_frame(
@@ -275,15 +285,17 @@ dw3000_error_t dw3000_hal_tx_read_timestamp(
     dw3000_txrx_timestamp_t* timestamp
 ) {
     dw3000_error_t err;
-    uint8_t        raw[5];
+    uint8_t        raw[DW3000_HAL_TX_STAMP_LEN];
 
     if ((device == NULL) || (timestamp == NULL)) {
         return DW3000_ERROR_INVALID_ARG;
     }
 
-    err = dw3000_reg_read(device, DW3000_REG_TX_TIME, raw, sizeof(raw));
-    if (err != DW3000_ERROR_OK) {
-        return err;
+    for (size_t i = 0U; i < sizeof(raw); ++i) {
+        err = dw3000_reg_read_u8(device, dw3000_hal_tx_stamp_byte_reg(i), &raw[i]);
+        if (err != DW3000_ERROR_OK) {
+            return err;
+        }
     }
 
     *timestamp = (dw3000_txrx_timestamp_t)raw[0] |
