@@ -1,5 +1,3 @@
-#include <stdint.h>
-
 #include "dw3000_device.h"
 #include "dw3000_error.h"
 #include "dw3000_hal/core.h"
