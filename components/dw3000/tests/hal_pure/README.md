@@ -15,11 +15,11 @@ idf.py build flash monitor
 The current examples validate `dw3000_hal_phy_sfd_timeout()` and the related
 PHY helper functions, STS SYS_CFG validation and timestamp-quality helpers,
 GPIO mask/mode/IRQ configuration validation, plus FCMD/TX/RX command
-classification, TX frame validation, and RX event masks. The expected Unity
-output contains six passing tests:
+classification, TX frame validation, RX event masks, and AES validation
+helpers. The expected Unity output contains ten passing tests:
 
 ```text
-6 Tests 0 Failures 0 Ignored
+10 Tests 0 Failures 0 Ignored
 OK
 ```
 

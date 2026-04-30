@@ -9,6 +9,7 @@ void dw3000_hal_pure_run_sts_tests(void);
 void dw3000_hal_pure_run_gpio_tests(void);
 void dw3000_hal_pure_run_fcmd_tests(void);
 void dw3000_hal_pure_run_txrx_tests(void);
+void dw3000_hal_pure_run_aes_tests(void);
 
 static void test_phy_sfd_timeout_formula_and_validation(void) {
     dw3000_device_config_t config;
@@ -49,5 +50,6 @@ void app_main(void) {
     dw3000_hal_pure_run_gpio_tests();
     dw3000_hal_pure_run_fcmd_tests();
     dw3000_hal_pure_run_txrx_tests();
+    dw3000_hal_pure_run_aes_tests();
     (void)UNITY_END();
 }
