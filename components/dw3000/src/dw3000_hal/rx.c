@@ -35,10 +35,8 @@
 #define DW3000_HAL_RX_SNIFF_MIN_ON     2U
 #define DW3000_HAL_RX_SNIFF_MIN_OFF_US 5U
 
-#define DW3000_HAL_REG_RX_STAMP_LO \
-    DW3000_REG_DESC(DW3000_REG_FILE_GENERAL_CFG_0, 0x0064U, 4U)
-#define DW3000_HAL_REG_RX_STAMP_HI \
-    DW3000_REG_DESC(DW3000_REG_FILE_GENERAL_CFG_0, 0x0068U, 1U)
+#define DW3000_HAL_RX_STAMP_OFFSET 0x0064U
+#define DW3000_HAL_RX_STAMP_LEN    5U
 #define DW3000_HAL_REG_RX_RAWST \
     DW3000_REG_DESC(DW3000_REG_FILE_GENERAL_CFG_0, 0x0070U, 4U)
 
@@ -117,6 +115,14 @@ static dw3000_error_t dw3000_hal_rx_decode_finfo(
 
 static dw3000_reg_desc_t dw3000_hal_rx_buffer_reg(uint8_t buffer_index) {
     return (buffer_index == 0U) ? DW3000_REG_RX_BUFFER_0 : DW3000_REG_RX_BUFFER_1;
+}
+
+static dw3000_reg_desc_t dw3000_hal_rx_stamp_byte_reg(size_t index) {
+    return DW3000_REG_DESC(
+        DW3000_REG_FILE_GENERAL_CFG_0,
+        (uint16_t)(DW3000_HAL_RX_STAMP_OFFSET + index),
+        1U
+    );
 }
 
 static bool dw3000_hal_rx_is_valid_rdb_mode(dw3000_txrx_rdb_dmode_t mode) {
@@ -326,25 +332,24 @@ dw3000_error_t dw3000_hal_rx_read_timestamp(
     dw3000_txrx_timestamp_t* timestamp
 ) {
     dw3000_error_t err;
-    uint32_t       low;
-    uint8_t        high;
+    uint8_t        raw[DW3000_HAL_RX_STAMP_LEN];
 
     if ((device == NULL) || (timestamp == NULL)) {
         return DW3000_ERROR_INVALID_ARG;
     }
 
-    err = dw3000_reg_read_u32(device, DW3000_HAL_REG_RX_STAMP_LO, &low);
-    if (err != DW3000_ERROR_OK) {
-        return err;
+    for (size_t i = 0U; i < sizeof(raw); ++i) {
+        err = dw3000_reg_read_u8(device, dw3000_hal_rx_stamp_byte_reg(i), &raw[i]);
+        if (err != DW3000_ERROR_OK) {
+            return err;
+        }
     }
 
-    err = dw3000_reg_read_u8(device, DW3000_HAL_REG_RX_STAMP_HI, &high);
-    if (err != DW3000_ERROR_OK) {
-        return err;
-    }
-
-    *timestamp = (dw3000_txrx_timestamp_t)low |
-                 ((dw3000_txrx_timestamp_t)high << 32U);
+    *timestamp = (dw3000_txrx_timestamp_t)raw[0] |
+                 ((dw3000_txrx_timestamp_t)raw[1] << 8U) |
+                 ((dw3000_txrx_timestamp_t)raw[2] << 16U) |
+                 ((dw3000_txrx_timestamp_t)raw[3] << 24U) |
+                 ((dw3000_txrx_timestamp_t)raw[4] << 32U);
 
     return DW3000_ERROR_OK;
 }

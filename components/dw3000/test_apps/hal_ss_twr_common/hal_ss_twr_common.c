@@ -62,22 +62,22 @@ static uint16_t read_u16_le(const uint8_t* src) {
     return (uint16_t)src[0] | ((uint16_t)src[1] << 8U);
 }
 
-static void write_ts40_le(uint8_t* dst, dw3000_txrx_timestamp_t value) {
-    value &= DW3000_SS_TWR_TIMESTAMP_MASK;
+static void write_ts32_le(uint8_t* dst, dw3000_txrx_timestamp_t value) {
+    value &= DW3000_SS_TWR_EXCHANGE_TIME_MASK;
 
     for (size_t i = 0U; i < DW3000_SS_TWR_TIMESTAMP_LEN; ++i) {
         dst[i] = (uint8_t)((value >> (8U * i)) & 0xFFU);
     }
 }
 
-static dw3000_txrx_timestamp_t read_ts40_le(const uint8_t* src) {
+static dw3000_txrx_timestamp_t read_ts32_le(const uint8_t* src) {
     dw3000_txrx_timestamp_t value = 0U;
 
     for (size_t i = 0U; i < DW3000_SS_TWR_TIMESTAMP_LEN; ++i) {
         value |= (dw3000_txrx_timestamp_t)src[i] << (8U * i);
     }
 
-    return value & DW3000_SS_TWR_TIMESTAMP_MASK;
+    return value & DW3000_SS_TWR_EXCHANGE_TIME_MASK;
 }
 
 static size_t build_header(
@@ -740,9 +740,9 @@ size_t dw3000_ss_twr_build_response_frame(
         frame
     );
 
-    write_ts40_le(&frame[offset], poll_rx_ts);
+    write_ts32_le(&frame[offset], poll_rx_ts);
     offset += DW3000_SS_TWR_TIMESTAMP_LEN;
-    write_ts40_le(&frame[offset], resp_tx_ts);
+    write_ts32_le(&frame[offset], resp_tx_ts);
     offset += DW3000_SS_TWR_TIMESTAMP_LEN;
 
     return offset;
@@ -796,9 +796,9 @@ bool dw3000_ss_twr_parse_frame(
         return false;
     }
 
-    info->poll_rx_ts = read_ts40_le(&frame[offset]);
+    info->poll_rx_ts = read_ts32_le(&frame[offset]);
     offset += DW3000_SS_TWR_TIMESTAMP_LEN;
-    info->resp_tx_ts = read_ts40_le(&frame[offset]);
+    info->resp_tx_ts = read_ts32_le(&frame[offset]);
     return true;
 }
 
@@ -833,7 +833,7 @@ uint64_t dw3000_ss_twr_timestamp_diff(
     dw3000_txrx_timestamp_t end,
     dw3000_txrx_timestamp_t start
 ) {
-    return (end - start) & DW3000_SS_TWR_TIMESTAMP_MASK;
+    return (end - start) & DW3000_SS_TWR_EXCHANGE_TIME_MASK;
 }
 
 int64_t dw3000_ss_twr_tof_dtu(
